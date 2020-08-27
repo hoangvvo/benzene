@@ -52,6 +52,7 @@ See [Using Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Wor
 
 | options | description | default |
 |---------|-------------|---------|
+| path | Specify a path for the GraphQL endpoint. If supplied `@benzene/worker` will ignore requests to different pathname. If not, **`@benzene/worker`** will intercept all requests (which is **not** desired) | `undefined` |
 | context | An object or function called to creates a context shared across resolvers per request. The function accepts [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) as the only argument. | `{}` |
 
 It returns a promise that resolves with [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) to be used in `event.respondWith`.
