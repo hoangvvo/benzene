@@ -2,7 +2,7 @@
 
 `@benzene/core` is the dependency used by all `benzene` packages. This gets installed along with other `benzene` packages as a dependency so it's unlikely that you have to manually install this.
 
-The main export is `GraphQL`, which can be used to create a Benzene "`GraphQL`" instance. This is re-exported from each binding package and can be shared across them. 
+The main export is `GraphQL`, which can be used to create a Benzene "GraphQL" instance. This is re-exported from each binding package and can be shared across them. 
 
 ```js
 const { GraphQL } = require('@benzene/server');
@@ -15,7 +15,7 @@ const { GraphQL } = require('@benzene/worker');
 const GQL = new GraphQL(options);
 ```
 
-Despite the name, it is **not related** to anything in the official [graphql-js](https://github.com/graphql/graphql-js).
+!> Despite the name, `GraphQL` from `@benzene/core` is **not related** to anything in the official [graphql-js](https://github.com/graphql/graphql-js).
 
 ## GraphQL
 

@@ -1,6 +1,15 @@
 # HTTP Framework Integration
 
-You can use `gqlHandle` in other compatible frameworks (those that accepts the `(req, res) => void` function)
+You can use `gqlHandle` in other compatible frameworks (those that accepts the `(req, res) => void` function).
+
+Starting with this:
+
+```js
+const { GraphQL, httpHandler } = require('@benzene/server');
+
+const GQL = new GraphQL({ schema });
+const gqlHandle = httpHandler(GQL, options);
+```
 
 ## [Express](https://github.com/expressjs/express)
 

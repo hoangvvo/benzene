@@ -14,6 +14,8 @@ const GQL = new GraphQL({ schema });
 
 const gqlHandle = httpHandler(GQL, options);
 
+const server = http.createServer(gqlHandle);
+
 server.listen(3000, () => {
   console.log(`🚀  Server ready at :3000`);
 });

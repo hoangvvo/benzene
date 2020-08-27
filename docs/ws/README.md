@@ -26,11 +26,12 @@ Create a [WebSocket.Server](https://github.com/websockets/ws/blob/master/doc/ws.
 
 ```javascript
 const http = require('http');
+const WebSocket = require('ws');
 const { GraphQL, httpHandler } = require('@benzene/server');
 const { wsHandler } = require('@benzene/ws');
 
 // Create a GraphQL instance
-const GQL = new GraphQL(options);
+const GQL = new GraphQL({ schema });
 const server = http.createServer(httpHandler(GQL));
 
 // Create a WebSocket.Server from the `ws` package
@@ -51,6 +52,7 @@ server.listen(3000, () => {
 
 ```javascript
 const { GraphQL, wsHandler } = require('@benzene/ws');
+const WebSocket = require('ws');
 
 // Create a GraphQL instance
 const GQL = new GraphQL(options);
@@ -71,7 +73,7 @@ wss.on('connection', wsHandler(GQL, options));
 
 Create a handler for incoming WebSocket connection (from `wss.on('connection')`) and execute GraphQL based on [GraphQL over WebSocket Protocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md).
 
-`GQL` in an instance [Benzene GraphQL instance](../core/).
+`GQL` in an instance [Benzene GraphQL instance](/core/).
 
 `options` is optional and accepts the following:
 

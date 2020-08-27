@@ -1,6 +1,6 @@
 # Benzene Worker
 
-GraphQL execution layer in the browser and at the edge.
+GraphQL server right in the browser ([Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)) or at the edge ([Cloudflare Workers®](https://workers.cloudflare.com/)).
 
 ## Why GraphQL in the browser
 
@@ -27,7 +27,7 @@ This assumes basic understanding of service worker. If not, you can learn how to
 import { GraphQL, fetchHandler } from '@benzene/worker';
 
 // Creating a GraphQL instance
-const GQL = new GraphQL(options);
+const GQL = new GraphQL({ schema });
 
 const gqlHandle = fetchHandler(GQL, { path: '/graphql' })
 
@@ -38,15 +38,13 @@ Fetch requests to `/graphql` will now be intercepted by the registered worker.
 
 See [Using Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) for more info.
 
-**Note:** `@benzene/worker` can be large in size for use in browser. Consider lazy loading it and implement [Offline/Progressive Web Apps](https://web.dev/progressive-web-apps/).
+**Note:** While `@benzene/worker` is not so large in size ([~20kb Minified + Gzipped](http://bundlephobia.com/result?p=@benzene/worker)), it is recommended to lazy-load it and implement [Offline/Progressive Web Apps](https://web.dev/progressive-web-apps/).
 
 ## API
 
-### `handleRequest(GQL, request, options)`
+### `fetchHandler(GQL, options)`
 
-`GQL` is an instance of [`GraphQL`](../core/).
-
-`request` is [FetchEvent.request](https://developer.mozilla.org/en-US/docs/Web/API/FetchEvent/request)
+`GQL` is an instance of [`GraphQL`](/core/)
 
 `options` is optional and accepts the following:
 
@@ -57,7 +55,7 @@ See [Using Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Wor
 
 It returns a promise that resolves with [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) to be used in `event.respondWith`.
 
-## Building Context
+## Building Context :id=context
 
 `options.context` in `handleRequest` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it accepts a single argument that is [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request).
 
