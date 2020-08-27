@@ -23,3 +23,6 @@
     - [Standalone](ws/#use-standalone)
   - [API](ws/#api)
   - [Building Context](ws/#context)
+  - [Integration](ws/ws-integration)
+    - [Express.js](ws/ws-integration#express)
+    - [micro](ws/ws-integration#micro)
