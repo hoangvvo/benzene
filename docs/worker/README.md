@@ -4,10 +4,10 @@ GraphQL execution layer in the browser and at the edge.
 
 ## Why GraphQL in the browser
 
-Depending on the requirement, you can lighten the load of your server by moving GraphQL execution layer to the browsers' [Web Workers API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API).
-
-- Not only that you can query your backend, you can also query 3rd parties' APIs without making a redundant round to and from the backend.
+- You can query 3rd parties' APIs without making a redundant round to and from the backend.
 - It enables query deduplication so that you do not waste server resources for identical 3rd parties' requests, while improving speed/performance.
+
+In addition, you can (and more often) use `@benzene/worker` in [Cloudflare Workers®](https://workers.cloudflare.com/).
 
 ## Install
 
@@ -24,18 +24,14 @@ yarn add @benzene/worker graphql
 This assumes basic understanding of service worker. If not, you can learn how to register the service worker [here](https://developers.google.com/web/fundamentals/primers/service-workers/registration).
 
 ```javascript
-import { GraphQL, handleRequest } from '@benzene/worker';
+import { GraphQL, fetchHandler } from '@benzene/worker';
 
 // Creating a GraphQL instance
 const GQL = new GraphQL(options);
 
-addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-  if (url.pathname === '/graphql')
-    return event.respondWith(
-      handleRequest(GQL, event.request, handlerOptions)
-    );
-});
+const gqlHandle = fetchHandler(GQL, { path: '/graphql' })
+
+addEventListener('fetch', gqlHandle);
 ```
 
 Fetch requests to `/graphql` will now be intercepted by the registered worker.
@@ -65,7 +61,8 @@ It returns a promise that resolves with [`Response`](https://developer.mozilla.o
 `options.context` in `handleRequest` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it accepts a single argument that is [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request).
 
 ```js
-handleRequest(GQL, event.request, {
+const gqlHandle = fetchHandler(GQL, {
+  path: '/graphql',
   context: async (request) => {
     const token = request.header.get('Authorization');
     const user = await getUserFromToken(token);
@@ -76,3 +73,11 @@ handleRequest(GQL, event.request, {
 ```
 
 (The example above makes more sense in environments like [Cloudflare Workers®](https://workers.cloudflare.com/) since you cannot really look up user in the browser)
+
+## Questions
+
+### My web worker(s) already have a fetch event handler
+
+It is possible to have multiple fetch event handlers within a service worker. The second handler gets its chance to call `event.respondWith()` only if the previous did not. 
+
+If `path` does not match, `gqlHandle` will simply return. letting other fetch event handler to work. See this [demo](https://googlechrome.github.io/samples/service-worker/multiple-handlers/index.html) for demonstration.
