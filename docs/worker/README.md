@@ -79,6 +79,6 @@ const gqlHandle = fetchHandler(GQL, {
 
 ### My web worker(s) already have a fetch event handler
 
-It is possible to have multiple fetch event handlers within a service worker. The second handler gets its chance to call `event.respondWith()` only if the previous did not. 
+It is possible to have multiple fetch event handlers within a service worker. The second handler gets its chance to call `event.respondWith()` only if the previous one does not. 
 
-If `path` does not match, `gqlHandle` will simply return. letting other fetch event handler to work. See this [demo](https://googlechrome.github.io/samples/service-worker/multiple-handlers/index.html) for demonstration.
+If `path` does not match, `gqlHandle` will simply return, letting other fetch event handler to work. See this [demo](https://googlechrome.github.io/samples/service-worker/multiple-handlers/index.html) for demonstration.
