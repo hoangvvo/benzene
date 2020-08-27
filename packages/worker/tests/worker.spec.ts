@@ -182,16 +182,29 @@ describe('worker: fetchHandler', () => {
     });
   });
 
-  describe('do nothing if path does not match', () => {
+  describe('When options.path is set', () => {
     const gql = new GraphQL({ schema });
-    const fetchEvent: FetchEvent = {
-      // @ts-ignore
-      request: new fetch.Request('http://localhost:0/notAPI'),
-      respondWith: (maybeResponse) => {
-        throw new Error("DON'T CALL ME! WE ALREADY BROKE UP.");
-      },
-    };
-    fetchHandler(gql, { path: '/api' })(fetchEvent);
-    return;
+    it('ignore requests of different path', (done) => {
+      const badFetchEvent: FetchEvent = {
+        // @ts-ignore
+        request: new fetch.Request('http://localhost:0/notAPI'),
+        respondWith: (maybeResponse) => {
+          throw new Error("DON'T CALL ME! WE ALREADY BROKE UP.");
+        },
+      };
+      fetchHandler(gql, { path: '/api' })(badFetchEvent);
+      done();
+    });
+    it('response to requests to defined path', (done) => {
+      const correctFetchEvent: FetchEvent = {
+        // @ts-ignore
+        request: new fetch.Request('http://localhost:0/api'),
+        respondWith: async (maybeResponse) => {
+          done();
+          return maybeResponse;
+        },
+      };
+      fetchHandler(gql, { path: '/api' })(correctFetchEvent);
+    });
   });
 });
