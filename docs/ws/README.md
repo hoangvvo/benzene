@@ -1,4 +1,4 @@
-# Benzene WS
+# Benzene WebSocket
 
 WebSocket support implementing [GraphQL over WebSocket Protocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md).
 
@@ -22,7 +22,7 @@ yarn add ws
 
 Create a [WebSocket.Server](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocketserver) instance and uses `wsHandler` to handle its `connection` event.
 
-### With `@benzene/server`
+### With `@benzene/server` :id=use-with-server
 
 ```javascript
 const http = require('http');
@@ -46,7 +46,7 @@ server.listen(3000, () => {
 });
 ```
 
-### Without `@benzene/server`
+### Without `@benzene/server` :id=use-standalone
 
 `@benzene/ws` also exports `GraphQL` constructor if you did not start with `@benzene/server`.
 
@@ -57,7 +57,7 @@ const WebSocket = require('ws');
 // Create a GraphQL instance
 const GQL = new GraphQL(options);
 
-// Create a WebSocket.Server from the `ws` package (Use options.port to create a HTTP server internally)
+// Create a WebSocket.Server from the `ws` package (options.port creates a HTTP server internally)
 const wss = new WebSocket.Server({ path: '/graphql', port: 3000 }, () => {
   console.log(`🚀  WebSocket Server ready at ws://localhost:3000/graphql`);
 })
@@ -81,7 +81,7 @@ Create a handler for incoming WebSocket connection (from `wss.on('connection')`)
 |---------|-------------|---------|
 | context | An object or function called to creates a context shared across resolvers per connection. The function is called the arguments [socket](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket), [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage), and `connectionParams` | `{}` |
 
-## Building Context
+## Building Context :id=context
 
 `options.context` in `wsHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it is called with three arguements [socket](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket), [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage), and `connectionParams`.
 
