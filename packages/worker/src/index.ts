@@ -1,2 +1,2 @@
 export { GraphQL } from '@benzene/core';
-export { handleRequest } from './handler';
+export { createHandler as fetchHandler } from './handler';

@@ -2,7 +2,12 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import * as fetch from 'node-fetch';
 import { strict as assert } from 'assert';
 import { HttpQueryResponse } from '@benzene/core/src';
-import { GraphQL, handleRequest } from '../src';
+import { GraphQL, fetchHandler } from '../src';
+
+interface FetchEvent {
+  request: Request;
+  respondWith(response: Promise<Response> | Response): Promise<Response>;
+}
 
 const schema = makeExecutableSchema({
   typeDefs: `
@@ -29,22 +34,22 @@ async function testRequest(
 ) {
   const gql = new GraphQL({ schema });
   return new Promise((resolve, reject) => {
-    const fetchEvent = {
+    const fetchEvent: FetchEvent = {
+      // @ts-ignore
       request: new fetch.Request(
         input.startsWith('/') ? `http://localhost:0${input}` : input,
         init
       ),
-    };
-    // @ts-ignore
-    // Mock Web Request using node-fetch Request
-    handleRequest(gql, fetchEvent.request as Request, handlerOptions).then(
-      async (response) => {
+      respondWith: async (maybeResponse) => {
+        const response = await maybeResponse;
         if (expected.body)
           assert.strictEqual(expected.body, await response.text());
         assert.strictEqual(expected.status || 200, response.status);
         resolve();
-      }
-    );
+        return response;
+      },
+    };
+    fetchHandler(gql, handlerOptions)(fetchEvent);
   });
 }
 
@@ -55,7 +60,7 @@ before(() => {
   global.Response = fetch.Response;
 });
 
-describe('worker: handleRequest', () => {
+describe('worker: fetchHandler', () => {
   it('works with queryParams', async () => {
     await testRequest(
       '/graphql?query={ hello }',
@@ -174,6 +179,32 @@ describe('worker: handleRequest', () => {
         },
         { context: async () => ({ me: 'hoang' }) }
       );
+    });
+  });
+
+  describe('When options.path is set', () => {
+    const gql = new GraphQL({ schema });
+    it('ignore requests of different path', (done) => {
+      const badFetchEvent: FetchEvent = {
+        // @ts-ignore
+        request: new fetch.Request('http://localhost:0/notAPI'),
+        respondWith: (maybeResponse) => {
+          throw new Error("DON'T CALL ME! WE ALREADY BROKE UP.");
+        },
+      };
+      fetchHandler(gql, { path: '/api' })(badFetchEvent);
+      done();
+    });
+    it('response to requests to defined path', (done) => {
+      const correctFetchEvent: FetchEvent = {
+        // @ts-ignore
+        request: new fetch.Request('http://localhost:0/api'),
+        respondWith: async (maybeResponse) => {
+          done();
+          return maybeResponse;
+        },
+      };
+      fetchHandler(gql, { path: '/api' })(correctFetchEvent);
     });
   });
 });
