@@ -1,0 +1,35 @@
+{
+  "name": "@benzene/worker",
+  "version": "0.0.1",
+  "description": "GraphQL for Web Workers",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha"
+  },
+  "author": "Hoang Vo (https://hoangvvo.com)",
+  "keywords": [
+    "graphql",
+    "server",
+    "api",
+    "web",
+    "workers"
+  ],
+  "repository": "git+https://github.com/hoangvvo/benzene.git",
+  "bugs": {
+    "url": "https://github.com/hoangvvo/benzene/issues"
+  },
+  "homepage": "https://hoangvvo.github.io/benzene/",
+  "license": "MIT",
+  "dependencies": {
+    "@benzene/core": "^0.0.1"
+  },
+  "peerDependencies": {
+    "graphql": "^14.0.0 || ^15.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

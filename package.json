@@ -1,0 +1,61 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "yarn workspaces run build",
+    "lint": "eslint packages/*/src/**/*.{js,ts}",
+    "test": "nyc mocha",
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
+  },
+  "prettier": {
+    "singleQuote": true
+  },
+  "mocha": {
+    "spec": [
+      "packages/*/**/*.spec.ts"
+    ],
+    "require": [
+      "ts-node/register/transpile-only"
+    ],
+    "extension": [
+      "js",
+      "ts"
+    ],
+    "colors": true
+  },
+  "nyc": {
+    "include": [
+      "packages/*/src/**/*"
+    ],
+    "all": true
+  },
+  "devDependencies": {
+    "@graphql-tools/schema": "^6.0.18",
+    "@types/mocha": "^8.0.2",
+    "@types/node-fetch": "^2.5.7",
+    "@types/supertest": "^2.0.10",
+    "@typescript-eslint/eslint-plugin": "^3.9.0",
+    "@typescript-eslint/parser": "^3.9.0",
+    "docsify-cli": "^4.4.1",
+    "eslint": "^7.6.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "express": "^4.17.1",
+    "graphql": "^15.3.0",
+    "graphql-subscriptions": "^1.1.0",
+    "micro": "^9.3.4",
+    "mocha": "^8.1.1",
+    "node-fetch": "^2.6.0",
+    "nyc": "^15.1.0",
+    "prettier": "^2.0.5",
+    "supertest": "^4.0.2",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7",
+    "ws": "^7.3.1"
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.10.1"
+  }
+}
