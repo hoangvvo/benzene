@@ -81,7 +81,7 @@ Create a handler for incoming WebSocket connection (from `wss.on('connection')`)
 
 | options | description | default |
 |---------|-------------|---------|
-| context | An object or function called to creates a context shared across resolvers per connection. The function is called the arguments [socket](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket), [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) | `{}` |
+| context | An object or function called to creates a context shared across resolvers per connection. The function is called with the arguments [socket](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket), [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) | `{}` |
 
 ## Building Context :id=context
 
@@ -95,3 +95,7 @@ const wsHandle = wsHandler(GQL, {
   },
 });
 ```
+
+### Authentication
+
+`@benzene/ws` currently does not implement `onConnect` (due to [security & memory leak issues](https://github.com/apollographql/subscriptions-transport-ws/issues/349) on the upstream implementation).

@@ -2,7 +2,7 @@
 
 `@benzene/core` is the dependency used by all `benzene` packages. This gets installed along with other `benzene` packages as a dependency so it's unlikely that you have to manually install this.
 
-The main export is `GraphQL`, which can be used to create a Benzene "GraphQL" instance. This is re-exported from each binding package and can be shared across them. 
+The main export is `GraphQL`, which can be used to create a Benzene "GraphQL" instance. This is re-exported from each binding package and can be shared across them.
 
 ```js
 const { GraphQL } = require('@benzene/server');
@@ -17,7 +17,7 @@ const GQL = new GraphQL(options);
 
 !> Despite the name, `GraphQL` from `@benzene/core` is **not related** to anything in the official [graphql-js](https://github.com/graphql/graphql-js).
 
-## GraphQL
+## GraphQL instance :id=graphql
 
 The `GraphQL` constructor requires a `options` argument, which accepts the following:
 
@@ -33,7 +33,7 @@ The `schema` will be used throughout its [API](#api) and binding packages. It is
 
 Other options like `rootValue` and `formatError` also applies everywhere.
 
-## API
+## GraphQL methods :id=method
 
 ### `GraphQL#graphql({ source, contextValue, variableValues, operationName })` :id=api-graphql
 
@@ -66,7 +66,7 @@ const { data, error } = await GQL.graphql({
 
 ## Error handling and formatting :id=error-handling
 
-A GraphQL execution never throws error in resolvers. When they occur, errors are put inside the `errors` array in the response. Each error is, by default, formatted according to the rules described by the [esponse Format Errors section](http://spec.graphql.org/draft/#sec-Errors.Error-result-format) of the spec.
+A GraphQL execution never throws error in resolvers. When they occur, errors are put inside the `errors` array in the response. Each error is, by default, formatted according to the rules described by the [Response Format Errors section](http://spec.graphql.org/draft/#sec-Errors.Error-result-format) of the spec.
 
 `options.formatError` can be defined to replace the default error formatter for purpose such as avoiding exposing exploitable environment state. In addition, you can also log errors in `formatError` for debugging purposes.
 
@@ -85,6 +85,11 @@ const GQL = new GraphQL({
   },
 });
 ```
+
+This applies everywhere that uses the `GraphQL` instance. Some errors that are never included are:
+
+- BodyParsing error
+- No provided query
 
 ## RootValue
 

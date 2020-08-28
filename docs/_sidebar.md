@@ -1,27 +1,37 @@
-- [Getting Started](getting-started)
-- [Core](core/)
-  - [GraphQL](core/#graphql)
-  - [API](core/#api)
-    - [- graphql](core/#api-graphql)
-  - [Error handling](core/#error-handling)
-  - [Custom Root Value](core/#rootvalue)
-- [Server (`@benzene/server`)](server/)
-  - [HTTP](server/http)
+- **[Getting Started](getting-started)**
+  - [Installation](getting-started#installation)
+  - [Making the GraphQL instance](getting-started#making-the-benzene-graphql-instance)
+  - [Start a server](getting-started#start-a-server)
+
+- **Core**
+  - [`@benzene/core`](core/)
+    - [GraphQL instance](core/#graphql)
+    - [GraphQL methods](core/#method)
+    - [Error handling](core/#error-handling)
+    - [Custom Root Value](core/#rootvalue)
+
+- **Server**
+  - [`@benzene/server`](server/)
+  - **[HTTP Server](server/http)**
     - [API](server/http#api)
     - [Building Context](server/http#context)
-    - [Integration](server/http-integration)
-      - [Express.js](server/http-integration#express)
-      - [micro](server/http-integration#micro)
-      - [Next.js](server/http-integration#nextjs)
-  - [HTTP/2](server/http2)
-- [Web Worker (`@benzene/worker`)](worker/)
+  - **[HTTP Integration](server/http-integration)**
+    - [Express.js](server/http-integration#express)
+    - [micro](server/http-integration#micro)
+    - [Next.js](server/http-integration#nextjs)
+
+  - **[HTTP/2 Server](server/http2)**
+
+- **Web Worker**
+  - [`@benzene/worker`](worker/)
   - [Usage](worker/#usage)
   - [API](worker/#api)
   - [Building Context](worker/#context)
-- [Subscription over ws (`@benzene/ws`)](ws/)
-  - [Usage](ws/#usage)
-  - [API](ws/#api)
-  - [Building Context](ws/#context)
+
+- **GraphQL over ws**
+  - [`@benzene/ws`](ws/)
+    - [Usage](ws/#usage)
+    - [API](ws/#api)
+    - [Building Context](ws/#context)
+    - [Authentication](ws/#authentication)
   - [Integration](ws/ws-integration)
-    - [Express.js](ws/ws-integration#express)
-    - [micro](ws/ws-integration#micro)

@@ -58,7 +58,7 @@ It returns a Fetch event listener handler `addEventListener('fetch', fn)`.
 
 ## Building Context :id=context
 
-`options.context` in `handleRequest` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it accepts a single argument that is [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request).
+`options.context` in `fetchHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it accepts a single argument that is [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request).
 
 ```js
 const gqlHandle = fetchHandler(GQL, {

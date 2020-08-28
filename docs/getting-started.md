@@ -43,7 +43,9 @@ const { GraphQL } = require('@benzene/server');
 const GQL = new GraphQL({ schema: yourGraphQLSchema });
 ```
 
-Now `GQL` can be used in one or more `benzene` packages. Below is an example using `@benzene/server`:
+### Start a server
+
+Now `GQL` can be used in one or more `benzene` packages. Below is an example using `@benzene/server`.
 
 ```js
 const { GraphQL, httpHandler } = require('@benzene/server');
