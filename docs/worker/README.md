@@ -54,7 +54,7 @@ Fetch requests to `/graphql` will now be intercepted by the registered worker.
 | path | Specify a path for the GraphQL endpoint. If supplied `@benzene/worker` will ignore requests to different pathname. If not, **`@benzene/worker`** will intercept all requests (which is **not** desired) | `undefined` |
 | context | An object or function called to creates a context shared across resolvers per request. The function accepts [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) as the only argument. | `{}` |
 
-It returns a promise that resolves with [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) to be used in `event.respondWith`.
+It returns a Fetch event listener handler `addEventListener('fetch', fn)`.
 
 ## Building Context :id=context
 
@@ -76,8 +76,8 @@ const gqlHandle = fetchHandler(GQL, {
 
 ## Questions
 
-### My web worker(s) already have a fetch event handler
+### My service worker already has a fetch event handler
 
-It is possible to have multiple fetch event handlers within a service worker. The second handler gets its chance to call `event.respondWith()` only if the previous one does not. 
+It is possible to have multiple fetch event handlers within a service worker. The second handler gets its chance to call `event.respondWith()` only if the previous one does not. See this [demo](https://googlechrome.github.io/samples/service-worker/multiple-handlers/index.html) for demonstration.
 
-If `path` does not match, `gqlHandle` will simply return, letting other fetch event handler to work. See this [demo](https://googlechrome.github.io/samples/service-worker/multiple-handlers/index.html) for demonstration.
+If `path` does not match, `gqlHandle` will simply return, letting other fetch event handler to work normally.
