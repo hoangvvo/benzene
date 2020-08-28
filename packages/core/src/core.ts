@@ -166,8 +166,9 @@ export class GraphQL {
     const resultOrStream = await createSourceEventStream(
       this.schema,
       document,
-      // FIXME: Add rootValue
-      {},
+      typeof this.options.rootValue === 'function'
+        ? this.options.rootValue(document)
+        : this.options.rootValue || {},
       contextValue,
       variableValues || undefined,
       operationName
