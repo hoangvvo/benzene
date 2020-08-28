@@ -31,7 +31,7 @@ The `GraphQLSchema` can be created either using
 - *SDL-first* libraries like [graphql-tools](https://github.com/ardatan/graphql-tools) 
 - *code-first* libraries likes [type-graphql](https://github.com/MichalLytek/type-graphql) and [@nexus/schema](https://github.com/graphql-nexus/schema).
 
-### Create a Benzee GraphQL instance
+### Create a Benzen GraphQL instance
 
 Each package reexports `GraphQL` from `@benzene/core`, which can be used to create a [Benzene GraphQL instance](core/). 
 
