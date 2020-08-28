@@ -1,4 +1,4 @@
-# Benzene Worker
+# @benzene/worker
 
 GraphQL server right in the browser ([Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)) or at the edge ([Cloudflare Workers®](https://workers.cloudflare.com/)).
 

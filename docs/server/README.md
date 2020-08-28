@@ -1,4 +1,4 @@
-# Benzene Server
+# @benzene/server
 
 Fast and simple GraphQL Server for Node.js
 

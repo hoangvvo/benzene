@@ -1,6 +1,6 @@
-# Benzene WebSocket
+# @benzene/ws
 
-WebSocket support implementing [GraphQL over WebSocket Protocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md).
+WebSocket support via [`ws`](https://github.com/websockets/ws) implementing [GraphQL over WebSocket Protocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md).
 
 ## Install
 

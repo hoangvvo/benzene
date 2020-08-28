@@ -1,4 +1,4 @@
-# Benzene Core
+# Core
 
 `@benzene/core` is the dependency used by all `benzene` packages. This gets installed along with other `benzene` packages as a dependency so it's unlikely that you have to manually install this.
 
