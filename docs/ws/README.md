@@ -81,18 +81,16 @@ Create a handler for incoming WebSocket connection (from `wss.on('connection')`)
 
 | options | description | default |
 |---------|-------------|---------|
-| context | An object or function called to creates a context shared across resolvers per connection. The function is called the arguments [socket](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket), [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage), and `connectionParams` | `{}` |
+| context | An object or function called to creates a context shared across resolvers per connection. The function is called the arguments [socket](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket), [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) | `{}` |
 
 ## Building Context :id=context
 
-`options.context` in `wsHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it is called with three arguements [socket](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket), [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage), and `connectionParams`.
-
-`connectionParams` is an object that is sent from the client. See an [example in `apollo-client`](https://www.apollographql.com/docs/react/data/subscriptions/#4-authenticate-over-websocket-optional)
+`options.context` in `wsHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it is called with two arguements [socket](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket), [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage).
 
 ```js
 const wsHandle = wsHandler(GQL, {
-  context: async (socket, req, connectionParams) => {
-    const user = await getUserFromAuthToken(connectionParams.authToken);
+  context: async (socket, req) => {
+    const user = await getUserFromReq(req);
     return { user };
   },
 });
