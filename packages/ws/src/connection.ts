@@ -4,9 +4,9 @@ import {
   GraphQL,
   FormattedExecutionResult,
   TContext,
+  isExecutionResult,
 } from '@benzene/core';
 import * as WebSocket from 'ws';
-import { isAsyncIterable, forAwaitEach, createAsyncIterator } from 'iterall';
 import * as MessageTypes from './messageTypes';
 import { OperationMessage } from './types';
 
@@ -67,44 +67,44 @@ export class SubscriptionConnection {
 
     const cachedOrResult = this.gql.getCachedGQL(query, operationName);
 
-    const executionResult =
-      'document' in cachedOrResult
-        ? await this.gql[
-            cachedOrResult.operation === 'subscription'
-              ? 'subscribe'
-              : 'execute'
-          ]({
-            document: cachedOrResult.document,
-            contextValue: this.context,
-            variableValues: variables,
-            operationName,
-            jit: cachedOrResult.jit,
-          })
-        : cachedOrResult;
+    if (!('document' in cachedOrResult)) {
+      // There is an validation/syntax error, cannot continue
+      return this.sendMessage(MessageTypes.GQL_ERROR, data.id, cachedOrResult);
+    }
 
-    const executionIterable = isAsyncIterable(executionResult)
-      ? //@ts-ignore
-        (executionResult as AsyncIterator<ExecutionResult>)
-      : createAsyncIterator<ExecutionResult>([
-          executionResult as ExecutionResult,
-        ]);
+    const execArg = {
+      document: cachedOrResult.document,
+      contextValue: this.context,
+      variableValues: variables,
+      operationName,
+      jit: cachedOrResult.jit,
+    };
 
-    this.operations.set(data.id, executionIterable);
-
-    // @ts-ignore
-    await forAwaitEach(executionIterable, (result: ExecutionResult) => {
-      this.sendMessage(MessageTypes.GQL_DATA, data.id, result);
-    }).then(
-      () => {
-        // Subscription is finished
-        this.sendMessage(MessageTypes.GQL_COMPLETE, data.id);
-      },
-      (err) => {
-        // If something thrown, it must be a system error, otherwise, it should have landed in the regular callback with as GQL_DATA
-        // See `mapAsyncIterator`
-        this.sendError(data.id, err);
+    if (cachedOrResult.operation !== 'subscription') {
+      // Make this into an async iterator
+      const result = await this.gql.execute(execArg);
+      this.sendMessage(
+        MessageTypes.GQL_DATA,
+        data.id,
+        result as ExecutionResult
+      );
+      this.sendMessage(MessageTypes.GQL_COMPLETE, data.id);
+    } else {
+      const result = await this.gql.subscribe(execArg);
+      if (isExecutionResult(result)) {
+        // Something prevents a subscription from being created properly
+        // Send GQL_ERROR because the operation cannot be continued
+        // See https://github.com/graphql/graphql-js/blob/master/src/subscription/subscribe.js#L52-L54
+        return this.sendMessage(MessageTypes.GQL_ERROR, data.id, result);
       }
-    );
+      this.operations.set(data.id, result);
+      // @ts-ignore
+      for await (const value of result) {
+        this.sendMessage(MessageTypes.GQL_DATA, data.id, value);
+      }
+      // Complete
+      this.sendMessage(MessageTypes.GQL_COMPLETE, data.id);
+    }
   }
 
   handleGQLStop(opId: string) {

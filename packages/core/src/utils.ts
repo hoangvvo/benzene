@@ -44,9 +44,8 @@ export function getGraphQLParams({
   };
 }
 
-export function isAsyncIterable<
-  C extends AsyncIterable<any>,
-  E extends ExecutionResult
->(maybeAsyncIterable: C | E): maybeAsyncIterable is C {
-  return Symbol.asyncIterator in maybeAsyncIterable;
+export function isExecutionResult<C, E extends ExecutionResult>(
+  mayResult: C | E
+): mayResult is E {
+  return 'error' in mayResult;
 }

@@ -26,7 +26,7 @@ import {
   FormattedExecutionResult,
   ValueOrPromise,
 } from './types';
-import { isAsyncIterable } from './utils';
+import { isExecutionResult } from './utils';
 
 export class GraphQL {
   private lru: Lru<QueryCache>;
@@ -174,12 +174,13 @@ export class GraphQL {
       operationName
       // subscribeFieldResolver
     );
-    return isAsyncIterable(resultOrStream)
+    return !isExecutionResult(resultOrStream)
       ? mapAsyncIterator<any, ExecutionResult>(
           resultOrStream,
           (payload) => jit.query(payload, contextValue, variableValues),
           (error) => {
             if (error instanceof GraphQLError) return { errors: [error] };
+            // Rethrow if it is a internal error
             throw error;
           }
         )
