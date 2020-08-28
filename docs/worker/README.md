@@ -1,6 +1,6 @@
-# Benzene Worker
+# @benzene/worker
 
-GraphQL execution layer in the browser and at the edge.
+GraphQL server right in the browser ([Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)) or at the edge ([Cloudflare Workers®](https://workers.cloudflare.com/)).
 
 ## Why GraphQL in the browser
 
@@ -23,30 +23,29 @@ yarn add @benzene/worker graphql
 
 This assumes basic understanding of service worker. If not, you can learn how to register the service worker [here](https://developers.google.com/web/fundamentals/primers/service-workers/registration).
 
-```javascript
+```js
 import { GraphQL, fetchHandler } from '@benzene/worker';
 
 // Creating a GraphQL instance
-const GQL = new GraphQL(options);
+const GQL = new GraphQL({ schema });
 
-const gqlHandle = fetchHandler(GQL, { path: '/graphql' })
+const gqlHandle = fetchHandler(GQL, { path: '/graphql' });
 
 addEventListener('fetch', gqlHandle);
 ```
 
 Fetch requests to `/graphql` will now be intercepted by the registered worker.
 
-See [Using Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) for more info.
 
-**Note:** `@benzene/worker` can be large in size for use in browser. Consider lazy loading it and implement [Offline/Progressive Web Apps](https://web.dev/progressive-web-apps/).
+?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
+
+!> **Note:** While `@benzene/worker` is not so large in size ([~20kb Minified + Gzipped](http://bundlephobia.com/result?p=@benzene/worker)), it is recommended to lazy-load it and implement [Offline/Progressive Web Apps](https://web.dev/progressive-web-apps/).
 
 ## API
 
-### `handleRequest(GQL, request, options)`
+### `fetchHandler(GQL, options)`
 
-`GQL` is an instance of [`GraphQL`](../core/).
-
-`request` is [FetchEvent.request](https://developer.mozilla.org/en-US/docs/Web/API/FetchEvent/request)
+`GQL` is an instance of [`GraphQL`](/core/)
 
 `options` is optional and accepts the following:
 
@@ -55,9 +54,9 @@ See [Using Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Wor
 | path | Specify a path for the GraphQL endpoint. If supplied `@benzene/worker` will ignore requests to different pathname. If not, **`@benzene/worker`** will intercept all requests (which is **not** desired) | `undefined` |
 | context | An object or function called to creates a context shared across resolvers per request. The function accepts [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) as the only argument. | `{}` |
 
-It returns a promise that resolves with [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) to be used in `event.respondWith`.
+It returns a Fetch event listener handler `addEventListener('fetch', fn)`.
 
-## Building Context
+## Building Context :id=context
 
 `options.context` in `handleRequest` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it accepts a single argument that is [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request).
 
@@ -69,16 +68,16 @@ const gqlHandle = fetchHandler(GQL, {
     const user = await getUserFromToken(token);
     // Return the context object
     return { user };
-  }
-})
+  },
+});
 ```
 
 (The example above makes more sense in environments like [Cloudflare Workers®](https://workers.cloudflare.com/) since you cannot really look up user in the browser)
 
 ## Questions
 
-### My web worker(s) already have a fetch event handler
+### My service worker already has a fetch event handler
 
-It is possible to have multiple fetch event handlers within a service worker. The second handler gets its chance to call `event.respondWith()` only if the previous one does not. 
+It is possible to have multiple fetch event handlers within a service worker. The second handler gets its chance to call `event.respondWith()` only if the previous one does not. See this [demo](https://googlechrome.github.io/samples/service-worker/multiple-handlers/index.html) for demonstration.
 
-If `path` does not match, `gqlHandle` will simply return, letting other fetch event handler to work. See this [demo](https://googlechrome.github.io/samples/service-worker/multiple-handlers/index.html) for demonstration.
+If `path` does not match, `gqlHandle` will simply return, letting other fetch event handler to work normally.

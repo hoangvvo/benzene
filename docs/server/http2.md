@@ -1,3 +1,3 @@
-# HTTP/2 Module
+# HTTP/2 Server
 
 TBD
