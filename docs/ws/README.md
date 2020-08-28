@@ -16,13 +16,38 @@ Since `@benzene/ws` is to be used in [`ws`](https://github.com/websockets/ws), y
 yarn add ws
 ```
 
+?> `@benzene/ws` is not limited to `benzene` and can work along with *any* GraphQL Server.
+
 ## Usage
 
 [Example](https://github.com/hoangvvo/benzene/tree/main/examples/with-ws)
 
 Create a [WebSocket.Server](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocketserver) instance and uses `wsHandler` to handle its `connection` event.
 
-### With `@benzene/server` :id=use-with-server
+When being called with a [Benzene GraphQL instance](/core/) instance, `wsHandler` returns a `connection` listener handler function (`(socket, request) => void`).
+
+```js
+const WebSocket = require('ws');
+const { GraphQL, wsHandler } = require('@benzene/ws');
+// Benzene GraphQL instance
+const GQL = new GraphQL({ schema });
+
+// Craete WebSocket.Server from `ws`. 
+// Refer to https://github.com/websockets/ws#usage-examples for more info.
+const wss = new WebSocket.Server({ path: '/graphql', server });
+
+// Attach wsHandler to WebSocket.Server `connection` event
+// See https://github.com/websockets/ws/blob/master/doc/ws.md#event-connection
+wss.on('connection', wsHandler(GQL, options));
+```
+
+?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
+
+?> `ws` tip: If you do not have a `server`, define `port` instead to let `ws` create one internally.
+
+### With existed GraphQL instance
+
+If you use `@benzene/ws` with `@benzene/server`, chances are you already have an existing `GraphQL` instance that can be reused.
 
 ```javascript
 const http = require('http');
@@ -30,40 +55,18 @@ const WebSocket = require('ws');
 const { GraphQL, httpHandler } = require('@benzene/server');
 const { wsHandler } = require('@benzene/ws');
 
-// Create a GraphQL instance
+// @benzene/server section
+// This will be reused inside wsHandler
 const GQL = new GraphQL({ schema });
+// This is the created server, will be used in WebSocket.Server
 const server = http.createServer(httpHandler(GQL));
-
-// Create a WebSocket.Server from the `ws` package
-const wss = new WebSocket.Server({ path: '/graphql', server });
-
-// Attach wsHandler to WebSocket.Server `connection` event
-// See https://github.com/websockets/ws/blob/master/doc/ws.md#event-connection
-wss.on('connection', wsHandler(GQL, options));
-
 server.listen(3000, () => {
   console.log(`🚀  Server ready at http://localhost:3000/graphql`);
 });
-```
 
-### Without `@benzene/server` :id=use-standalone
+// Added @benzene/ws section
+const wss = new WebSocket.Server({ path: '/graphql', server });
 
-`@benzene/ws` also exports `GraphQL` constructor if you did not start with `@benzene/server`.
-
-```javascript
-const { GraphQL, wsHandler } = require('@benzene/ws');
-const WebSocket = require('ws');
-
-// Create a GraphQL instance
-const GQL = new GraphQL(options);
-
-// Create a WebSocket.Server from the `ws` package (options.port creates a HTTP server internally)
-const wss = new WebSocket.Server({ path: '/graphql', port: 3000 }, () => {
-  console.log(`🚀  WebSocket Server ready at ws://localhost:3000/graphql`);
-})
-
-// Attach wsHandler to WebSocket.Server `connection` event
-// See https://github.com/websockets/ws/blob/master/doc/ws.md#event-connection
 wss.on('connection', wsHandler(GQL, options));
 ```
 
@@ -73,7 +76,7 @@ wss.on('connection', wsHandler(GQL, options));
 
 Create a handler for incoming WebSocket connection (from `wss.on('connection')`) and execute GraphQL based on [GraphQL over WebSocket Protocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md).
 
-`GQL` in an instance [Benzene GraphQL instance](/core/).
+`GQL` in a [Benzene GraphQL instance](/core/) instance.
 
 `options` is optional and accepts the following:
 

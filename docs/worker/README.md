@@ -36,9 +36,10 @@ addEventListener('fetch', gqlHandle);
 
 Fetch requests to `/graphql` will now be intercepted by the registered worker.
 
-See [Using Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) for more info.
 
-**Note:** While `@benzene/worker` is not so large in size ([~20kb Minified + Gzipped](http://bundlephobia.com/result?p=@benzene/worker)), it is recommended to lazy-load it and implement [Offline/Progressive Web Apps](https://web.dev/progressive-web-apps/).
+?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
+
+!> **Note:** While `@benzene/worker` is not so large in size ([~20kb Minified + Gzipped](http://bundlephobia.com/result?p=@benzene/worker)), it is recommended to lazy-load it and implement [Offline/Progressive Web Apps](https://web.dev/progressive-web-apps/).
 
 ## API
 

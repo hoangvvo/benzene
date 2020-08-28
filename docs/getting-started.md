@@ -68,4 +68,4 @@ For additional usage, see the binding packages' documentations:
 
 ## Where from here
 
-It is recommended to read what `GraphQL` instance can do in the [Core Section](core/) before diving into specific binding.
+It is recommended to read about `GraphQL` instance in the [Core Section](core/) before diving into specific binding.

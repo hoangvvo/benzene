@@ -20,6 +20,8 @@ Aspects like `cors` and `body-parser` is all up to the users to implement as the
 
 There are two seperated modules in `@benzene/server` package with their own documentations.
 
+?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
+
 ### [HTTP](/server/http)
 
 Create a HTTP/HTTPS server. Can used in Node [HTTP server](https://nodejs.org/api/http.html) or [HTTPS server](https://nodejs.org/api/https.html) and compatible frameworks.

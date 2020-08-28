@@ -19,8 +19,6 @@
   - [Building Context](worker/#context)
 - [WebSocket](ws/)
   - [Usage](ws/#usage)
-    - [With Server](ws/#use-with-server)
-    - [Standalone](ws/#use-standalone)
   - [API](ws/#api)
   - [Building Context](ws/#context)
   - [Integration](ws/ws-integration)
