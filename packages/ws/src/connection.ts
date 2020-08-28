@@ -4,58 +4,26 @@ import {
   GraphQL,
   FormattedExecutionResult,
   TContext,
-  ValueOrPromise,
 } from '@benzene/core';
 import * as WebSocket from 'ws';
 import { isAsyncIterable, forAwaitEach, createAsyncIterator } from 'iterall';
-import { IncomingMessage } from 'http';
-import { EventEmitter } from 'events';
-import {
-  GQL_CONNECTION_INIT,
-  GQL_CONNECTION_ACK,
-  GQL_CONNECTION_ERROR,
-  GQL_CONNECTION_TERMINATE,
-  GQL_START,
-  GQL_DATA,
-  GQL_ERROR,
-  GQL_COMPLETE,
-  GQL_STOP,
-} from './messageTypes';
-import { ConnectionParams, OperationMessage, HandlerConfig } from './types';
+import * as MessageTypes from './messageTypes';
+import { OperationMessage } from './types';
 
-export interface SubscriptionConnection {
-  on(
-    event: 'connection_init',
-    listener: (connectionParams: ConnectionParams) => void
-  ): this;
-  emit(event: 'connection_init', payload: ConnectionParams): boolean;
-  on(
-    event: 'subscription_start',
-    listener: (id: string, payload: GraphQLParams, context: TContext) => void
-  ): this;
-  emit(
-    event: 'subscription_start',
-    id: string,
-    payload: GraphQLParams,
-    context: TContext
-  ): boolean;
-  on(event: 'subscription_stop', listener: (id: string) => void): this;
-  emit(event: 'subscription_stop', id: string): boolean;
-  on(event: 'connection_terminate', listener: () => void): this;
-  emit(event: 'connection_terminate'): boolean;
-}
-
-export class SubscriptionConnection extends EventEmitter {
+export class SubscriptionConnection {
   private operations: Map<string, AsyncIterator<ExecutionResult>> = new Map();
-  // contextPromise because GQL_START may run right after GQL_CONNECTION_INIT
-  contextPromise: ValueOrPromise<TContext> = {};
+
   constructor(
+    public gql: GraphQL,
     public socket: WebSocket,
-    public request: IncomingMessage,
-    private gql: GraphQL,
-    private options: HandlerConfig
-  ) {
-    super();
+    public context: TContext
+  ) {}
+
+  init() {
+    // Listen to events
+    this.socket.on('message', (data) => this.handleMessage(data.toString()));
+    this.socket.on('error', () => this.handleConnectionClose());
+    this.socket.on('close', () => this.handleConnectionClose());
   }
 
   handleMessage(message: string) {
@@ -66,46 +34,25 @@ export class SubscriptionConnection extends EventEmitter {
       return this.sendError(undefined, new Error('Malformed message'));
     }
     switch (data.type) {
-      case GQL_CONNECTION_INIT:
-        this.handleConnectionInit(data);
+      case MessageTypes.GQL_CONNECTION_INIT:
+        this.handleConnectionInit();
         break;
-      case GQL_START:
+      case MessageTypes.GQL_START:
         this.handleGQLStart(
           data as OperationMessage & { id: string; payload: GraphQLParams }
         );
         break;
-      case GQL_STOP:
+      case MessageTypes.GQL_STOP:
         this.handleGQLStop(data.id as string);
         break;
-      case GQL_CONNECTION_TERMINATE:
+      case MessageTypes.GQL_CONNECTION_TERMINATE:
         this.handleConnectionClose();
         break;
     }
   }
 
-  handleConnectionInit(data: OperationMessage) {
-    // https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md#gql_connection_init
-    try {
-      // resolve context
-      if (this.options.context) {
-        this.contextPromise =
-          typeof this.options.context === 'function'
-            ? this.options.context(
-                this.socket,
-                this.request,
-                data.payload as ConnectionParams
-              )
-            : this.options.context;
-      }
-      this.sendMessage(GQL_CONNECTION_ACK);
-      // Emit
-      this.emit('connection_init', data.payload as ConnectionParams);
-    } catch (err) {
-      this.sendMessage(GQL_CONNECTION_ERROR, data.id, {
-        errors: [err],
-      });
-      this.handleConnectionClose();
-    }
+  handleConnectionInit() {
+    this.sendMessage(MessageTypes.GQL_CONNECTION_ACK);
   }
 
   async handleGQLStart(
@@ -120,7 +67,6 @@ export class SubscriptionConnection extends EventEmitter {
 
     const cachedOrResult = this.gql.getCachedGQL(query, operationName);
 
-    const context = await this.contextPromise;
     const executionResult =
       'document' in cachedOrResult
         ? await this.gql[
@@ -129,7 +75,7 @@ export class SubscriptionConnection extends EventEmitter {
               : 'execute'
           ]({
             document: cachedOrResult.document,
-            contextValue: context,
+            contextValue: this.context,
             variableValues: variables,
             operationName,
             jit: cachedOrResult.jit,
@@ -145,16 +91,13 @@ export class SubscriptionConnection extends EventEmitter {
 
     this.operations.set(data.id, executionIterable);
 
-    // Emit
-    this.emit('subscription_start', data.id, data.payload, context);
-
     // @ts-ignore
     await forAwaitEach(executionIterable, (result: ExecutionResult) => {
-      this.sendMessage(GQL_DATA, data.id, result);
+      this.sendMessage(MessageTypes.GQL_DATA, data.id, result);
     }).then(
       () => {
         // Subscription is finished
-        this.sendMessage(GQL_COMPLETE, data.id);
+        this.sendMessage(MessageTypes.GQL_COMPLETE, data.id);
       },
       (err) => {
         // If something thrown, it must be a system error, otherwise, it should have landed in the regular callback with as GQL_DATA
@@ -169,8 +112,6 @@ export class SubscriptionConnection extends EventEmitter {
     const removingOperation = this.operations.get(opId);
     if (!removingOperation) return;
     removingOperation.return?.();
-    // Emit
-    this.emit('subscription_stop', opId);
     this.operations.delete(opId);
   }
 
@@ -178,17 +119,15 @@ export class SubscriptionConnection extends EventEmitter {
     setTimeout(() => {
       // Unsubscribe from the whole socket
       Object.keys(this.operations).forEach((opId) => this.handleGQLStop(opId));
-      // Close connection after sending error message
-      this.socket.close(1011);
-      // Emit
-      this.emit('connection_terminate');
+      //  Close connection after sending error message
+      this.socket.close();
     }, 10);
   }
 
   sendError(id: string | undefined, error: Error) {
     this.socket.send(
       JSON.stringify({
-        type: GQL_ERROR,
+        type: MessageTypes.GQL_ERROR,
         ...(id && { id }),
         payload: { message: error.message },
       })
