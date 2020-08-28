@@ -2,7 +2,7 @@ import { GraphQL, TContext, ValueOrPromise } from '@benzene/core';
 import { IncomingMessage } from 'http';
 import * as WebSocket from 'ws';
 import { SubscriptionConnection } from './connection';
-import { GRAPHQL_WS } from './messageTypes';
+import { GRAPHQL_WS, GQL_CONNECTION_ERROR } from './messageTypes';
 import { HandlerConfig } from './types';
 
 export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
@@ -22,11 +22,16 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
     if (contextPromise)
       try {
         context = await contextPromise;
-        console.log(context);
-      } catch (e) {
+      } catch (err) {
         // 1011: Internal Error
         // TODO: We should allow custom code via e.code
-        // We also need to inform the user somehow
+        err.message = `Context creation failed: ${err.message}`;
+        socket.send(
+          JSON.stringify({
+            type: GQL_CONNECTION_ERROR,
+            payload: gql.formatExecutionResult({ errors: [err] }),
+          })
+        );
         socket.close(1011);
         return;
       }
@@ -49,8 +54,6 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
     )
       // 1002: protocol error. We only support graphql_ws for now
       return socket.close(1002);
-
-    console.log('h', options.context);
 
     handleSocket(
       socket,

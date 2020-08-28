@@ -491,9 +491,10 @@ describe('ws: wsHandler', () => {
       );
       let isErrored = false;
       client.on('data', (chunk) => {
+        console.log(chunk);
         isErrored =
           chunk ===
-          `{"type":"connection_error","payload":{"errors":[{"message":"You must be authenticated!"}]}}`;
+          `{"type":"connection_error","payload":{"errors":[{"message":"Context creation failed: You must be authenticated!"}]}}`;
       });
       client.on('end', () => {
         done(assert(isErrored));
