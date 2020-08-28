@@ -8,13 +8,12 @@
 > GraphQL over WebSocket using [`ws`](https://github.com/websockets/ws)
 
 ```js
-const { GraphQL, wsHandler } = require('@benzene/ws');
 const WebSocket = require('ws');
+const { GraphQL, wsHandler } = require('@benzene/ws');
 
 const GQL = new GraphQL({ schema });
 
 const wss = new WebSocket.Server({ path: '/graphql', port: 3000 });
-
 wss.on('connection', wsHandler(GQL, options));
 ```
 

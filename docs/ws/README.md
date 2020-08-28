@@ -32,7 +32,7 @@ const { GraphQL, wsHandler } = require('@benzene/ws');
 // Benzene GraphQL instance
 const GQL = new GraphQL({ schema });
 
-// Craete WebSocket.Server from `ws`. 
+// Craete WebSocket.Server from `ws`.
 // Refer to https://github.com/websockets/ws#usage-examples for more info.
 const wss = new WebSocket.Server({ path: '/graphql', server });
 
@@ -49,7 +49,7 @@ wss.on('connection', wsHandler(GQL, options));
 
 If you use `@benzene/ws` with `@benzene/server`, chances are you already have an existing `GraphQL` instance that can be reused.
 
-```javascript
+```js
 const http = require('http');
 const WebSocket = require('ws');
 const { GraphQL, httpHandler } = require('@benzene/server');
@@ -66,7 +66,6 @@ server.listen(3000, () => {
 
 // Added @benzene/ws section
 const wss = new WebSocket.Server({ path: '/graphql', server });
-
 wss.on('connection', wsHandler(GQL, options));
 ```
 
@@ -94,7 +93,7 @@ Create a handler for incoming WebSocket connection (from `wss.on('connection')`)
 const wsHandle = wsHandler(GQL, {
   context: async (socket, req, connectionParams) => {
     const user = await getUserFromAuthToken(connectionParams.authToken);
-    return { user }
-  }
+    return { user };
+  },
 });
 ```

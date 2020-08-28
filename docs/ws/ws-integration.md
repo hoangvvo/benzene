@@ -15,7 +15,6 @@ const app = express();
 const server = app.listen(3000);
 
 const wss = new WebSocket.Server({ path: '/graphql', server });
-
 wss.on('connection', wsHandler(GQL, options));
 ```
 
@@ -33,7 +32,6 @@ const server = micro(async (req, res) => {
 });
 
 const wss = new WebSocket.Server({ path: '/graphql', server });
-
 wss.on('connection', wsHandler(GQL, options));
 
 server.listen(3000);

@@ -74,7 +74,7 @@ A GraphQL execution never throws error in resolvers. When they occur, errors are
 const GQL = new GraphQL({
   formatError: (err) => {
     // Don't give the specific errors to the client.
-    if (err.message.startsWith("FatalErrorThatMayExposeEnvironment: ")) {
+    if (err.message.startsWith('FatalErrorThatMayExposeEnvironment: ')) {
       // Let's log this error for debugging later
       logger.log(err);
       // Return a dummy error instead
@@ -83,7 +83,7 @@ const GQL = new GraphQL({
     // Otherwise return the original error.
     return err;
   },
-})
+});
 ```
 
 ## RootValue
@@ -96,8 +96,8 @@ While it's unlikely you will need this, you can either provides an **object** or
 // Adapted from Apollo Server documentation
 const GQL = new GraphQL({
   rootValue: (documentAST) => {
-    const op = getOperationAST(documentNode)
+    const op = getOperationAST(documentNode);
     return op === 'mutation' ? mutationRoot : queryRoot;
-  }
-})
+  },
+});
 ```

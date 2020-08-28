@@ -16,8 +16,8 @@ const gqlHandle = httpHandler(GQL, options);
 [Example](https://github.com/hoangvvo/benzene/tree/main/examples/with-express)
 
 ```js
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
 
 app.all('/graphql', gqlHandle);
 

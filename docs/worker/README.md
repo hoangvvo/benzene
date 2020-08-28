@@ -23,13 +23,13 @@ yarn add @benzene/worker graphql
 
 This assumes basic understanding of service worker. If not, you can learn how to register the service worker [here](https://developers.google.com/web/fundamentals/primers/service-workers/registration).
 
-```javascript
+```js
 import { GraphQL, fetchHandler } from '@benzene/worker';
 
 // Creating a GraphQL instance
 const GQL = new GraphQL({ schema });
 
-const gqlHandle = fetchHandler(GQL, { path: '/graphql' })
+const gqlHandle = fetchHandler(GQL, { path: '/graphql' });
 
 addEventListener('fetch', gqlHandle);
 ```
@@ -68,8 +68,8 @@ const gqlHandle = fetchHandler(GQL, {
     const user = await getUserFromToken(token);
     // Return the context object
     return { user };
-  }
-})
+  },
+});
 ```
 
 (The example above makes more sense in environments like [Cloudflare Workers®](https://workers.cloudflare.com/) since you cannot really look up user in the browser)
