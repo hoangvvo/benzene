@@ -362,7 +362,7 @@ describe('ws: wsHandler', () => {
     await new Promise((resolve, reject) => {
       client.on('data', (chunk) => {
         const json = JSON.parse(chunk);
-        if (json.type === MessageTypes.GQL_DATA) {
+        if (json.type === MessageTypes.GQL_ERROR) {
           const {
             payload: {
               errors: [{ message }],
@@ -491,7 +491,6 @@ describe('ws: wsHandler', () => {
       );
       let isErrored = false;
       client.on('data', (chunk) => {
-        console.log(chunk);
         isErrored =
           chunk ===
           `{"type":"connection_error","payload":{"errors":[{"message":"Context creation failed: You must be authenticated!"}]}}`;
