@@ -18,5 +18,3 @@ npm run start
 yarn
 yarn start
 ```
-
-[Try it on CodeSandbox](https://codesandbox.io/s/github/hoangvvo/benzene/tree/main/examples/with-service-worker)
