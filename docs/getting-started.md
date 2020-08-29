@@ -10,7 +10,7 @@ The following packages are available:
 
 Each package can be used either *independently* or *together* (by sharing the same `GraphQL` instance from `@benzene/core`).
 
-## Installation
+## Install
 
 Install `graphql` and the `benzene` package(s) you need. Whichever package(s) you install, `@benzene/core` will also be installed along as a dependency.
 

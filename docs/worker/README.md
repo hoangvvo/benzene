@@ -5,7 +5,7 @@ GraphQL server right in the browser ([Web Workers](https://developer.mozilla.org
 ## Why GraphQL in the browser
 
 - You can query 3rd parties' APIs without making a redundant round to and from the backend.
-- It enables query deduplication so that you do not waste server resources for identical 3rd parties' requests, while improving speed/performance.
+- It enables query deduplication so that you do not waste server resources for identical requests while improving speed/performance.
 
 In addition, you can (and more often) use `@benzene/worker` in [Cloudflare Workers®](https://workers.cloudflare.com/).
 
@@ -21,7 +21,7 @@ yarn add @benzene/worker graphql
 
 [Service Worker Example](https://github.com/hoangvvo/benzene/tree/main/examples/with-service-worker)
 
-This assumes basic understanding of service worker. If not, you can learn how to register the service worker [here](https://developers.google.com/web/fundamentals/primers/service-workers/registration).
+This assumes basic understanding of Service Workers. If not, you can learn how to register the service worker [here](https://developers.google.com/web/fundamentals/primers/service-workers/registration).
 
 ```js
 import { GraphQL, fetchHandler } from '@benzene/worker';
@@ -58,7 +58,7 @@ It returns a Fetch event listener handler `addEventListener('fetch', fn)`.
 
 ## Building Context :id=context
 
-`options.context` in `fetchHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it accepts a single argument that is [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request).
+`options.context` in `fetchHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of a function, it accepts a single argument that is [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request).
 
 ```js
 const gqlHandle = fetchHandler(GQL, {
@@ -72,7 +72,7 @@ const gqlHandle = fetchHandler(GQL, {
 });
 ```
 
-(The example above makes more sense in environments like [Cloudflare Workers®](https://workers.cloudflare.com/) since you cannot really look up user in the browser)
+(The example above makes more sense in environments like [Cloudflare Workers®](https://workers.cloudflare.com/) since you cannot really look up users in the browser)
 
 ## Questions
 

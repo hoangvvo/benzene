@@ -1,5 +1,5 @@
 - **[Getting Started](getting-started)**
-  - [Installation](getting-started#installation)
+  - [Install](getting-started#install)
   - [Making the GraphQL instance](getting-started#making-the-benzene-graphql-instance)
   - [Start a server](getting-started#start-a-server)
 
@@ -33,6 +33,6 @@
     - [Usage](ws/#usage)
     - [API](ws/#api)
     - [Building Context](ws/#context)
-    - [Authentication](ws/#authentication)
+  - [Authentication](ws/#authentication)
   - [Protocol](ws/PROTOCOL)
   - [Integration](ws/ws-integration)

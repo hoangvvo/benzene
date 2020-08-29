@@ -1,8 +1,8 @@
 # GraphQL over WebSocket Protocol
 
-The protocol used in `@benzene/ws` is a modified version of [`subscriptions-transport-ws`](https://github.com/apollographql/subscriptions-transport-ws). It still work with the client of `subscriptions-transport-ws` as expected.
+The protocol used in `@benzene/ws` is a modified version of [`subscriptions-transport-ws`](https://github.com/apollographql/subscriptions-transport-ws). It still works with clients implementing the original `subscriptions-transport-ws` as expected.
 
-One of the notable difference is that there is no `connection_init` and `connection_ack` in this modified protocol.
+One of the notable differences is that there is no `connection_init` (or `connectionParams`) and `connection_ack` in this modified protocol.
 
 ?> For compatible reason, if the client sends a `type = "connection_init" `, it would receive `type = "connection_ack"` as expected.
 
@@ -10,7 +10,7 @@ Each WebSocket connection has the subprotocol of `graphql-ws`. Otherwise, it wil
 
 ## Client-server communication
 
-Each operation message has a `type` and `payload` field. An `id` field will present to identify different subscription operations. Every message should be JSON stringified (We only handle UTF-8 [RFC3629](https://tools.ietf.org/html/rfc3629) text).
+Each message has a `type` and `payload` field. An `id` field will present to identify different subscriptions. Every message should be JSON stringified (We only handle UTF-8 [RFC3629](https://tools.ietf.org/html/rfc3629) text).
 
 ### OperationMessage
 
@@ -66,7 +66,7 @@ Different from [`subscriptions_transport_ws`](https://github.com/apollographql/s
 
 As WebSockets will pass through standard HTTP headers, you may choose to include authentication detail in the headers. Unfortunately, since the WebSocket API disallows header customization, it is limited.
 
-If you do have session authentication in one of the previous HTTP requests, chances are you have cookie, which will be sent along during the WebSocket handshake.
+If you do have session authentication in one of the previous HTTP requests, chances are you have the `Cookie` header, which will be sent along during the WebSocket handshake.
 
 You can either do this using [this approach in `websockets/ws` documentation](https://github.com/websockets/ws#client-authentication) or in `@benzene/ws` [`options.context`](/ws/?id=context)
 
@@ -87,7 +87,7 @@ The client can start a subscription by sending a `type="start"` message with the
 }
 ```
 
-An `id` must be included to differentiate between different subscription operation. It must be unique.
+An `id` must be included to differentiate between different subscriptions. It must be unique.
 
 ### Subscription Data
 
@@ -111,7 +111,7 @@ An `errors` field may be included if there are resolver errors.
 
 ### Deregister subscription
 
-If the client no longer wish to receive message from a specific subscription, it will send a `type = "stop"` message with the `id` of the one it wishes the unsubscribe:
+If the client no longer wants to receive updates from a specific subscription, it will send a `type = "stop"` message with the `id` of the one it wishes the unsubscribe:
 
 ```json
 {
@@ -141,13 +141,13 @@ If the client is done with GraphQL subscription, it can close the socket connect
 
 ## Error
 
-If an error is part of the resolver, it will be send as part of `errors` field in the payload of a `type = "data"`, just like a typical GraphQL response.
+If an error is part of the GraphQL resolve, it will be sent as part of `errors` field in the payload of a `type = "data"`, just like a typical GraphQL response.
 
-Beside that, there are two message types the server send to client upon errors.
+Besides that, there are two message types the server sends to clients upon errors.
 
 ### Connection error
 
-This error happens upon initial connection handshake. This is often happened due to authentication error (which often thrown in `options.context` if you use `@benzene/ws`).
+This error happens upon the initial connection handshake. This is often happened due to authentication error (which often thrown in `options.context` if you use `@benzene/ws`).
 
 The server would send a `type = "connection_error"` message. It will include a `payload` that also represents a typical GraphQL response with an `errors` field:
 
