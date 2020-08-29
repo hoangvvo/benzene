@@ -68,7 +68,7 @@ As WebSockets will pass through standard HTTP headers, you may choose to include
 
 If you do have session authentication in one of the previous HTTP requests, chances are you have the `Cookie` header, which will be sent along during the WebSocket handshake.
 
-You can either do this using [this approach in `websockets/ws` documentation](https://github.com/websockets/ws#client-authentication) or in `@benzene/ws` [`options.context`](/ws/?id=context)
+See [Authentication](https://hoangvvo.github.io/benzene/#/ws/authentication) for some authentication mechanisms.
 
 ### Start a subscription
 

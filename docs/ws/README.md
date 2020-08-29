@@ -20,7 +20,7 @@ yarn add ws
 
 ## Usage
 
-[Example](https://github.com/hoangvvo/benzene/tree/main/examples/with-ws)
+[Example](https://github.com/hoangvvo/benzene/tree/main/examples/with-graphql-subscriptions)
 
 Create a [WebSocket.Server](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocketserver) instance and uses `wsHandler` to handle its `connection` event.
 
@@ -99,7 +99,7 @@ const wsHandle = wsHandler(GQL, {
 });
 ```
 
-If an error is thrown in `options.context`, `@benzene/ws` will send a `{ type = 'connection_error' }` with a payload with the shape of a regular GraphQL response. For example,
+If an error is thrown in `options.context`, `@benzene/ws` will send a `{ type = 'connection_error' }` with a payload with the shape of a regular GraphQL response and close the connection. For example,
 
 ```json
 {

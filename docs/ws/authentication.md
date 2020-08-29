@@ -1,8 +1,8 @@
 # Authentication
 
-`@benzene/ws` currently does not implement `onConnect` (due to [security & memory leak issues](https://github.com/apollographql/subscriptions-transport-ws/issues/349) on the upstream implementation). 
+`@benzene/ws` does not implement `onConnect` (due to [security & memory leak issues](https://github.com/apollographql/subscriptions-transport-ws/issues/349) on the upstream implementation). 
 
-However, `options.context` can be used to authenticate via headers if you have session authentication implementation in HTTP requests. Let's peek into the above `getUserFromReq`.
+However, `options.context` can be used to authenticate via headers if you have session authentication implementation in HTTP requests. Let's peek into a sample `getUserFromReq` function.
 
 ```js
 import { parse as parseCookie } from 'cookie';
@@ -14,39 +14,86 @@ async function getUserFromReq(req) {
 }
 ```
 
-Or perhaps if you use `expressSession`, you can do something like so:
+## Add `user` to `options.context`
+
+Often, you will have `user` set to `options.context` so it will be accessible to resolvers. Do so simply by:
 
 ```js
-const session = require('express-session');
-
-const sessionMiddleware = session({
-  saveUninitialized: false,
-  secret: 'keyboard cat',
-  resave: false
+const wsHandle = wsHandler(GQL, {
+  context: async (socket, request) => {
+    const user = await getUserFromReq(request);
+    return { user };
+  },
 });
+```
 
-function getUserFromReq(req) {
-  return new Promise((resolve, reject) => {
-    sessionParser(req, {}, (err) => {
-      if (err) return reject(err);
-      resolve(req.session.userId ? findByUserId(req.session.userId) : null);
-    });
-  })
+You can then do something like not allowing a user to listen to message room they are not in:
+
+```js
+const resolvers = {
+  Subscription: {
+    onMessage: {
+      subscribe: withFilter(() => pubsub.asyncIterator(MESSAGE_TOPIC), (payload, variables, context) => {
+        if (!context.user || !(userIsInRoom(variables.roomId, context.user.id))) {
+          // This user is not in room, should not allow them to receive message
+          return false;
+        }
+        return payload.onMessage.id === variables.roomId;
+      }),
+    },
+  },
 }
 ```
 
-In `options.context`, you may choose to reject the socket by throwing:
+## Block unauthorized request
+
+It is possible to forcibly close the connection if the user is not authenticated too:
 
 ```js
 const wsHandle = wsHandler(GQL, {
   context: async (socket, req) => {
     const user = await getUserFromReq(req);
-    if (!user) {
-      throw new Error('You are not authenticated!')
-    }
-
+    if (!user) throw new Error('Not authenticated!!')
     return { user };
   },
 });
+```
+
+This, however, only occurs after the handshake, so to be more efficient, you can choose to reject it even before that:
+
+```js
+const wsHandle = wsHandler(GQL, {
+  context: async (socket, request) => {
+    // See code below to see where this comes from
+    const user = request.user;
+    return { user };
+  },
+});
+
+// Make sure you set up WebSocket.Server with noServer = true
+const wss = new WebSocket.Server({ noServer: true });
+
+wss.on('connection', wsHandle);
+
+server.on('upgrade', async function upgrade(request, socket, head) {
+  const user = await getUserFromReq(request);
+
+  if (!user) {
+    socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+    socket.destroy();
+    return;
+  }
+
+  // We attach it to `request` so we don't have to do it again
+  // It will be available in `request` in `options.context`
+  request.user = user;
+
+  // handle upgrade as usual
+  wss.handleUpgrade(request, socket, head, function done(ws) {
+    wss.emit('connection', ws, request);
+  });
+});
+
+server.listen(8080);
 ```
 
