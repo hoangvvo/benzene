@@ -86,11 +86,6 @@ const GQL = new GraphQL({
 });
 ```
 
-This applies everywhere that uses the `GraphQL` instance. Some errors that are never included are:
-
-- body parsing error
-- No provided query
-
 ## RootValue
 
 `options.rootValue` defines away to supply a `rootValue` to the GraphQL execution. While this value is not mentioned anywhere and the official document, this [Stackoverflow answer](https://stackoverflow.com/a/53987189/14114942) provides some insight.

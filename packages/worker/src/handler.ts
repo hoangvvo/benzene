@@ -18,9 +18,11 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
           requestBody = parseBodyByContentType(await request.text(), oCtype);
         } catch (err) {
           return new Response(
-            JSON.stringify({
-              errors: [{ message: err.message }],
-            }),
+            JSON.stringify(
+              gql.formatExecutionResult({
+                errors: [err],
+              })
+            ),
             {
               status: 400,
               headers: { 'content-type': 'application/json' },
