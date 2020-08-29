@@ -1,4 +1,4 @@
-# ⌬ Benzene
+# ⌬ Benzene ⌬
 
 ![ci](https://github.com/hoangvvo/benzene/workflows/Test%20&%20Coverage/badge.svg)
 [![codecov](https://codecov.io/gh/hoangvvo/benzene/branch/main/graph/badge.svg?token=KUCEOC1JT2)](https://codecov.io/gh/hoangvvo/benzene)
