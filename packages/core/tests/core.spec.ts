@@ -162,8 +162,8 @@ describe('core: runHttpQuery', () => {
       { context: {} },
       {
         status: 400,
-        body: 'Must provide query string.',
-        headers: { 'content-type': 'text/plain' },
+        body: '{"errors":[{"message":"Must provide query string."}]}',
+        headers: { 'content-type': 'application/json' },
       }
     );
   });
@@ -175,8 +175,9 @@ describe('core: runHttpQuery', () => {
       },
       {
         status: 405,
-        body: 'Operation mutation cannot be performed via a GET request.',
-        headers: { 'content-type': 'text/plain' },
+        body:
+          '{"errors":[{"message":"Can only perform a mutation operation from a POST request."}]}',
+        headers: { 'content-type': 'application/json' },
       }
     );
   });
@@ -188,8 +189,9 @@ describe('core: runHttpQuery', () => {
       },
       {
         status: 405,
-        body: 'GraphQL only supports GET and POST requests.',
-        headers: { 'content-type': 'text/plain' },
+        body:
+          '{"errors":[{"message":"GraphQL only supports GET and POST requests."}]}',
+        headers: { 'content-type': 'application/json' },
       }
     );
   });
