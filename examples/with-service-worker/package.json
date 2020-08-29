@@ -1,0 +1,23 @@
+{
+  "name": "with-service-worker",
+  "private": true,
+  "main": "src/index.html",
+  "scripts": {
+    "start": "parcel serve src/index.html --no-source-maps"
+  },
+  "browserslist": [
+    "last 1 chrome versions"
+  ],
+  "dependencies": {
+    "@urql/core": "^1.12.3",
+    "codemirror": "^5.56.0",
+    "codemirror-graphql": "^0.12.1",
+    "graphql": "^15.3.0",
+    "@benzene/worker": "^0.1.0",
+    "pokemon-graphql-schema": "^0.0.2"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.0.0-beta.1"
+  }
+}

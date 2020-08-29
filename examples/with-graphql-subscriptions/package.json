@@ -1,0 +1,26 @@
+{
+  "name": "with-graphql-subscriptions",
+  "private": true,
+  "scripts": {
+    "start:server": "node server.js",
+    "start:client": "preact watch",
+    "start": "concurrently \"npm run start:server\" \"npm run start:client\""
+  },
+  "devDependencies": {
+    "preact-cli": "^3.0.0",
+    "sirv-cli": "^1.0.3"
+  },
+  "dependencies": {
+    "@benzene/server": "^0.1.0",
+    "@benzene/ws": "^0.1.0",
+    "@graphql-tools/schema": "^6.0.18",
+    "@urql/preact": "^1.2.0",
+    "graphql": "^15.3.0",
+    "graphql-subscriptions": "^1.1.0",
+    "graphql-tag": "^2.11.0",
+    "preact": "^10.1.0",
+    "preact-render-to-string": "^5.1.2",
+    "subscriptions-transport-ws": "^0.9.18"
+  },
+  "license": "ISC"
+}

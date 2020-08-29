@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>@benzene/server with dataloader</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.min.css"
+    />
+    <script>
+      async function runQuery() {
+        const t0 = performance.now();
+        await fetch('/graphql', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            query: document.querySelector('#query').innerText
+          })
+        });
+        alert(`Took ~${(performance.now() - t0).toFixed()}ms`)
+      }
+    </script>  
+  </head>
+  <body style="max-width: 860px; padding: 1rem; margin: 0 auto;">
+    <h1>Dataloader example</h1>
+    <div>
+      <a href="https://github.com/hoangvvo/benzene/tree/master/examples/with-dataloader">GitHub</a>
+    </div>
+    <p>Visit <a href="/graphql">/graphql</a> for GraphQL endpoint or <a href="/playground">/playground</a> for <a href="https://github.com/prisma-labs/graphql-playground">GraphQL Playground</a>.</p>
+    <h2>How to use?</h2>
+    <p>There are two queries you can perform.</p>
+    <button onclick="document.querySelector('#queryVariation').innerText = 'user';">With Dataloader</button>
+    <button onclick="document.querySelector('#queryVariation').innerText = 'userNoLoader';">Without Dataloader</button>
+    <div>
+      <code style="white-space: pre; display: block; padding: 1rem; margin-bottom: .5rem;" id="query">query {
+  <var id="queryVariation" style="color: mediumvioletred;">user</var>(id: "1"){
+    name
+    age
+    friends {
+      bestFriend {
+        name
+      }
+    }
+  }
+}</code>
+      <button style="width: 100%;" onclick="runQuery()">Run Query</button>
+    </div>
+    <p>The only difference is that only one of the queries implements <a href="https://github.com/graphql/dataloader">DataLoader</a>. See <a href="https://github.com/hoangvvo/benzene/blob/master/examples/with-dataloader/index.js">code</a>.</a></p>
+    <p>Try each of the query and notice the response time. The <code>dataloader</code> query should be faster (~100ms faster on my local machine).</p>
+    <h2>Why?</h2>
+    <p>Look at the Node.js console/terminal. You will see logs that start with <code>get user:</code>.</p>
+    <img src="screenshot.png">
+    <p>Notice how the <code>no dataloader</code> query prints out seven of them with duplicates while the other query prints out only four of them? That's N+1 Problem in GraphQL.</p>
+    <p>The article <a href="https://medium.com/@__xuorig__/the-graphql-dataloader-pattern-visualized-3064a00f319f">The GraphQL Dataloader Pattern: Visualized</a> best explains this pattern.</p>
+  </body>
+</html>

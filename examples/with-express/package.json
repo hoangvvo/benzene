@@ -1,0 +1,16 @@
+{
+  "name": "with-express",
+  "private": true,
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "graphql": "^15.3.0",
+    "graphql-playground-middleware-express": "^1.7.18",
+    "@benzene/server": "^0.1.0",
+    "node-fetch": "^2.6.0",
+    "pokemon-graphql-schema": "^0.0.2"
+  },
+  "license": "ISC"
+}
