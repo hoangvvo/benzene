@@ -1,6 +1,6 @@
 {
   "name": "@benzene/ws",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "GraphQL over WebSocket",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -19,15 +19,13 @@
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "tsc",
     "test": "mocha"
   },
   "dependencies": {
-    "@benzene/core": "^0.0.1"
+    "@benzene/core": "^0.1.0"
   },
   "peerDependencies": {
     "graphql": "^14.0.0 || ^15.0.0",

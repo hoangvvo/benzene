@@ -1,6 +1,6 @@
 {
   "name": "@benzene/worker",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "GraphQL for Web Workers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,7 +24,7 @@
   "homepage": "https://hoangvvo.github.io/benzene/",
   "license": "MIT",
   "dependencies": {
-    "@benzene/core": "^0.0.1"
+    "@benzene/core": "^0.1.0"
   },
   "peerDependencies": {
     "graphql": "^14.0.0 || ^15.0.0"

@@ -1,6 +1,6 @@
 {
   "name": "@benzene/core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Fast and non-coupled JavaScript GraphQL Server and Executor",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "repository": {

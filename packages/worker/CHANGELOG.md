@@ -1,6 +1,19 @@
 # @benzene/worker
 
+## 0.1.0
+
+### Minor Changes
+
+- 827d66a: Change @benzene/worker function to return a fetch event handler
+- 8dbbfca: Enforce GraphQL response format on error
+
+### Patch Changes
+
+- Updated dependencies [8dbbfca]
+  - @benzene/core@0.1.0
+
 ## 0.0.1
+
 ### Patch Changes
 
 - Renamed from graphyne
