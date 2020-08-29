@@ -1,0 +1,15 @@
+{
+  "name": "with-micro",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "micro"
+  },
+  "dependencies": {
+    "graphql": "^15.3.0",
+    "@benzene/server": "^0.1.0",
+    "micro": "^9.3.4",
+    "pokemon-graphql-schema": "^0.0.2"
+  },
+  "license": "ISC"
+}
