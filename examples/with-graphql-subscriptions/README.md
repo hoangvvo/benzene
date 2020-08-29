@@ -13,8 +13,8 @@ Install it and run:
 
 ```bash
 npm install
-npm run dev
+npm run start
 # or
 yarn
-yarn dev
+yarn start
 ```

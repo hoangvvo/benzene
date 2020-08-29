@@ -1,6 +1,7 @@
 {
   "name": "with-service-worker",
   "private": true,
+  "main": "src/index.html",
   "scripts": {
     "start": "parcel serve src/index.html --no-source-maps"
   },

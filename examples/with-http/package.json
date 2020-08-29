@@ -1,6 +1,7 @@
 {
   "name": "with-http",
   "private": true,
+  "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },

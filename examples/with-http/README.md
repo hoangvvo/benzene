@@ -13,10 +13,10 @@ Install it and run:
 
 ```bash
 npm install
-npm run dev
+npm run start
 # or
 yarn
-yarn dev
+yarn start
 ```
 
 [Try it on CodeSandbox](https://codesandbox.io/s/github/hoangvvo/benzene/tree/main/examples/with-http)
