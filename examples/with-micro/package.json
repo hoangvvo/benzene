@@ -6,9 +6,10 @@
     "start": "micro"
   },
   "dependencies": {
-    "graphql": "^15.3.0",
     "@benzene/server": "^0.1.0",
+    "graphql": "^15.3.0",
     "micro": "^9.3.4",
+    "node-fetch": "^2.6.0",
     "pokemon-graphql-schema": "^0.0.2"
   },
   "license": "ISC"
