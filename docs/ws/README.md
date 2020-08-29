@@ -1,6 +1,6 @@
 # @benzene/ws
 
-WebSocket support via [`ws`](https://github.com/websockets/ws) implementing [GraphQL over WebSocket Protocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md).
+WebSocket support via [`ws`](https://github.com/websockets/ws) implementing a [modified GraphQL over WebSocket Protocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md). Do not worry, this is still understood by GraphQL WS client implementing the original protocol.
 
 ## Install
 
@@ -41,8 +41,6 @@ const wss = new WebSocket.Server({ path: '/graphql', server });
 wss.on('connection', wsHandler(GQL, options));
 ```
 
-?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
-
 ?> `ws` tip: If you do not have a `server`, define `port` instead to let `ws` create one internally.
 
 ### With existed GraphQL instance
@@ -77,6 +75,8 @@ Create a handler for incoming WebSocket connection (from `wss.on('connection')`)
 
 `GQL` in a [Benzene GraphQL instance](/core/) instance.
 
+?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
+
 `options` is optional and accepts the following:
 
 | options | description | default |
@@ -90,12 +90,26 @@ Create a handler for incoming WebSocket connection (from `wss.on('connection')`)
 ```js
 const wsHandle = wsHandler(GQL, {
   context: async (socket, req) => {
+    // Get user
     const user = await getUserFromReq(req);
-    return { user };
+    // Maybe a signal to let resolver knows we are in WebSocket?
+    const isWs = true;
+    return { user, isWs };
   },
 });
 ```
 
-### Authentication
+If an error is thrown in `options.context`, `@benzene/ws` will send a `{ type = 'connection_error' }` with a payload with the shape of a regular GraphQL response. For example,
 
-`@benzene/ws` currently does not implement `onConnect` (due to [security & memory leak issues](https://github.com/apollographql/subscriptions-transport-ws/issues/349) on the upstream implementation).
+```json
+{
+  "payload": {
+    "errors": [
+      { "message": "Context creation failed: Error Message Blah Blah" }
+    ]
+  },
+  "type": "connection_error"
+}
+```
+
+See [Authentication](/ws/authentication) on possible authentication mechanism.

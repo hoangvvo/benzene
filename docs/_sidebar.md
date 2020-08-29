@@ -34,4 +34,5 @@
     - [API](ws/#api)
     - [Building Context](ws/#context)
     - [Authentication](ws/#authentication)
+  - [Protocol](ws/PROTOCOL)
   - [Integration](ws/ws-integration)
