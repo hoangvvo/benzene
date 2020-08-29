@@ -111,7 +111,9 @@ describe('worker: fetchHandler', () => {
         {
           status: 400,
           // Because body is not parsed, query string cannot be read
-          body: `Must provide query string.`,
+          body: JSON.stringify({
+            errors: [{ message: 'Must provide query string.' }],
+          }),
         }
       );
     });
@@ -122,7 +124,9 @@ describe('worker: fetchHandler', () => {
       '/graphql',
       {},
       {
-        body: `Must provide query string.`,
+        body: JSON.stringify({
+          errors: [{ message: 'Must provide query string.' }],
+        }),
         status: 400,
       }
     );
@@ -134,9 +138,14 @@ describe('worker: fetchHandler', () => {
       {
         body: `query { helloWorld`,
         method: 'POST',
-        headers: { 'content-type': 'application/json; t' },
+        headers: { 'content-type': 'application/json' },
       },
-      { status: 400 }
+      {
+        status: 400,
+        body: JSON.stringify({
+          errors: [{ message: 'POST body sent invalid JSON.' }],
+        }),
+      }
     );
   });
 

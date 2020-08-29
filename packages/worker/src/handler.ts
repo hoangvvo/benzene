@@ -17,10 +17,15 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
         try {
           requestBody = parseBodyByContentType(await request.text(), oCtype);
         } catch (err) {
-          return new Response(err.message, {
-            status: 400,
-            headers: { 'content-type': 'text/plain' },
-          });
+          return new Response(
+            JSON.stringify({
+              errors: [{ message: err.message }],
+            }),
+            {
+              status: 400,
+              headers: { 'content-type': 'application/json' },
+            }
+          );
         }
       }
     }
