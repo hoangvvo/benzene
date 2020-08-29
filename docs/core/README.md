@@ -23,7 +23,7 @@ The `GraphQL` constructor requires a `options` argument, which accepts the follo
 
 | options | description | default |
 |---------|-------------|---------|
-| schema | A `GraphQLSchema` instance. It can be created using `makeExecutableSchema` from [graphql-tools](https://github.com/apollographql/graphql-tools). | (required) |
+| schema | A [`GraphQLSchema` instance](https://hoangvvo.github.io/benzene/#/getting-started?id=create-a-benzen-graphql-instance). | (required) |
 | rootValue | A value or function called with the parsed `Document` that creates the root value passed to the GraphQL executor. | `{}` |
 | formatError | An optional function that will be used to format any errors from GraphQL execution result. | [`formatError`](https://github.com/graphql/graphql-js/blob/master/src/error/formatError.js) |
 

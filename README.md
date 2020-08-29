@@ -12,9 +12,11 @@
 - Highly performant Just-In-Time compiler via [graphql-jit](https://github.com/zalando-incubator/graphql-jit).
 - Lightweight and non-coupled integration with great extensibility: Does nothing more but returning handle functions.
 
-## Getting Started
+## Documentation
 
-See how you can quickly create a GraphQL server via [Getting Started](https://hoangvvo.github.io/benzene/getting-started.md). You can always add other features like WebSocket later from here.
+Documentation is available at [hoangvvo.github.io/benzene/](https://hoangvvo.github.io/benzene/)
+
+There is also a [Getting Started](https://hoangvvo.github.io/benzene/#/getting-started) page to get started with `@benzene/server`.
 
 ## Packages
 

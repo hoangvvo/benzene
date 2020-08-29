@@ -1,5 +1,6 @@
 - **[Getting Started](getting-started)**
   - [Install](getting-started#install)
+  - [Create a GraphQLSchema instance](getting-started?id=create-a-graphqlschema-instance)
   - [Making the GraphQL instance](getting-started#making-the-benzene-graphql-instance)
   - [Start a server](getting-started#start-a-server)
 
