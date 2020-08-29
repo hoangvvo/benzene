@@ -10,7 +10,7 @@ The following packages are available:
 
 Each package can be used either *independently* or *together* (by sharing the same `GraphQL` instance from `@benzene/core`).
 
-## Installation
+## Install
 
 Install `graphql` and the `benzene` package(s) you need. Whichever package(s) you install, `@benzene/core` will also be installed along as a dependency.
 
@@ -31,7 +31,7 @@ The `GraphQLSchema` can be created either using
 - *SDL-first* libraries like [graphql-tools](https://github.com/ardatan/graphql-tools) 
 - *code-first* libraries likes [type-graphql](https://github.com/MichalLytek/type-graphql) and [@nexus/schema](https://github.com/graphql-nexus/schema).
 
-### Create a Benzee GraphQL instance
+### Create a Benzen GraphQL instance
 
 Each package reexports `GraphQL` from `@benzene/core`, which can be used to create a [Benzene GraphQL instance](core/). 
 
@@ -43,7 +43,9 @@ const { GraphQL } = require('@benzene/server');
 const GQL = new GraphQL({ schema: yourGraphQLSchema });
 ```
 
-Now `GQL` can be used in one or more `benzene` packages. Below is an example using `@benzene/server`:
+### Start a server
+
+Now `GQL` can be used in one or more `benzene` packages. Below is an example using `@benzene/server`.
 
 ```js
 const { GraphQL, httpHandler } = require('@benzene/server');

@@ -26,7 +26,7 @@ import {
   FormattedExecutionResult,
   ValueOrPromise,
 } from './types';
-import { isAsyncIterable } from './utils';
+import { isExecutionResult } from './utils';
 
 export class GraphQL {
   private lru: Lru<QueryCache>;
@@ -141,7 +141,7 @@ export class GraphQL {
     document,
     contextValue,
     variableValues,
-  }: Pick<ExecutionArgs, 'document' | 'contextValue' | 'variableValues'> & {
+  }: Omit<ExecutionArgs, 'schema'> & {
     jit: CompiledQuery;
   }): ValueOrPromise<ExecutionResult> {
     return jit.query(
@@ -160,28 +160,27 @@ export class GraphQL {
     variableValues,
     operationName,
     jit,
-  }: Pick<
-    SubscriptionArgs,
-    'document' | 'contextValue' | 'variableValues' | 'operationName'
-  > & {
+  }: Omit<SubscriptionArgs, 'schema'> & {
     jit: CompiledQuery;
   }): Promise<AsyncIterator<ExecutionResult> | ExecutionResult> {
     const resultOrStream = await createSourceEventStream(
       this.schema,
       document,
-      // FIXME: Add rootValue
-      {},
+      typeof this.options.rootValue === 'function'
+        ? this.options.rootValue(document)
+        : this.options.rootValue || {},
       contextValue,
       variableValues || undefined,
       operationName
       // subscribeFieldResolver
     );
-    return isAsyncIterable(resultOrStream)
+    return !isExecutionResult(resultOrStream)
       ? mapAsyncIterator<any, ExecutionResult>(
           resultOrStream,
           (payload) => jit.query(payload, contextValue, variableValues),
           (error) => {
             if (error instanceof GraphQLError) return { errors: [error] };
+            // Rethrow if it is a internal error
             throw error;
           }
         )

@@ -10,15 +10,15 @@ yarn add graphql @benzene/server
 
 ## Philosophy
 
-GraphQL Server like `apollo-server` and its `applyMiddleware` is too coupled and overly opinionated. While this helps beginners, it becomes difficult to configurate and extend (See [apollographql/apollo-server#1308](https://github.com/apollographql/apollo-server/issues/1308)).
+GraphQL Server like `apollo-server` and its `applyMiddleware` is too coupled and overly opinionated. While this helps beginners, it becomes difficult to configure and extend (See [apollographql/apollo-server#1308](https://github.com/apollographql/apollo-server/issues/1308)).
 
 `@benzene/server` takes the opposite path and returns nothing but a `requestListener` function (which is in the familiar `(req, res) => void` form) to be used in different frameworks/routers or simply `http.createServer`.
 
-Aspects like `cors` and `body-parser` is all up to the users to implement as they wish.
+Middleware like `cors` and `body-parser` is all up to the users to implement as they wish.
 
 ## Documentation
 
-There are two seperated modules in `@benzene/server` package with their own documentations.
+There are two separate modules in `@benzene/server` package with their own documentations.
 
 ?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
 
@@ -30,7 +30,7 @@ Use this module by import `httpHandler` from `@benzene/server`. See [documentati
 
 ### [HTTP/2](/server/http2)
 
-Create a HTTP/2 server. Can be used in Node [http/2 server](https://nodejs.org/api/http2.html)
+Create a HTTP/2 server. Can be used in Node [HTTP/2 server](https://nodejs.org/api/http2.html)
 
 Use this module by import `http2Handler` from `@benzene/server`. See [documentation](/server/http2) for more information.
 

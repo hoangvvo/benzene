@@ -1,15 +1,6 @@
-import {
-  wsHandler,
-  GQL_CONNECTION_INIT,
-  GQL_DATA,
-  GQL_CONNECTION_ACK,
-  GQL_START,
-  GQL_COMPLETE,
-  GQL_STOP,
-  GQL_CONNECTION_TERMINATE,
-} from '../src';
+import { wsHandler } from '../src';
+import MessageTypes from '../src/messageTypes';
 import { HandlerConfig } from '../src/types';
-import { SubscriptionConnection } from '../src/connection';
 import { GraphQL, runHttpQuery } from '../../core/src';
 import { Config as GraphQLConfig } from '../../core/src/types';
 import { parseBody } from '../../server/src/http/parseBody';
@@ -28,6 +19,7 @@ const typeDefs = `
     message: String
     dummy: String
     DO_NOT_USE_THIS_FIELD: String
+    user: String
   }
 
   type Query {
@@ -62,6 +54,7 @@ const resolvers = {
     },
   },
   Notification: {
+    user: (obj, variables, context) => context.user,
     dummy: ({ message }) => message,
     DO_NOT_USE_THIS_FIELD: () => {
       throw new Error('I told you so');
@@ -77,12 +70,11 @@ const schema = makeExecutableSchema({
 let serverInit;
 
 async function startServer(
-  options: { ws?: WebSocket } = {},
-  gqlOpts: Omit<GraphQLConfig, 'schema'> = {},
-  handlerConfig?: HandlerConfig
+  handlerConfig?: Partial<HandlerConfig>,
+  options?: Partial<GraphQLConfig>,
+  ws: WebSocket = new WebSocket('ws://localhost:4000', 'graphql-ws')
 ) {
-  const ws = options.ws || new WebSocket('ws://localhost:4000', 'graphql-ws');
-  const gql = new GraphQL({ schema, ...gqlOpts });
+  const gql = new GraphQL({ schema, ...options });
   const server = createServer((req, res) => {
     parseBody(req, async (err, body) => {
       const result = await runHttpQuery(gql, {
@@ -135,13 +127,13 @@ describe('ws: wsHandler', () => {
     const { client } = await startServer();
     client.write(
       JSON.stringify({
-        type: GQL_CONNECTION_INIT,
+        type: MessageTypes.GQL_CONNECTION_INIT,
       })
     );
     await new Promise((resolve) => {
-      client.on(GQL_DATA, (chunk) => {
+      client.on('data', (chunk) => {
         const json = JSON.parse(chunk);
-        assert.deepStrictEqual(json, { type: GQL_CONNECTION_ACK });
+        assert.deepStrictEqual(json, { type: MessageTypes.GQL_CONNECTION_ACK });
         resolve();
       });
     });
@@ -150,13 +142,13 @@ describe('ws: wsHandler', () => {
     const { client } = await startServer();
     client.write(
       JSON.stringify({
-        type: GQL_CONNECTION_INIT,
+        type: MessageTypes.GQL_CONNECTION_INIT,
       })
     );
     client.write(
       JSON.stringify({
         id: 1,
-        type: GQL_START,
+        type: MessageTypes.GQL_START,
         payload: {
           query: `
           subscription {
@@ -170,14 +162,14 @@ describe('ws: wsHandler', () => {
       })
     );
     await new Promise((resolve, reject) => {
-      client.on(GQL_DATA, (chunk) => {
+      client.on('data', (chunk) => {
         const data = JSON.parse(chunk);
-        if (data.type === GQL_CONNECTION_ACK) {
+        if (data.type === MessageTypes.GQL_CONNECTION_ACK) {
           return sendMessageMutation();
         }
-        if (data.type === GQL_DATA) {
+        if (data.type === MessageTypes.GQL_DATA) {
           assert.deepStrictEqual(data, {
-            type: GQL_DATA,
+            type: MessageTypes.GQL_DATA,
             id: 1,
             payload: {
               data: {
@@ -195,7 +187,7 @@ describe('ws: wsHandler', () => {
   });
   it('rejects socket protocol other than graphql-ws', async () => {
     const ws = new WebSocket('ws://localhost:4000', 'graphql-subscriptions');
-    await startServer({ ws });
+    await startServer({}, {}, ws);
     await new Promise((resolve) =>
       ws.on('close', () => {
         resolve();
@@ -205,12 +197,12 @@ describe('ws: wsHandler', () => {
   it('errors on malformed message', (done) => {
     startServer().then(({ server, client, ws }) => {
       client.write(`{"type":"connection_init","payload":`);
-      client.on(GQL_DATA, (chunk) => {
+      client.on('data', (chunk) => {
         const json = JSON.parse(chunk);
         if (json.type === 'error') {
           assert.deepStrictEqual(json, {
             type: 'error',
-            payload: { message: 'Malformed message' },
+            payload: { errors: [{ message: 'Malformed message' }] },
           });
           done();
         }
@@ -228,13 +220,13 @@ describe('ws: wsHandler', () => {
     ).then(({ server, client, ws }) => {
       client.write(
         JSON.stringify({
-          type: GQL_CONNECTION_INIT,
+          type: MessageTypes.GQL_CONNECTION_INIT,
         })
       );
       client.write(
         JSON.stringify({
           id: 1,
-          type: GQL_START,
+          type: MessageTypes.GQL_START,
           payload: {
             query: `
             subscription {
@@ -247,15 +239,15 @@ describe('ws: wsHandler', () => {
           },
         })
       );
-      client.on(GQL_DATA, (chunk) => {
+      client.on('data', (chunk) => {
         const json = JSON.parse(chunk);
-        if (json.type === GQL_CONNECTION_ACK) {
+        if (json.type === MessageTypes.GQL_CONNECTION_ACK) {
           sendMessageMutation();
         }
-        if (json.type === GQL_DATA) {
+        if (json.type === MessageTypes.GQL_DATA) {
           assert.deepStrictEqual(json, {
             id: 1,
-            type: GQL_DATA,
+            type: MessageTypes.GQL_DATA,
             payload: {
               data: {
                 notificationAdded: {
@@ -276,26 +268,25 @@ describe('ws: wsHandler', () => {
     const { client } = await startServer();
     client.write(
       JSON.stringify({
-        type: GQL_CONNECTION_INIT,
+        type: MessageTypes.GQL_CONNECTION_INIT,
       })
     );
     client.write(
       JSON.stringify({
         id: 1,
-        type: GQL_START,
+        type: MessageTypes.GQL_START,
         payload: {
           query: null,
         },
       })
     );
     await new Promise((resolve, reject) => {
-      client.on(GQL_DATA, (chunk) => {
+      client.on('data', (chunk) => {
         const json = JSON.parse(chunk);
         if (json.type === 'error') {
           assert.deepStrictEqual(json, {
             type: 'error',
-            id: 1,
-            payload: { message: 'Must provide query string.' },
+            payload: { errors: [{ message: 'Must provide query string.' }] },
           });
           resolve();
         }
@@ -307,13 +298,13 @@ describe('ws: wsHandler', () => {
     const { client } = await startServer();
     client.write(
       JSON.stringify({
-        type: GQL_CONNECTION_INIT,
+        type: MessageTypes.GQL_CONNECTION_INIT,
       })
     );
     client.write(
       JSON.stringify({
         id: 1,
-        type: GQL_START,
+        type: MessageTypes.GQL_START,
         payload: {
           query: `
           mutation {
@@ -327,17 +318,17 @@ describe('ws: wsHandler', () => {
     );
     await new Promise((resolve, reject) => {
       let resolved = false;
-      client.on(GQL_DATA, (chunk) => {
+      client.on('data', (chunk) => {
         const json = JSON.parse(chunk);
         if (json.type === `data`) {
           assert.deepStrictEqual(json, {
-            type: GQL_DATA,
+            type: MessageTypes.GQL_DATA,
             id: 1,
             payload: { data: { addNotification: { message: 'Hello World' } } },
           });
           resolved = true;
         }
-        if (json.type === GQL_COMPLETE && resolved === true) {
+        if (json.type === MessageTypes.GQL_COMPLETE && resolved === true) {
           // It should complete the subscription immediately since it is a mutations/queries
           resolve();
         }
@@ -349,13 +340,13 @@ describe('ws: wsHandler', () => {
     const { client } = await startServer();
     client.write(
       JSON.stringify({
-        type: GQL_CONNECTION_INIT,
+        type: MessageTypes.GQL_CONNECTION_INIT,
       })
     );
     client.write(
       JSON.stringify({
         id: 1,
-        type: GQL_START,
+        type: MessageTypes.GQL_START,
         payload: {
           query: `
             subscription {
@@ -368,9 +359,9 @@ describe('ws: wsHandler', () => {
       })
     );
     await new Promise((resolve, reject) => {
-      client.on(GQL_DATA, (chunk) => {
+      client.on('data', (chunk) => {
         const json = JSON.parse(chunk);
-        if (json.type === GQL_DATA) {
+        if (json.type === MessageTypes.GQL_ERROR) {
           const {
             payload: {
               errors: [{ message }],
@@ -386,17 +377,136 @@ describe('ws: wsHandler', () => {
       });
     });
   });
-  it('stops subscription upon GQL_STOP', async () => {
+  describe('resolves options.context that is', () => {
+    it('an object', async () => {
+      const { client } = await startServer({
+        context: { user: 'Alexa' },
+      });
+      client.write(
+        JSON.stringify({
+          type: MessageTypes.GQL_CONNECTION_INIT,
+        })
+      );
+      client.write(
+        JSON.stringify({
+          id: 1,
+          type: MessageTypes.GQL_START,
+          payload: {
+            query: `
+            subscription {
+              notificationAdded {
+                user
+              }
+            }
+          `,
+          },
+        })
+      );
+      await new Promise((resolve, reject) => {
+        client.on('data', (chunk) => {
+          const data = JSON.parse(chunk);
+          if (data.type === MessageTypes.GQL_CONNECTION_ACK) {
+            return sendMessageMutation();
+          }
+          if (data.type === MessageTypes.GQL_DATA) {
+            assert.deepStrictEqual(data, {
+              type: MessageTypes.GQL_DATA,
+              id: 1,
+              payload: {
+                data: {
+                  notificationAdded: {
+                    user: 'Alexa',
+                  },
+                },
+              },
+            });
+            resolve();
+          }
+        });
+      });
+    });
+    it('a function', async () => {
+      const { client } = await startServer({
+        context: async () => ({
+          user: 'Alice',
+        }),
+      });
+      client.write(
+        JSON.stringify({
+          type: MessageTypes.GQL_CONNECTION_INIT,
+        })
+      );
+      client.write(
+        JSON.stringify({
+          id: 1,
+          type: MessageTypes.GQL_START,
+          payload: {
+            query: `
+            subscription {
+              notificationAdded {
+                user
+              }
+            }
+          `,
+          },
+        })
+      );
+      await new Promise((resolve) => {
+        client.on('data', (chunk) => {
+          const data = JSON.parse(chunk);
+          if (data.type === MessageTypes.GQL_CONNECTION_ACK) {
+            return sendMessageMutation();
+          }
+          if (data.type === MessageTypes.GQL_DATA) {
+            assert.deepStrictEqual(data, {
+              type: MessageTypes.GQL_DATA,
+              id: 1,
+              payload: {
+                data: {
+                  notificationAdded: {
+                    user: 'Alice',
+                  },
+                },
+              },
+            });
+            resolve();
+          }
+        });
+      });
+    });
+  });
+  it('closes connection on error in context function', (done) => {
+    const context = async (s, r) => {
+      throw new Error('You must be authenticated!');
+    };
+    startServer({ context }).then(({ server, client }) => {
+      client.write(
+        JSON.stringify({
+          type: MessageTypes.GQL_CONNECTION_INIT,
+        })
+      );
+      let isErrored = false;
+      client.on('data', (chunk) => {
+        isErrored =
+          chunk ===
+          `{"type":"connection_error","payload":{"errors":[{"message":"Context creation failed: You must be authenticated!"}]}}`;
+      });
+      client.on('end', () => {
+        done(assert(isErrored));
+      });
+    });
+  });
+  it('stops subscription upon MessageTypes.GQL_STOP', async () => {
     const { client } = await startServer();
     client.write(
       JSON.stringify({
-        type: GQL_CONNECTION_INIT,
+        type: MessageTypes.GQL_CONNECTION_INIT,
       })
     );
     client.write(
       JSON.stringify({
         id: 1,
-        type: GQL_START,
+        type: MessageTypes.GQL_START,
         payload: {
           query: `
           subscription {
@@ -409,14 +519,14 @@ describe('ws: wsHandler', () => {
       })
     );
     await new Promise((resolve, reject) => {
-      client.on(GQL_DATA, (chunk) => {
+      client.on('data', (chunk) => {
         const data = JSON.parse(chunk);
         let timer;
-        if (data.type === GQL_CONNECTION_ACK) {
+        if (data.type === MessageTypes.GQL_CONNECTION_ACK) {
           client.write(
             JSON.stringify({
               id: 1,
-              type: GQL_STOP,
+              type: MessageTypes.GQL_STOP,
             })
           );
           sendMessageMutation().then(() => {
@@ -424,7 +534,7 @@ describe('ws: wsHandler', () => {
             timer = setTimeout(resolve, 20);
           });
         }
-        if (data.type === GQL_DATA) {
+        if (data.type === MessageTypes.GQL_DATA) {
           // We have unsubscribed, there should not be data
           if (timer) clearTimeout(timer);
           reject();
@@ -432,205 +542,22 @@ describe('ws: wsHandler', () => {
       });
     });
   });
-  it('closes connection on error in context function', (done) => {
-    const context = (s, r, connectionParams) => {
-      if (connectionParams?.unauthenticated)
-        throw new Error('You must be authenticated!');
-      return {};
-    };
-    startServer({}, {}, { context }).then(({ server, client }) => {
-      client.write(
-        JSON.stringify({
-          type: GQL_CONNECTION_INIT,
-          payload: {
-            unauthenticated: true,
-          },
-        })
-      );
-      let isErrored = false;
-      client.on(GQL_DATA, (chunk) => {
-        isErrored =
-          chunk ===
-          `{"type":"connection_error","payload":{"errors":[{"message":"You must be authenticated!"}]}}`;
-      });
-      client.on('end', () => {
-        done(assert(isErrored));
-      });
-    });
-  });
   it('closes connection on connection_terminate', (done) => {
     startServer().then(({ server, client }) => {
       client.write(
         JSON.stringify({
-          type: GQL_CONNECTION_INIT,
+          type: MessageTypes.GQL_CONNECTION_INIT,
         })
       );
-      client.on(GQL_DATA, () => {
+      client.on('data', () => {
         client.write(
           JSON.stringify({
-            type: GQL_CONNECTION_TERMINATE,
+            type: MessageTypes.GQL_CONNECTION_TERMINATE,
           })
         );
       });
       client.on('end', () => {
         done();
-      });
-    });
-  });
-});
-
-describe('ws: SubscriptionConnection', () => {
-  it('emits connection_init', () => {
-    // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve, reject) => {
-      const { client } = await startServer(
-        {},
-        {},
-        {
-          onSubscriptionConnection: (connection: SubscriptionConnection) => {
-            connection.on(GQL_CONNECTION_INIT, (connectionParams) => {
-              try {
-                assert.deepStrictEqual(connectionParams, { test: 'ok' });
-                resolve();
-              } catch (e) {
-                reject(e);
-              }
-            });
-          },
-        }
-      );
-      client.write(
-        JSON.stringify({
-          payload: { test: 'ok' },
-          type: GQL_CONNECTION_INIT,
-        })
-      );
-    });
-  });
-  it('emits subscription_start', () => {
-    // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve, reject) => {
-      const body = {
-        id: 1,
-        type: GQL_START,
-        payload: {
-          query: `
-        subscription {
-          notificationAdded {
-            message
-          }
-        }
-      `,
-        },
-      };
-      const { client } = await startServer(
-        {},
-        {},
-        {
-          onSubscriptionConnection,
-          context: () => ({ test: true }),
-        }
-      );
-      function onSubscriptionConnection(connection: SubscriptionConnection) {
-        connection.on('subscription_start', (id, payload, context) => {
-          try {
-            assert.strictEqual(id, body.id);
-            assert.strictEqual(context.test, true);
-            assert.deepStrictEqual(payload, body.payload);
-            resolve();
-          } catch (e) {
-            reject(e);
-          }
-        });
-      }
-      client.write(
-        JSON.stringify({
-          payload: { test: 'ok' },
-          type: GQL_CONNECTION_INIT,
-        })
-      );
-      client.write(JSON.stringify(body));
-    });
-  });
-  it('emits subscription_stop', () => {
-    // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve, reject) => {
-      const { client } = await startServer(
-        {},
-        {},
-        {
-          onSubscriptionConnection,
-        }
-      );
-      function onSubscriptionConnection(connection: SubscriptionConnection) {
-        connection.on('subscription_stop', (id) => {
-          try {
-            assert.strictEqual(id, 1);
-            resolve();
-          } catch (e) {
-            reject(e);
-          }
-        });
-      }
-      client.write(
-        JSON.stringify({
-          type: GQL_CONNECTION_INIT,
-        })
-      );
-      client.write(
-        JSON.stringify({
-          id: 1,
-          type: GQL_START,
-          payload: {
-            query: `
-            subscription {
-              notificationAdded {
-                message
-              }
-            }
-          `,
-          },
-        })
-      );
-      client.on(GQL_DATA, (chunk) => {
-        const data = JSON.parse(chunk);
-        if (data.type === GQL_CONNECTION_ACK) {
-          client.write(
-            JSON.stringify({
-              id: 1,
-              type: GQL_STOP,
-            })
-          );
-        }
-      });
-    });
-  });
-  it('emits connection_terminate', () => {
-    // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve, reject) => {
-      const { client } = await startServer(
-        {},
-        {},
-        {
-          onSubscriptionConnection,
-        }
-      );
-      function onSubscriptionConnection(connection: SubscriptionConnection) {
-        connection.on(GQL_CONNECTION_TERMINATE, () => {
-          resolve();
-        });
-      }
-      client.write(
-        JSON.stringify({
-          type: GQL_CONNECTION_INIT,
-        })
-      );
-      client.on(GQL_DATA, () => {
-        client.write(
-          JSON.stringify({
-            type: GQL_CONNECTION_TERMINATE,
-          })
-        );
       });
     });
   });
