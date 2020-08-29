@@ -1,4 +1,4 @@
-import { ExecutionResult } from 'graphql';
+import { ExecutionResult, GraphQLError } from 'graphql';
 import {
   GraphQLParams,
   GraphQL,
@@ -7,7 +7,7 @@ import {
   isExecutionResult,
 } from '@benzene/core';
 import * as WebSocket from 'ws';
-import * as MessageTypes from './messageTypes';
+import MessageTypes from './messageTypes';
 import { OperationMessage } from './types';
 
 export class SubscriptionConnection {
@@ -31,11 +31,15 @@ export class SubscriptionConnection {
     try {
       data = JSON.parse(message);
     } catch (err) {
-      return this.sendError(undefined, new Error('Malformed message'));
+      return this.sendMessage(MessageTypes.GQL_ERROR, undefined, {
+        errors: [new GraphQLError('Malformed message')],
+      });
     }
     switch (data.type) {
       case MessageTypes.GQL_CONNECTION_INIT:
-        this.handleConnectionInit();
+        // Our modified protocol does not concern about this
+        // It is fine to not send connection_init
+        this.sendMessage(MessageTypes.GQL_CONNECTION_ACK);
         break;
       case MessageTypes.GQL_START:
         this.handleGQLStart(
@@ -51,10 +55,6 @@ export class SubscriptionConnection {
     }
   }
 
-  handleConnectionInit() {
-    this.sendMessage(MessageTypes.GQL_CONNECTION_ACK);
-  }
-
   async handleGQLStart(
     data: OperationMessage & { id: string; payload: GraphQLParams }
   ) {
@@ -62,7 +62,9 @@ export class SubscriptionConnection {
     const { query, variables, operationName } = data.payload;
 
     if (!query) {
-      return this.sendError(data.id, new Error('Must provide query string.'));
+      return this.sendMessage(MessageTypes.GQL_ERROR, undefined, {
+        errors: [new GraphQLError('Must provide query string.')],
+      });
     }
 
     const cachedOrResult = this.gql.getCachedGQL(query, operationName);
@@ -122,16 +124,6 @@ export class SubscriptionConnection {
       //  Close connection after sending error message
       this.socket.close();
     }, 10);
-  }
-
-  sendError(id: string | undefined, error: Error) {
-    this.socket.send(
-      JSON.stringify({
-        type: MessageTypes.GQL_ERROR,
-        ...(id && { id }),
-        payload: { message: error.message },
-      })
-    );
   }
 
   sendMessage(type: string, id?: string | null, result?: ExecutionResult) {

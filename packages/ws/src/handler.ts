@@ -2,7 +2,7 @@ import { GraphQL, TContext, ValueOrPromise } from '@benzene/core';
 import { IncomingMessage } from 'http';
 import * as WebSocket from 'ws';
 import { SubscriptionConnection } from './connection';
-import { GRAPHQL_WS, GQL_CONNECTION_ERROR } from './messageTypes';
+import MessageTypes, { GRAPHQL_WS } from './messageTypes';
 import { HandlerConfig } from './types';
 
 export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
@@ -28,7 +28,7 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
         err.message = `Context creation failed: ${err.message}`;
         socket.send(
           JSON.stringify({
-            type: GQL_CONNECTION_ERROR,
+            type: MessageTypes.GQL_CONNECTION_ERROR,
             payload: gql.formatExecutionResult({ errors: [err] }),
           })
         );

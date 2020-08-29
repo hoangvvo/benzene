@@ -1,5 +1,5 @@
 import { wsHandler } from '../src';
-import * as MessageTypes from '../src/messageTypes';
+import MessageTypes from '../src/messageTypes';
 import { HandlerConfig } from '../src/types';
 import { GraphQL, runHttpQuery } from '../../core/src';
 import { Config as GraphQLConfig } from '../../core/src/types';
@@ -202,7 +202,7 @@ describe('ws: wsHandler', () => {
         if (json.type === 'error') {
           assert.deepStrictEqual(json, {
             type: 'error',
-            payload: { message: 'Malformed message' },
+            payload: { errors: [{ message: 'Malformed message' }] },
           });
           done();
         }
@@ -286,8 +286,7 @@ describe('ws: wsHandler', () => {
         if (json.type === 'error') {
           assert.deepStrictEqual(json, {
             type: 'error',
-            id: 1,
-            payload: { message: 'Must provide query string.' },
+            payload: { errors: [{ message: 'Must provide query string.' }] },
           });
           resolve();
         }
@@ -484,9 +483,6 @@ describe('ws: wsHandler', () => {
       client.write(
         JSON.stringify({
           type: MessageTypes.GQL_CONNECTION_INIT,
-          payload: {
-            unauthenticated: true,
-          },
         })
       );
       let isErrored = false;
