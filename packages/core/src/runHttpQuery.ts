@@ -1,24 +1,20 @@
 import { GraphQL } from './core';
 import { HttpQueryRequest, HttpQueryResponse } from './types';
 import flatstr from 'flatstr';
-import { ExecutionResult } from 'graphql';
+import { ExecutionResult, GraphQLError } from 'graphql';
 
 function createResponse(
   gql: GraphQL,
   code: number,
-  obj: ExecutionResult | string,
-  stringify = JSON.stringify,
-  headers: Record<string, string> = typeof obj === 'string'
-    ? { 'content-type': 'text/plain' }
-    : { 'content-type': 'application/json' }
+  obj: ExecutionResult
 ): HttpQueryResponse {
   return {
     body:
       typeof obj === 'string'
         ? obj
-        : flatstr(stringify(gql.formatExecutionResult(obj))),
+        : flatstr(JSON.stringify(gql.formatExecutionResult(obj))),
     status: code,
-    headers,
+    headers: { 'content-type': 'application/json' },
   };
 }
 
@@ -27,7 +23,9 @@ export async function runHttpQuery(
   { query, variables, operationName, context, httpMethod }: HttpQueryRequest
 ): Promise<HttpQueryResponse> {
   if (!query) {
-    return createResponse(gql, 400, 'Must provide query string.');
+    return createResponse(gql, 400, {
+      errors: [new GraphQLError('Must provide query string.')],
+    });
   }
 
   const cachedOrResult = gql.getCachedGQL(query, operationName);
@@ -37,17 +35,19 @@ export async function runHttpQuery(
   }
 
   if (httpMethod !== 'POST' && httpMethod !== 'GET')
-    return createResponse(
-      gql,
-      405,
-      `GraphQL only supports GET and POST requests.`
-    );
+    return createResponse(gql, 405, {
+      errors: [
+        new GraphQLError('GraphQL only supports GET and POST requests.'),
+      ],
+    });
   if (httpMethod === 'GET' && cachedOrResult.operation !== 'query')
-    return createResponse(
-      gql,
-      405,
-      `Operation ${cachedOrResult.operation} cannot be performed via a GET request.`
-    );
+    return createResponse(gql, 405, {
+      errors: [
+        new GraphQLError(
+          `Can only perform a ${cachedOrResult.operation} operation from a POST request.`
+        ),
+      ],
+    });
 
   return createResponse(
     gql,

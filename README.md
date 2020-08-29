@@ -26,19 +26,19 @@ There are currently three packages under `@benzene`.
 
 Fast and simple GraphQL Server for Node.js
 
-[Documentation](server/) [npm](https://www.npmjs.com/package/@benzene/server) [yarn](https://yarnpkg.com/package/@benzene/server)
+[Documentation](https://hoangvvo.github.io/benzene/#/server/) [npm](https://www.npmjs.com/package/@benzene/server) [yarn](https://yarnpkg.com/package/@benzene/server)
 
 ### Worker (`@benzene/worker`)
 
 GraphQL server right in the browser ([Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)) or at the edge ([Cloudflare Workers®](https://workers.cloudflare.com/))
 
-[Documentation](worker/) [npm](https://www.npmjs.com/package/@benzene/worker) [yarn](https://yarnpkg.com/package/@benzene/worker)
+[Documentation](https://hoangvvo.github.io/benzene/#/worker/) [npm](https://www.npmjs.com/package/@benzene/worker) [yarn](https://yarnpkg.com/package/@benzene/worker)
 
-### WebSocket
+### WebSocket (`@benzene/ws`)
 
 GraphQL over WebSocket using [`ws`](https://github.com/websockets/worker)
 
-[Documentation](ws/) [npm](https://www.npmjs.com/package/@benzene/ws) [yarn](https://yarnpkg.com/package/@benzene/ws)
+[Documentation](https://hoangvvo.github.io/benzene/#/ws/) [npm](https://www.npmjs.com/package/@benzene/ws) [yarn](https://yarnpkg.com/package/@benzene/ws)
 
 ## Examples
 

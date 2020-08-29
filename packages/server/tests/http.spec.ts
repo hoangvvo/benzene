@@ -66,7 +66,12 @@ describe('server/http: httpHandler', () => {
       .post('/graphql')
       .set('content-type', 'application/json')
       .send('{ as')
-      .expect(400);
+      .expect(400)
+      .expect(
+        JSON.stringify({
+          errors: [{ message: 'POST body sent invalid JSON.' }],
+        })
+      );
   });
   it('catches error thrown in context function', async () => {
     const server = createGQLServer(

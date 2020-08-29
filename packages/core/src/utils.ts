@@ -16,7 +16,11 @@ export function parseBodyByContentType(
     case 'application/graphql':
       return { query: rawBody };
     case 'application/json':
-      return JSON.parse(rawBody);
+      try {
+        return JSON.parse(rawBody);
+      } catch (e) {
+        throw new Error('POST body sent invalid JSON.');
+      }
     default:
       // If no Content-Type header matches, parse nothing.
       return null;
