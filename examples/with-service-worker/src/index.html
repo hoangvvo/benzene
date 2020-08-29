@@ -31,15 +31,12 @@
   <body
     style="max-width: 860px; padding: 1rem; margin: 0 auto;"
   >
-    <script src="./index.js"></script>
-    <div style="text-align: center;">
-      <h1><a href="https://github.com/hoangvvo/benzene">@benzene/worker</a> example</h1>
-      <p>
-        This example demonstrates a GraphQL execution <b>without a server</b> and
-        instead right on the browser using
-        <a href="https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API">Service Worker API</a>. Reload this page after first load to make sure Service Worker is activated.
-      </p>
-    </div>
+    <h1><a href="https://github.com/hoangvvo/benzene">@benzene/worker</a> example</h1>
+    <p>
+      This example demonstrates a GraphQL execution <b>without a server</b> and
+      instead right on the browser using
+      <a href="https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API">Service Worker API</a>. Reload this page after first load to make sure Service Worker is activated.
+    </p>
     <div style="display: flex; flex-wrap: wrap;">
       <div class="side" style="padding: 0.5rem;">
         <div style="background: white; z-index: 10; position: sticky; top: 0; padding: .5rem; border: 1px gray dashed;">
@@ -70,8 +67,8 @@
         </div>
       </div>
     </div>
-    <h2 style="text-align: center;">How does it works?</h2>
-    <p style="text-align: center;">
+    <h2>How does it works?</h2>
+    <p>
       After registering <code>worker.js</code> as a service worker, it will
       intercept all <code>fetch</code> events:
     </p>
@@ -98,5 +95,6 @@ addEventListener('fetch', wsHandler(GQL, { path: '/graphql' }))</textarea>
     <footer style="border-top: 1px #efefef solid; color: #999;">
       <small>Pokémon data provided by <a href="https://pokeapi.co/">PokéAPI</a></small>
     </footer>
+    <script src="./index.js"></script>
   </body>
 </html>
