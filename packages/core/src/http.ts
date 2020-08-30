@@ -128,7 +128,7 @@ export async function runHttpQuery(
     await gql.execute({
       jit: cachedOrResult.jit,
       document: cachedOrResult.document,
-      contextValue: context,
+      contextValue: request.context,
       variableValues: variables,
     })
   );

@@ -3,7 +3,6 @@ import MessageTypes from '../src/messageTypes';
 import { HandlerConfig } from '../src/types';
 import { GraphQL, runHttpQuery } from '../../core/src';
 import { Config as GraphQLConfig } from '../../core/src/types';
-import { parseBody } from '../../server/src/http/parseBody';
 import WebSocket from 'ws';
 import { strict as assert } from 'assert';
 import { makeExecutableSchema } from '@graphql-tools/schema';
@@ -11,6 +10,8 @@ import { PubSub } from 'graphql-subscriptions';
 import { createServer } from 'http';
 import fetch from 'node-fetch';
 import { GraphQLError } from 'graphql';
+import { readBody } from '../../server/src/http/readBody';
+import { httpHandler } from '../../server/src';
 
 const pubsub = new PubSub();
 
@@ -75,18 +76,8 @@ async function startServer(
   ws: WebSocket = new WebSocket('ws://localhost:4000', 'graphql-ws')
 ) {
   const gql = new GraphQL({ schema, ...options });
-  const server = createServer((req, res) => {
-    parseBody(req, async (err, body) => {
-      const result = await runHttpQuery(gql, {
-        query: body.query,
-        variables: body.variables,
-        operationName: body.operationName,
-        context: {},
-        httpMethod: req.method as string,
-      });
-      res.writeHead(result.status, result.headers).end(result.body);
-    });
-  });
+  // @ts-ignore
+  const server = createServer(httpHandler(gql));
   const wss = new WebSocket.Server({ server });
   // We cross test different packages
   // @ts-ignore

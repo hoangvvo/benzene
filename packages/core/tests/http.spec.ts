@@ -9,8 +9,6 @@ import {
   FormattedExecutionResult,
 } from '../src';
 
-const _ = undefined;
-
 const QueryRootType = new GraphQLObjectType({
   name: 'QueryRoot',
   fields: {
@@ -63,10 +61,6 @@ async function httpTest(
   },
   GQLInstance = GQL
 ) {
-  const headers = httpParams.headers || {
-    'content-type': httpParams.body ? 'application/json' : '',
-  };
-
   expected.body =
     (typeof expected.body === 'object'
       ? JSON.stringify(expected.body)
@@ -462,7 +456,7 @@ describe('POST functionality', () => {
   // will send request and response when using thunk
 });
 
-describe.only('Error handling functionality', () => {
+describe('Error handling functionality', () => {
   it('handles field errors caught by GraphQL', async () => {
     return httpTest(
       {
