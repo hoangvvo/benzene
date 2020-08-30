@@ -22,9 +22,12 @@ export interface GraphQLParams {
   extensions?: Record<string, any> | null;
 }
 
-export interface HttpQueryRequest extends GraphQLParams {
+export interface HttpQueryRequest {
   context: TContext;
   httpMethod: string;
+  queryParams: Record<string, string> | null;
+  body: string | Record<string, any> | null;
+  headers: Record<string, string>;
 }
 
 export interface HttpQueryResponse {
