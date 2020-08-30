@@ -1,11 +1,5 @@
-import {
-  GraphQL,
-  getGraphQLParams,
-  HttpQueryResponse,
-  HttpQueryRequest,
-  runHttpQuery,
-} from '@benzene/core';
-import { parseBody } from './parseBody';
+import { GraphQL, HttpQueryResponse, runHttpQuery } from '@benzene/core';
+import { readBody } from './readBody';
 import parseUrl from '@polka/url';
 import { HandlerConfig } from './types';
 import { IncomingMessage, ServerResponse } from 'http';
@@ -30,23 +24,29 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
       (req.path || parseUrl(req, true).pathname) !== options.path
     )
       return sendResponse(res, { status: 404, body: 'not found', headers: {} });
-    parseBody(req, async (err, body) => {
+    readBody(req, async (err, body) => {
       if (err) return sendErrorResponse(res, err);
-      const params = getGraphQLParams({
-        queryParams: parseUrl(req, true).query || {},
-        body,
-      }) as HttpQueryRequest;
-      params.httpMethod = req.method as string;
-      try {
-        params.context =
-          typeof options.context === 'function'
-            ? await options.context(req)
-            : options.context || {};
-      } catch (error) {
-        error.message = `Context creation failed: ${error.message}`;
-        sendErrorResponse(res, error);
-      }
-      sendResponse(res, await runHttpQuery(gql, params));
+      let context;
+      if (options.context)
+        try {
+          context =
+            typeof options.context === 'function'
+              ? await options.context(req)
+              : options.context;
+        } catch (error) {
+          error.message = `Context creation failed: ${error.message}`;
+          sendErrorResponse(res, error);
+        }
+      sendResponse(
+        res,
+        await runHttpQuery(gql, {
+          context: context || {},
+          httpMethod: req.method as string,
+          queryParams: parseUrl(req, true).query || null,
+          body,
+          headers: req.headers as Record<string, string>,
+        })
+      );
     });
   };
 }

@@ -27,7 +27,7 @@ export interface HttpQueryRequest {
   httpMethod: string;
   queryParams: Record<string, string> | null;
   body: string | Record<string, any> | null;
-  headers: Record<string, string>;
+  headers: Record<string, string | null>;
 }
 
 export interface HttpQueryResponse {
