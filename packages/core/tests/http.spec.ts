@@ -302,6 +302,19 @@ describe('POST functionality', () => {
     );
   });
 
+  it('alows POST with JSON encoding with additional directives', () => {
+    return httpTest(
+      {
+        method: 'POST',
+        body: { query: '{test}' },
+        headers: {
+          'content-type': 'application/json; charset=UTF-8',
+        },
+      },
+      { body: { data: { test: 'Hello World' } } }
+    );
+  });
+
   it('Allows sending a mutation via POST', async () => {
     return httpTest(
       {
@@ -591,10 +604,7 @@ describe('Error handling functionality', () => {
 
   it('handles errors caused by a lack of query', async () => {
     return httpTest(
-      {
-        method: 'GET',
-        queryParams: {},
-      },
+      { method: 'GET' },
       {
         status: 400,
         body: {

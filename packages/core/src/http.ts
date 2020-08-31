@@ -63,10 +63,7 @@ function createResponse(
   obj: ExecutionResult
 ): HttpQueryResponse {
   return {
-    body:
-      typeof obj === 'string'
-        ? obj
-        : flatstr(JSON.stringify(gql.formatExecutionResult(obj))),
+    body: flatstr(JSON.stringify(gql.formatExecutionResult(obj))),
     status: code,
     headers: { 'content-type': 'application/json' },
   };
