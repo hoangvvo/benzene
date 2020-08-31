@@ -1,4 +1,3 @@
-import { makeExecutableSchema } from '@graphql-tools/schema';
 import * as fetch from 'node-fetch';
 import { strict as assert } from 'assert';
 import { HttpQueryResponse } from '@benzene/core/src';
