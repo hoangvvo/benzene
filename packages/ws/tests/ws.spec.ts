@@ -466,6 +466,58 @@ describe('ws: wsHandler', () => {
       });
     });
   });
+  it('queue messages until context is resolved', async () => {
+    const { client } = await startServer({
+      context: () =>
+        new Promise((resolve) => {
+          // Reasonable time for messages to start to queue
+          // FIXME: We still need to be sure though.
+          setTimeout(() => resolve({ user: 'Alice' }), 50);
+        }),
+    });
+    client.write(
+      JSON.stringify({
+        type: MessageTypes.GQL_CONNECTION_INIT,
+      })
+    );
+    client.write(
+      JSON.stringify({
+        id: 1,
+        type: MessageTypes.GQL_START,
+        payload: {
+          query: `
+          subscription {
+            notificationAdded {
+              user
+            }
+          }
+        `,
+        },
+      })
+    );
+    await new Promise((resolve) => {
+      client.on('data', (chunk) => {
+        const data = JSON.parse(chunk);
+        if (data.type === MessageTypes.GQL_CONNECTION_ACK) {
+          return sendMessageMutation();
+        }
+        if (data.type === MessageTypes.GQL_DATA) {
+          assert.deepStrictEqual(data, {
+            type: MessageTypes.GQL_DATA,
+            id: 1,
+            payload: {
+              data: {
+                notificationAdded: {
+                  user: 'Alice',
+                },
+              },
+            },
+          });
+          resolve();
+        }
+      });
+    });
+  });
   it('closes connection on error in context function', (done) => {
     const context = async (s, r) => {
       throw new Error('You must be authenticated!');
