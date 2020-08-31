@@ -1,64 +1,15 @@
 import {
-  GraphQLSchema,
   GraphQLArgs,
+  FormattedExecutionResult,
+  GraphQLSchema,
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
-import { strict as assert, deepStrictEqual } from 'assert';
-import { GraphQL, FormattedExecutionResult, runHttpQuery } from '../src';
-import { Config, QueryCache } from '../src/types';
-import { Lru } from 'tiny-lru';
-
-const QueryRootType = new GraphQLObjectType({
-  name: 'QueryRoot',
-  fields: {
-    test: {
-      type: GraphQLString,
-      args: {
-        who: { type: GraphQLString },
-      },
-      resolve: (_root, args: { who?: string }) =>
-        'Hello ' + (args.who ?? 'World'),
-    },
-    thrower: {
-      type: GraphQLString,
-      resolve() {
-        throw new Error('Throws!');
-      },
-    },
-  },
-});
-
-const TestSchema = new GraphQLSchema({
-  query: QueryRootType,
-  mutation: new GraphQLObjectType({
-    name: 'MutationRoot',
-    fields: {
-      writeTest: {
-        type: QueryRootType,
-        resolve: () => ({}),
-      },
-    },
-  }),
-});
+import { deepStrictEqual } from 'assert';
+import { GraphQL } from '../src';
+import { TestSchema } from './schema.spec';
 
 const GQL = new GraphQL({ schema: TestSchema });
-
-describe('GraphQL constructor', () => {
-  it('throws if initializing instance with no option', () => {
-    assert.throws(() => {
-      // @ts-expect-error
-      new GraphQL();
-    });
-  });
-  it('throws if schema is invalid', () => {
-    assert.throws(() => {
-      new GraphQL({
-        schema: new GraphQLSchema({ directives: [null] }),
-      });
-    });
-  });
-});
 
 describe('GraphQL#graphql', () => {
   async function testGraphql(
@@ -204,41 +155,5 @@ describe('GraphQL#graphql', () => {
         new GraphQL({ schema, rootValue: () => rootValue })
       );
     });
-  });
-});
-
-describe('GraphQL#cache', () => {
-  it('saves compiled query to cache', async () => {
-    const GQL = new GraphQL({
-      schema: TestSchema,
-    });
-    const lru: Lru<QueryCache> = (GQL as any).lru;
-    await GQL.getCachedGQL(`{ test }`);
-    assert(lru.has('{ test }'));
-  });
-  it('uses compiled query from cache', async () => {
-    const GQL = new GraphQL({
-      schema: TestSchema,
-    });
-    const lru: Lru<QueryCache> = (GQL as any).lru;
-    lru.set('{ test }', {
-      jit: {
-        query: () => ({ data: { test: 'Goodbye' } }),
-        stringify: JSON.stringify,
-      },
-      operation: 'query',
-      document: '' as any,
-    });
-
-    const result = await GQL.graphql({ source: '{ test }' });
-    assert.deepStrictEqual(result, { data: { test: 'Goodbye' } });
-  });
-  it('does not cache bad query', async () => {
-    const GQL = new GraphQL({
-      schema: TestSchema,
-    });
-    const lru: Lru<QueryCache> = (GQL as any).lru;
-    await GQL.getCachedGQL('{ baddd }');
-    assert(lru.has('{ baddd }') !== true);
   });
 });
