@@ -55,6 +55,7 @@ async function httpTest(
     queryParams?: { [key: string]: string };
     context?: any;
     headers?: Record<string, string>;
+    stringifyBody?: boolean;
   },
   expected: Partial<Omit<HttpQueryResponse, 'body'>> & {
     body?: FormattedExecutionResult | string;
@@ -71,7 +72,8 @@ async function httpTest(
   deepStrictEqual(
     await runHttpQuery(GQLInstance, {
       body:
-        typeof httpParams.body === 'object'
+        typeof httpParams.body === 'object' &&
+        httpParams.stringifyBody !== false
           ? JSON.stringify(httpParams.body)
           : httpParams.body,
       queryParams: httpParams.queryParams || null,
@@ -174,7 +176,7 @@ describe('GET functionality', () => {
         },
       },
       {
-        status: 400, // express-graphql says 500?
+        status: 400,
         body: {
           errors: [
             {
@@ -259,7 +261,6 @@ describe('GET functionality', () => {
 
   // Allows passing in a fieldResolve
   // Allows passing in a typeResolver
-  // Uses request as context by default
 
   it('Allows passing in a context', async () => {
     const schema = new GraphQLSchema({
@@ -447,7 +448,30 @@ describe('POST functionality', () => {
   // allows other UTF charsets
   // allows deflated POST bodies
 
-  // Note: The following will be tested in binding frameworks
+  it('allows for pre-parsed POST bodies', () => {
+    // TODO: More illustrative test
+    const schema = new GraphQLSchema({
+      query: new GraphQLObjectType({
+        name: 'QueryRoot',
+        fields: {
+          test: {
+            type: GraphQLString,
+            resolve: (obj, variables, context) => 'test',
+          },
+        },
+      }),
+    });
+
+    return httpTest(
+      {
+        method: 'POST',
+        body: { query: 'query { test }' },
+        stringifyBody: false,
+      },
+      { body: { data: { test: 'test' } } },
+      new GraphQL({ schema })
+    );
+  });
   // allows for pre-parsed POST bodies
   // allows for pre-parsed POST using application/graphql
   // does not accept unknown pre-parsed POST string
