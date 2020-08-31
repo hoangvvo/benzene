@@ -45,7 +45,7 @@ function createGQLServer(options: Config, handlerOpts?: HandlerConfig) {
   return createServer(httpHandler(gql, handlerOpts));
 }
 
-describe('server/http: httpHandler', () => {
+describe('httpHandler', () => {
   it('handles GET request', () => {
     const server = createGQLServer({ schema: TestSchema });
     return request(server)

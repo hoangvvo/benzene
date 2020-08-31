@@ -3,53 +3,66 @@ import * as fetch from 'node-fetch';
 import { strict as assert } from 'assert';
 import { HttpQueryResponse } from '@benzene/core/src';
 import { GraphQL, fetchHandler } from '../src';
+import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
+import { HandlerConfig } from '../src/types';
 
 interface FetchEvent {
   request: Request;
   respondWith(response: Promise<Response> | Response): Promise<Response>;
 }
 
-const schema = makeExecutableSchema({
-  typeDefs: `
-    type Query {
-      hello: String
-      helloMe: String
-      helloWho(who: String!): String
-    }
-  `,
-  resolvers: {
-    Query: {
-      hello: () => 'world',
-      helloMe: (obj, args, context) => context.me,
-      helloWho: (obj, args) => args.who,
+const QueryRootType = new GraphQLObjectType({
+  name: 'QueryRoot',
+  fields: {
+    test: {
+      type: GraphQLString,
+      args: {
+        who: { type: GraphQLString },
+      },
+      resolve: (_root, args: { who?: string }) =>
+        'Hello ' + (args.who ?? 'World'),
+    },
+    testCtx: {
+      type: GraphQLString,
+      args: {
+        who: { type: GraphQLString },
+      },
+      resolve: (_root, _args, context: { who?: string }) =>
+        'Hello ' + (context.who ?? 'World'),
+    },
+    thrower: {
+      type: GraphQLString,
+      resolve() {
+        throw new Error('Throws!');
+      },
     },
   },
 });
 
-async function testRequest(
-  input: string,
-  init: fetch.RequestInit,
+const TestSchema = new GraphQLSchema({
+  query: QueryRootType,
+});
+
+async function testFetch(
+  request: fetch.Request,
   expected: Partial<HttpQueryResponse> | null,
-  handlerOptions = {}
+  options?: HandlerConfig,
+  GQLInstance = new GraphQL({ schema: TestSchema })
 ) {
-  const gql = new GraphQL({ schema });
   return new Promise((resolve, reject) => {
     const fetchEvent: FetchEvent = {
       // @ts-ignore
-      request: new fetch.Request(
-        input.startsWith('/') ? `http://localhost:0${input}` : input,
-        init
-      ),
+      request: new fetch.Request(request),
       respondWith: async (maybeResponse) => {
         const response = await maybeResponse;
-        if (expected.body)
-          assert.strictEqual(expected.body, await response.text());
+        assert.strictEqual(expected.body, await response.text());
         assert.strictEqual(expected.status || 200, response.status);
+        // TODO: Add headers
         resolve();
         return response;
       },
     };
-    fetchHandler(gql, handlerOptions)(fetchEvent);
+    fetchHandler(GQLInstance, options)(fetchEvent);
   });
 }
 
@@ -60,102 +73,57 @@ before(() => {
   global.Response = fetch.Response;
 });
 
-describe('worker: fetchHandler', () => {
-  it('works with queryParams', async () => {
-    await testRequest(
-      '/graphql?query={ hello }',
-      {},
-      { status: 200, body: `{"data":{"hello":"world"}}` }
+describe('fetchHandler', () => {
+  it('handles GET request', () => {
+    return testFetch(
+      new fetch.Request('http://localhost/graphql?query={test}'),
+      { body: JSON.stringify({ data: { test: 'Hello World' } }) }
     );
   });
 
-  it('works with application/json body', async () => {
-    await testRequest(
-      '/graphql',
-      {
-        body: JSON.stringify({
-          query: `query helloWho($who: String!) { helloWho(who: $who) }`,
-          variables: { who: 'John' },
-          headers: { 'content-type': 'application/json' },
-        }),
+  it('handles POST request', () => {
+    return testFetch(
+      new fetch.Request('http://localhost/graphql', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-      },
-      { status: 200, body: `{"data":{"helloWho":"John"}}` }
+        body: JSON.stringify({ query: '{test}' }),
+      }),
+      { body: JSON.stringify({ data: { test: 'Hello World' } }) }
     );
   });
 
-  it('works with application/graphql', async () => {
-    await testRequest(
-      '/graphql',
-      {
-        body: `{ hello }`,
-        method: 'POST',
-        headers: { 'content-type': 'application/graphql' },
-      },
-      { status: 200, body: `{"data":{"hello":"world"}}` }
-    );
-  });
+  describe('resolves options.context that is', () => {
+    it('an object', async () => {
+      await testFetch(
+        new fetch.Request('/graphql?query={testCtx}'),
+        { body: `{"data":{"testCtx":"Hello Jane"}}` },
+        { context: { who: 'Jane' } }
+      );
+    });
 
-  describe('do not parse body', () => {
-    it('with empty content-type', async () => {
-      await testRequest(
-        '/graphql',
-        {
-          body: JSON.stringify({
-            query: `query helloWho($who: String!) { helloWho(who: $who) }`,
-            variables: { who: 'John' },
-          }),
+    it('a function', async () => {
+      await testFetch(
+        new fetch.Request('http://localhost/graphql', {
           method: 'POST',
-        },
-        {
-          status: 400,
-          // Because body is not parsed, query string cannot be read
-          body: JSON.stringify({
-            errors: [{ message: 'Must provide query string.' }],
-          }),
-        }
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ query: '{testCtx}' }),
+        }),
+        { body: `{"data":{"testCtx":"Hello John"}}` },
+        { context: async () => ({ who: 'John' }) }
       );
     });
   });
 
-  it('errors if query is not defined', async () => {
-    await testRequest(
-      '/graphql',
-      {},
-      {
-        body: JSON.stringify({
-          errors: [{ message: 'Must provide query string.' }],
-        }),
-        status: 400,
-      }
-    );
-  });
-
-  it('errors if body is malformed', async () => {
-    await testRequest(
-      '/graphql',
-      {
-        body: `query { helloWorld`,
+  it('catches error thrown in context function', async () => {
+    await testFetch(
+      new fetch.Request('http://localhost/graphql', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-      },
+        body: JSON.stringify({ query: '{testCtx}' }),
+      }),
       {
-        status: 400,
-        body: JSON.stringify({
-          errors: [{ message: 'POST body sent invalid JSON.' }],
-        }),
-      }
-    );
-  });
-
-  it('catches error thrown in context function', async () => {
-    await testRequest(
-      '/graphql?query={helloMe}',
-      {},
-      {
-        status: 500,
         body: `{"errors":[{"message":"Context creation failed: uh oh"}]}`,
+        status: 500,
       },
       {
         context: async () => {
@@ -165,40 +133,14 @@ describe('worker: fetchHandler', () => {
     );
   });
 
-  describe('resolves options.context that is', () => {
-    it('an object', async () => {
-      await testRequest(
-        '/graphql?query={helloMe}',
-        {},
-        {
-          status: 200,
-          body: `{"data":{"helloMe":"hoang"}}`,
-        },
-        { context: { me: 'hoang' } }
-      );
-    });
-
-    it('a function', async () => {
-      await testRequest(
-        '/graphql?query={helloMe}',
-        {},
-        {
-          status: 200,
-          body: `{"data":{"helloMe":"hoang"}}`,
-        },
-        { context: async () => ({ me: 'hoang' }) }
-      );
-    });
-  });
-
   describe('When options.path is set', () => {
-    const gql = new GraphQL({ schema });
+    const gql = new GraphQL({ schema: TestSchema });
     it('ignore requests of different path', (done) => {
       const badFetchEvent: FetchEvent = {
         // @ts-ignore
-        request: new fetch.Request('http://localhost:0/notAPI'),
-        respondWith: (maybeResponse) => {
-          throw new Error("DON'T CALL ME! WE ALREADY BROKE UP.");
+        request: new fetch.Request('http://localhost/notAPI'),
+        respondWith: () => {
+          throw new Error("DON'T CALL ME!!!");
         },
       };
       fetchHandler(gql, { path: '/api' })(badFetchEvent);
@@ -207,7 +149,7 @@ describe('worker: fetchHandler', () => {
     it('response to requests to defined path', (done) => {
       const correctFetchEvent: FetchEvent = {
         // @ts-ignore
-        request: new fetch.Request('http://localhost:0/api'),
+        request: new fetch.Request('http://localhost:/api'),
         respondWith: async (maybeResponse) => {
           done();
           return maybeResponse;
