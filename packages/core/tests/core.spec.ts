@@ -1,55 +1,48 @@
-import { makeExecutableSchema } from '@graphql-tools/schema';
-import { GraphQLSchema, GraphQLArgs } from 'graphql';
-import { strict as assert, deepStrictEqual } from 'assert';
 import {
-  GraphQL,
-  GraphQLParams,
-  FormattedExecutionResult,
-  runHttpQuery,
-} from '../src';
-import { Config, QueryCache, HttpQueryRequest } from '../src/types';
+  GraphQLSchema,
+  GraphQLArgs,
+  GraphQLObjectType,
+  GraphQLString,
+} from 'graphql';
+import { strict as assert, deepStrictEqual } from 'assert';
+import { GraphQL, FormattedExecutionResult, runHttpQuery } from '../src';
+import { Config, QueryCache } from '../src/types';
 import { Lru } from 'tiny-lru';
 
-const schema = makeExecutableSchema({
-  typeDefs: `
-    type Query {
-      hello(who: String!): String
-      helloWorld: String
-      asyncHelloWorld: String
-      helloRoot: String
-      throwMe: String
-      asyncThrowMe: String
-      dangerousThrow: String
-      helloContext: String
-    }
-    type Mutation {
-      sayHello(who: String!): String
-    }
-  `,
-  resolvers: {
-    Query: {
-      hello: (obj, args) => args.who,
-      asyncHelloWorld: async (obj, args) => 'world',
-      helloWorld: () => 'world',
-      helloRoot: ({ name }) => name,
-      throwMe: () => {
-        throw new Error('im thrown');
+const QueryRootType = new GraphQLObjectType({
+  name: 'QueryRoot',
+  fields: {
+    test: {
+      type: GraphQLString,
+      args: {
+        who: { type: GraphQLString },
       },
-      asyncThrowMe: async () => {
-        throw new Error('im thrown');
-      },
-      dangerousThrow: () => {
-        const err = new Error('oh no');
-        (err as any).systemSecret = '123';
-        throw err;
-      },
-      helloContext: (obj, args, context) => 'Hello ' + context.robot,
+      resolve: (_root, args: { who?: string }) =>
+        'Hello ' + (args.who ?? 'World'),
     },
-    Mutation: {
-      sayHello: (obj, args) => 'Hello ' + args.who,
+    thrower: {
+      type: GraphQLString,
+      resolve() {
+        throw new Error('Throws!');
+      },
     },
   },
 });
+
+const TestSchema = new GraphQLSchema({
+  query: QueryRootType,
+  mutation: new GraphQLObjectType({
+    name: 'MutationRoot',
+    fields: {
+      writeTest: {
+        type: QueryRootType,
+        resolve: () => ({}),
+      },
+    },
+  }),
+});
+
+const GQL = new GraphQL({ schema: TestSchema });
 
 describe('GraphQL constructor', () => {
   it('throws if initializing instance with no option', () => {
@@ -67,180 +60,185 @@ describe('GraphQL constructor', () => {
   });
 });
 
-describe('core: GraphQL#graphql', () => {
-  type ExpectedResultFn = (res: FormattedExecutionResult) => void;
-  async function testGQL(
+describe('GraphQL#graphql', () => {
+  async function testGraphql(
     args: Pick<
       GraphQLArgs,
       'contextValue' | 'variableValues' | 'operationName'
     > & {
       source: string;
     },
-    expected: FormattedExecutionResult | ExpectedResultFn,
-    options?: Partial<Config>
+    expected: FormattedExecutionResult,
+    GQLInstance = GQL
   ) {
-    const result = await new GraphQL({
-      schema,
-      ...options,
-    }).graphql(args);
-    if (typeof expected === 'function') return expected(result);
+    const result = await GQLInstance.graphql(args);
     return deepStrictEqual(result, expected);
   }
-  it('allows simple execution', () => {
-    return testGQL(
-      { source: 'query { helloWorld }' },
-      { data: { helloWorld: 'world' } }
+  it('allows with query', () => {
+    return testGraphql({ source: '{test}' }, { data: { test: 'Hello World' } });
+  });
+  it('allows with variable values', () => {
+    return testGraphql(
+      {
+        source: 'query helloWho($who: String){ test(who: $who) }',
+        variableValues: { who: 'Dolly' },
+      },
+      { data: { test: 'Hello Dolly' } }
     );
   });
-  it('allows execution with variables', () => {
-    return testGQL(
+  it('allows with operation name', () => {
+    return testGraphql(
       {
-        source: 'query helloWho($who: String!) { hello(who: $who) }',
-        variableValues: { who: 'John' },
-      },
-      { data: { hello: 'John' } }
-    );
-  });
-  it('errors when missing operation name', () => {
-    return testGQL(
-      {
-        source: `query helloJohn { hello(who: "John") }
-        query helloJane { hello(who: "Jane") }
-        `,
-      },
-      (res) => {
-        assert.deepStrictEqual(
-          res.errors?.[0].message,
-          'Must provide operation name if query contains multiple operations.'
-        );
+        source: `
+      query helloYou { test(who: "You"), ...shared }
+      query helloWorld { test(who: "World"), ...shared }
+      query helloDolly { test(who: "Dolly"), ...shared }
+      fragment shared on QueryRoot {
+        shared: test(who: "Everyone")
       }
-    );
-  });
-  it('allows request with operation name', () => {
-    return testGQL(
-      {
-        source: `query helloJohn { hello(who: "John") }
-      query helloJane { hello(who: "Jane") }
-      `,
-        operationName: 'helloJane',
-      },
-      {
-        data: { hello: 'Jane' },
-      }
-    );
-  });
-  it('allows context value', () => {
-    return testGQL(
-      {
-        source: `{ helloContext }`,
-        contextValue: {
-          robot: 'R2-D2',
-        },
+    `,
+        operationName: 'helloWorld',
       },
       {
         data: {
-          helloContext: 'Hello R2-D2',
+          test: 'Hello World',
+          shared: 'Hello Everyone',
         },
       }
     );
   });
+  it('reports validation errors', () => {
+    return testGraphql(
+      {
+        source: '{ test, unknownOne, unknownTwo }',
+      },
+      {
+        errors: [
+          {
+            message: 'Cannot query field "unknownOne" on type "QueryRoot".',
+            locations: [{ line: 1, column: 9 }],
+            path: undefined,
+          },
+          {
+            message: 'Cannot query field "unknownTwo" on type "QueryRoot".',
+            locations: [{ line: 1, column: 21 }],
+            path: undefined,
+          },
+        ],
+      }
+    );
+  });
+  it('Errors when missing operation name', () => {
+    return testGraphql(
+      {
+        source: `
+      query TestQuery { test }
+      mutation TestMutation { writeTest { test } }
+    `,
+      },
+      {
+        errors: [
+          {
+            locations: undefined,
+            path: undefined,
+            message:
+              'Must provide operation name if query contains multiple operations.',
+          },
+        ],
+      }
+    );
+  });
+
+  it('Allows passing in a context', () => {
+    const schema = new GraphQLSchema({
+      query: new GraphQLObjectType({
+        name: 'Query',
+        fields: {
+          test: {
+            type: GraphQLString,
+            resolve: (_obj, _args, context) => context,
+          },
+        },
+      }),
+    });
+
+    return testGraphql(
+      {
+        source: '{ test }',
+        contextValue: 'testValue',
+      },
+      {
+        data: {
+          test: 'testValue',
+        },
+      },
+      new GraphQL({ schema })
+    );
+  });
+
   describe('allows options.rootValue', () => {
-    const rootValue = {
-      name: 'Luke',
-    };
+    const schema = new GraphQLSchema({
+      query: new GraphQLObjectType({
+        name: 'Query',
+        fields: {
+          test: {
+            type: GraphQLString,
+            resolve: (obj) => obj.test,
+          },
+        },
+      }),
+    });
+    const rootValue = { test: 'testValue' };
     // FIXME: need better test
     it('as an object', () => {
-      return testGQL(
-        { source: 'query { helloRoot }' },
-        { data: { helloRoot: 'Luke' } },
-        { rootValue }
+      return testGraphql(
+        { source: 'query { test }' },
+        { data: { test: 'testValue' } },
+        new GraphQL({ schema, rootValue })
       );
     });
     it('as a function', () => {
-      return testGQL(
-        { source: 'query { helloRoot }' },
-        { data: { helloRoot: 'Luke' } },
-        { rootValue: () => rootValue }
+      return testGraphql(
+        { source: 'query { test }' },
+        { data: { test: 'testValue' } },
+        new GraphQL({ schema, rootValue: () => rootValue })
       );
     });
   });
-  describe('errors on validation errors', () => {
-    it('when there are unknown fields', () => {
-      return testGQL({ source: `query { xinchao, hola, hello }` }, (res) => {
-        const { errors: [err1, err2] = [] } = res;
-        assert.deepStrictEqual(
-          err1.message,
-          `Cannot query field "xinchao" on type "Query".`
-        );
-        assert.deepStrictEqual(
-          err2.message,
-          `Cannot query field "hola" on type "Query".`
-        );
-      });
+});
+
+describe('GraphQL#cache', () => {
+  it('saves compiled query to cache', async () => {
+    const GQL = new GraphQL({
+      schema: TestSchema,
     });
-    it('when missing required arguments', () => {
-      return testGQL({ source: `query { hello }` }, (res) => {
-        const { errors: [err] = [] } = res;
-        assert.deepStrictEqual(
-          err.message,
-          `Field "hello" argument "who" of type "String!" is required, but it was not provided.`
-        );
-      });
-    });
-    it('when arguments have incorrect types', async () => {
-      return testGQL(
-        {
-          source: 'query helloWho($who: String!) { hello(who: $who) }',
-          variableValues: { who: 12 },
-        },
-        (res) => {
-          const { errors: [err] = [] } = res;
-          assert.deepStrictEqual(
-            err.message,
-            `Variable "$who" got invalid value 12; Expected type String; String cannot represent a non string value: 12`
-          );
-        }
-      );
-    });
-    it('when query is malformed', () => {
-      return testGQL({ source: 'query { helloWorld ' }, (res) => {
-        const { errors: [err] = [] } = res;
-        assert.deepStrictEqual(
-          err.message,
-          `Syntax Error: Expected Name, found <EOF>.`
-        );
-      });
-    });
+    const lru: Lru<QueryCache> = (GQL as any).lru;
+    await GQL.getCachedGQL(`{ test }`);
+    assert(lru.has('{ test }'));
   });
-  it('catches error in resolver function', () => {
-    return testGQL({ source: 'query { asyncThrowMe }' }, (res) => {
-      const { errors: [err] = [] } = res;
-      assert.deepStrictEqual(err.message, 'im thrown');
+  it('uses compiled query from cache', async () => {
+    const GQL = new GraphQL({
+      schema: TestSchema,
     });
+    const lru: Lru<QueryCache> = (GQL as any).lru;
+    lru.set('{ test }', {
+      jit: {
+        query: () => ({ data: { test: 'Goodbye' } }),
+        stringify: JSON.stringify,
+      },
+      operation: 'query',
+      document: '' as any,
+    });
+
+    const result = await GQL.graphql({ source: '{ test }' });
+    assert.deepStrictEqual(result, { data: { test: 'Goodbye' } });
   });
-  describe('allows format errors', () => {
-    it('using default formatError', () => {
-      return testGQL({ source: 'query { dangerousThrow }' }, (res) => {
-        const { errors: [err] = [] } = res;
-        assert.deepStrictEqual(err.message, 'oh no');
-        // formatError will filter trivial prop
-        // @ts-expect-error
-        assert.deepStrictEqual(err.systemSecret, undefined);
-      });
+  it('does not cache bad query', async () => {
+    const GQL = new GraphQL({
+      schema: TestSchema,
     });
-    it('using custom formatError', () => {
-      return testGQL(
-        { source: 'query { dangerousThrow }' },
-        (res) => {
-          const { errors: [err] = [] } = res;
-          assert.deepStrictEqual(err.message, 'Internal server error');
-        },
-        {
-          formatError: (err) => {
-            return { message: 'Internal server error' };
-          },
-        }
-      );
-    });
+    const lru: Lru<QueryCache> = (GQL as any).lru;
+    await GQL.getCachedGQL('{ baddd }');
+    assert(lru.has('{ baddd }') !== true);
   });
 });

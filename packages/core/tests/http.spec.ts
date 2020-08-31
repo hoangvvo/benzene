@@ -1,6 +1,5 @@
 // Adapted from https://github.com/graphql/express-graphql/blob/master/src/__tests__/http-test.ts
 import { deepStrictEqual } from 'assert';
-import { IncomingHttpHeaders } from 'http';
 import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
 import {
   GraphQL,

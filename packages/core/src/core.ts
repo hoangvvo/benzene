@@ -12,7 +12,6 @@ import {
   GraphQLArgs,
   ExecutionArgs,
 } from 'graphql';
-// FIXME: Dangerous import
 import mapAsyncIterator from 'graphql/subscription/mapAsyncIterator';
 import {
   compileQuery,
@@ -20,13 +19,13 @@ import {
   CompiledQuery,
 } from '@hoangvvo/graphql-jit';
 import lru, { Lru } from 'tiny-lru';
+import { isExecutionResult } from './utils';
 import {
   Config,
   QueryCache,
   FormattedExecutionResult,
   ValueOrPromise,
 } from './types';
-import { isExecutionResult } from './utils';
 
 export class GraphQL {
   private lru: Lru<QueryCache>;
