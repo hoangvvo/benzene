@@ -1,70 +1,82 @@
-import { wsHandler } from '../src';
-import MessageTypes from '../src/messageTypes';
-import { HandlerConfig } from '../src/types';
-import { GraphQL, runHttpQuery } from '../../core/src';
-import { Config as GraphQLConfig } from '../../core/src/types';
-import { parseBody } from '../../server/src/http/parseBody';
 import WebSocket from 'ws';
+import { httpHandler } from '@benzene/server';
+import { GraphQL } from '@benzene/core';
+import { Config as GraphQLConfig } from '@benzene/core/src/types';
 import { strict as assert } from 'assert';
-import { makeExecutableSchema } from '@graphql-tools/schema';
 import { PubSub } from 'graphql-subscriptions';
 import { createServer } from 'http';
 import fetch from 'node-fetch';
-import { GraphQLError } from 'graphql';
+import {
+  GraphQLError,
+  GraphQLSchema,
+  GraphQLObjectType,
+  GraphQLString,
+} from 'graphql';
+import { wsHandler } from '../src';
+import MessageTypes from '../src/messageTypes';
+import { HandlerConfig } from '../src/types';
 
 const pubsub = new PubSub();
 
-const typeDefs = `
-  type Notification {
-    message: String
-    dummy: String
-    DO_NOT_USE_THIS_FIELD: String
-    user: String
-  }
-
-  type Query {
-    _: String
-  }
-
-  type Mutation {
-    addNotification(message: String): Notification
-  }
-
-  type Subscription {
-    notificationAdded: Notification
-  }
-`;
-
-const resolvers = {
-  Query: {
-    _: () => '',
-  },
-  Mutation: {
-    addNotification: async (_: any, { message }: { message: string }) => {
-      const notification = { message };
-      await pubsub.publish('NOTIFICATION_ADDED', {
-        notificationAdded: notification,
-      });
-      return notification;
+const Notification = new GraphQLObjectType({
+  name: 'Notification',
+  fields: {
+    message: {
+      type: GraphQLString,
+    },
+    dummy: {
+      type: GraphQLString,
+      resolve: ({ message }) => message,
+    },
+    DO_NOT_USE_THIS_FIELD: {
+      type: GraphQLString,
+      resolve: () => {
+        throw new Error('I told you so');
+      },
+    },
+    user: {
+      type: GraphQLString,
+      resolve: (obj, variables, context) => context.user,
     },
   },
-  Subscription: {
-    notificationAdded: {
-      subscribe: () => pubsub.asyncIterator('NOTIFICATION_ADDED'),
-    },
-  },
-  Notification: {
-    user: (obj, variables, context) => context.user,
-    dummy: ({ message }) => message,
-    DO_NOT_USE_THIS_FIELD: () => {
-      throw new Error('I told you so');
-    },
-  },
-};
+});
 
-const schema = makeExecutableSchema({
-  typeDefs,
-  resolvers,
+const schema = new GraphQLSchema({
+  query: new GraphQLObjectType({
+    name: 'Query',
+    fields: {
+      test: {
+        type: GraphQLString,
+      },
+    },
+  }),
+  mutation: new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+      addNotification: {
+        type: Notification,
+        args: {
+          message: { type: GraphQLString },
+        },
+        resolve: async (_: any, { message }: { message: string }) => {
+          const notification = { message };
+          await pubsub.publish('NOTIFICATION_ADDED', {
+            notificationAdded: notification,
+          });
+          return notification;
+        },
+      },
+    },
+  }),
+  subscription: new GraphQLObjectType({
+    name: 'Subscription',
+    fields: {
+      notificationAdded: {
+        type: Notification,
+        subscribe: () => pubsub.asyncIterator('NOTIFICATION_ADDED'),
+      },
+    },
+  }),
 });
 
 let serverInit;
@@ -75,18 +87,8 @@ async function startServer(
   ws: WebSocket = new WebSocket('ws://localhost:4000', 'graphql-ws')
 ) {
   const gql = new GraphQL({ schema, ...options });
-  const server = createServer((req, res) => {
-    parseBody(req, async (err, body) => {
-      const result = await runHttpQuery(gql, {
-        query: body.query,
-        variables: body.variables,
-        operationName: body.operationName,
-        context: {},
-        httpMethod: req.method as string,
-      });
-      res.writeHead(result.status, result.headers).end(result.body);
-    });
-  });
+  // @ts-ignore
+  const server = createServer(httpHandler(gql));
   const wss = new WebSocket.Server({ server });
   // We cross test different packages
   // @ts-ignore
@@ -472,6 +474,58 @@ describe('ws: wsHandler', () => {
             resolve();
           }
         });
+      });
+    });
+  });
+  it('queue messages until context is resolved', async () => {
+    const { client } = await startServer({
+      context: () =>
+        new Promise((resolve) => {
+          // Reasonable time for messages to start to queue
+          // FIXME: We still need to be sure though.
+          setTimeout(() => resolve({ user: 'Alice' }), 50);
+        }),
+    });
+    client.write(
+      JSON.stringify({
+        type: MessageTypes.GQL_CONNECTION_INIT,
+      })
+    );
+    client.write(
+      JSON.stringify({
+        id: 1,
+        type: MessageTypes.GQL_START,
+        payload: {
+          query: `
+          subscription {
+            notificationAdded {
+              user
+            }
+          }
+        `,
+        },
+      })
+    );
+    await new Promise((resolve) => {
+      client.on('data', (chunk) => {
+        const data = JSON.parse(chunk);
+        if (data.type === MessageTypes.GQL_CONNECTION_ACK) {
+          return sendMessageMutation();
+        }
+        if (data.type === MessageTypes.GQL_DATA) {
+          assert.deepStrictEqual(data, {
+            type: MessageTypes.GQL_DATA,
+            id: 1,
+            payload: {
+              data: {
+                notificationAdded: {
+                  user: 'Alice',
+                },
+              },
+            },
+          });
+          resolve();
+        }
       });
     });
   });

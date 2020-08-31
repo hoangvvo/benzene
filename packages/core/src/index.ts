@@ -7,9 +7,5 @@ export {
   ValueOrPromise,
   TContext,
 } from './types';
-export {
-  parseBodyByContentType,
-  getGraphQLParams,
-  isExecutionResult,
-} from './utils';
-export { runHttpQuery } from './runHttpQuery';
+export { isExecutionResult } from './utils';
+export { runHttpQuery } from './http';

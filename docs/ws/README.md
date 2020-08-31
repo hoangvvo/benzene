@@ -1,6 +1,6 @@
 # @benzene/ws
 
-WebSocket support via [`ws`](https://github.com/websockets/ws) implementing a [modified GraphQL over WebSocket Protocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md). Do not worry, this is still understood by GraphQL WS client implementing the original protocol.
+WebSocket support via [`ws`](https://github.com/websockets/ws) implementing a [modified GraphQL over WebSocket Protocol](https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md). Do not worry, this is still understood by GraphQL WS client implementing the original protocol.
 
 ## Install
 
