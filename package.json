@@ -6,7 +6,7 @@
   "scripts": {
     "build": "yarn workspaces run build",
     "lint": "eslint packages/*/src/**/*.{js,ts}",
-    "test": "nyc uvu -r ts-node/register",
+    "test": "nyc uvu -r ts-node/register/transpile-only packages tests",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "prettier": {
