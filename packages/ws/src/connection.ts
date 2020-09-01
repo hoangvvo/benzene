@@ -4,14 +4,17 @@ import {
   GraphQL,
   FormattedExecutionResult,
   TContext,
-  isExecutionResult,
+  isAsyncIterable,
 } from '@benzene/core';
 import * as WebSocket from 'ws';
 import MessageTypes from './messageTypes';
 import { OperationMessage } from './types';
 
 export class SubscriptionConnection {
-  private operations: Map<string, AsyncIterator<ExecutionResult>> = new Map();
+  private operations: Map<
+    string,
+    AsyncIterableIterator<ExecutionResult>
+  > = new Map();
 
   constructor(
     public gql: GraphQL,
@@ -83,24 +86,18 @@ export class SubscriptionConnection {
     };
 
     if (cachedOrResult.operation !== 'subscription') {
-      // Make this into an async iterator
       const result = await this.gql.execute(execArg);
-      this.sendMessage(
-        MessageTypes.GQL_DATA,
-        data.id,
-        result as ExecutionResult
-      );
+      this.sendMessage(MessageTypes.GQL_DATA, data.id, result);
       this.sendMessage(MessageTypes.GQL_COMPLETE, data.id);
     } else {
       const result = await this.gql.subscribe(execArg);
-      if (isExecutionResult(result)) {
+      if (!isAsyncIterable<ExecutionResult>(result)) {
         // Something prevents a subscription from being created properly
         // Send GQL_ERROR because the operation cannot be continued
         // See https://github.com/graphql/graphql-js/blob/master/src/subscription/subscribe.js#L52-L54
         return this.sendMessage(MessageTypes.GQL_ERROR, data.id, result);
       }
       this.operations.set(data.id, result);
-      // @ts-ignore
       for await (const value of result) {
         this.sendMessage(MessageTypes.GQL_DATA, data.id, value);
       }

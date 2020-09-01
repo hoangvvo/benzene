@@ -7,5 +7,5 @@ export {
   ValueOrPromise,
   TContext,
 } from './types';
-export { isExecutionResult } from './utils';
+export { isAsyncIterable } from './utils';
 export { runHttpQuery } from './http';

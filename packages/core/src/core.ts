@@ -7,19 +7,16 @@ import {
   GraphQLSchema,
   ExecutionResult,
   formatError,
-  createSourceEventStream,
   SubscriptionArgs,
   GraphQLArgs,
   ExecutionArgs,
 } from 'graphql';
-import mapAsyncIterator from 'graphql/subscription/mapAsyncIterator';
 import {
   compileQuery,
   isCompiledQuery,
   CompiledQuery,
 } from '@hoangvvo/graphql-jit';
 import lru, { Lru } from 'tiny-lru';
-import { isExecutionResult } from './utils';
 import {
   Config,
   QueryCache,
@@ -157,32 +154,16 @@ export class GraphQL {
     document,
     contextValue,
     variableValues,
-    operationName,
     jit,
   }: Omit<SubscriptionArgs, 'schema'> & {
     jit: CompiledQuery;
-  }): Promise<AsyncIterator<ExecutionResult> | ExecutionResult> {
-    const resultOrStream = await createSourceEventStream(
-      this.schema,
-      document,
+  }): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
+    return jit.subscribe!(
       typeof this.options.rootValue === 'function'
         ? this.options.rootValue(document)
         : this.options.rootValue || {},
       contextValue,
-      variableValues || undefined,
-      operationName
-      // subscribeFieldResolver
+      variableValues
     );
-    return !isExecutionResult(resultOrStream)
-      ? mapAsyncIterator<any, ExecutionResult>(
-          resultOrStream,
-          (payload) => jit.query(payload, contextValue, variableValues),
-          (error) => {
-            if (error instanceof GraphQLError) return { errors: [error] };
-            // Rethrow if it is a internal error
-            throw error;
-          }
-        )
-      : resultOrStream;
   }
 }

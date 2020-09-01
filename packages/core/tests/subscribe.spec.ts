@@ -1,4 +1,11 @@
-// Adapted from https://github.com/graphql/graphql-js/blob/master/src/subscription/__tests__/subscribe-test.js
+/**
+ * Based on https://github.com/graphql/graphql-js/blob/master/src/subscription/subscribe.js
+ * This test suite makes an addition denoted by "*" comments:
+ * graphql-jit does not support the root resolver pattern that this test uses
+ * so the part must be rewritten to include that root resolver in `subscribe` of
+ * the GraphQLObject in the schema.
+ */
+
 import { EventEmitter } from 'events';
 import {
   GraphQLObjectType,
@@ -9,13 +16,13 @@ import {
   GraphQLSchema,
   parse,
   DocumentNode,
-  createSourceEventStream,
   GraphQLError,
   SubscriptionArgs,
   ExecutionResult,
 } from 'graphql';
 import { strictEqual, deepStrictEqual as deepStrictEquall } from 'assert';
-import { GraphQL } from '../src';
+import { GraphQL, isAsyncIterable } from '../src';
+import { compileQuery, isCompiledQuery } from '@hoangvvo/graphql-jit';
 
 function formatError(error: any) {
   let _error$message;
@@ -43,9 +50,9 @@ const deepStrictEqual = (actual: any, expected: any) => {
 function eventEmitterAsyncIterator(
   eventEmitter: EventEmitter,
   eventName: string
-): AsyncIterator<any> {
-  const pullQueue = [];
-  const pushQueue = [];
+): AsyncIterableIterator<any> {
+  const pullQueue = [] as any;
+  const pushQueue = [] as any;
   let listening = true;
   eventEmitter.addListener(eventName, pushValue);
 
@@ -87,7 +94,7 @@ function eventEmitterAsyncIterator(
       emptyQueue();
       return Promise.resolve({ value: undefined, done: true });
     },
-    throw(error) {
+    throw(error: any) {
       emptyQueue();
       return Promise.reject(error);
     },
@@ -99,32 +106,24 @@ function eventEmitterAsyncIterator(
 
 async function subscribe(
   args: SubscriptionArgs
-): Promise<AsyncIterator<ExecutionResult> | ExecutionResult> {
+): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
   // Will be change in the next version
   const GQL = new GraphQL({
     schema: args.schema,
     rootValue: args.rootValue,
   });
-  const query = args.document.loc.source.body;
-  const resultOrCache = GQL.getCachedGQL(query, args.operationName);
-  if (!('document' in resultOrCache)) {
-    return resultOrCache;
-  }
-  const result = await GQL.subscribe({
-    document: resultOrCache.document,
+
+  const jit = compileQuery(args.schema, args.document, args.operationName);
+
+  if (!isCompiledQuery(jit)) return jit;
+  return GQL.subscribe({
+    document: args.document,
     contextValue: args.contextValue,
     variableValues: args.variableValues,
-    operationName: args.operationName,
-    jit: resultOrCache.jit,
-    // Will be change in the next version
     rootValue: args.rootValue,
+    operationName: args.operationName,
+    jit,
   });
-
-  if ('errors' in result) {
-    // @ts-ignore
-    return GQL.formatExecutionResult(result);
-  }
-  return result;
 }
 
 const EmailType = new GraphQLObjectType({
@@ -146,7 +145,8 @@ const InboxType = new GraphQLObjectType({
     },
     unread: {
       type: GraphQLInt,
-      resolve: (inbox) => inbox.emails.filter((email) => email.unread).length,
+      resolve: (inbox) =>
+        inbox.emails.filter((email: any) => email.unread).length,
     },
     emails: { type: new GraphQLList(EmailType) },
   },
@@ -170,8 +170,8 @@ const EmailEventType = new GraphQLObjectType({
 const emailSchema = emailSchemaWithResolvers();
 
 function emailSchemaWithResolvers<T>(
-  subscribeFn?: (T) => any,
-  resolveFn?: (T) => any
+  subscribeFn?: (arg: T) => any,
+  resolveFn?: (arg: T) => any
 ) {
   return new GraphQLSchema({
     query: QueryType,
@@ -208,7 +208,7 @@ const defaultSubscriptionAST = parse(`
 
 async function createSubscription(
   pubsub: EventEmitter,
-  schema: GraphQLSchema = emailSchema,
+  schema?: GraphQLSchema,
   document: DocumentNode = defaultSubscriptionAST
 ) {
   const data = {
@@ -226,6 +226,13 @@ async function createSubscription(
       return eventEmitterAsyncIterator(pubsub, 'importantEmail');
     },
   };
+
+  if (!schema) {
+    // *
+    schema = emailSchemaWithResolvers(() =>
+      eventEmitterAsyncIterator(pubsub, 'importantEmail')
+    );
+  }
 
   function sendImportantEmail(newEmail: any) {
     data.inbox.emails.push(newEmail);
@@ -260,10 +267,13 @@ async function expectPromiseToThrow(
 
 // Check all error cases when initializing the subscription.
 describe('Subscription Initialization Phase', () => {
-  it.skip('accepts positional arguments', async () => {
+  it('accepts positional arguments', async () => {
     const document = parse(`
       subscription {
-        importantEmail
+        importantEmail {
+          # Difference
+          email { from }
+        }
       }
     `);
 
@@ -272,14 +282,13 @@ describe('Subscription Initialization Phase', () => {
     }
 
     const ai = await subscribe({
-      schema: emailSchema,
+      // *
+      schema: emailSchemaWithResolvers(emptyAsyncIterator),
       document,
-      variableValues: {
+      rootValue: {
         importantEmail: emptyAsyncIterator,
       },
     });
-
-    console.log(ai);
 
     // @ts-ignore
     ai.next();
@@ -287,13 +296,21 @@ describe('Subscription Initialization Phase', () => {
     ai.return();
   });
 
-  it.skip('accepts multiple subscription fields defined in schema', async () => {
+  it('accepts multiple subscription fields defined in schema', async () => {
     const pubsub = new EventEmitter();
     const SubscriptionTypeMultiple = new GraphQLObjectType({
       name: 'Subscription',
       fields: {
-        importantEmail: { type: EmailEventType },
-        nonImportantEmail: { type: EmailEventType },
+        // *
+        importantEmail: {
+          type: EmailEventType,
+          subscribe: () => eventEmitterAsyncIterator(pubsub, 'importantEmail'),
+        },
+        nonImportantEmail: {
+          type: EmailEventType,
+          subscribe: () =>
+            eventEmitterAsyncIterator(pubsub, 'nonImportantEmail'),
+        },
       },
     });
 
@@ -338,7 +355,9 @@ describe('Subscription Initialization Phase', () => {
       schema,
       document: parse(`
         subscription {
-          importantEmail
+          importantEmail {
+            email { from }
+          }
         }
       `),
     });
@@ -386,7 +405,7 @@ describe('Subscription Initialization Phase', () => {
     await subscription.next();
   });
 
-  it.skip('should only resolve the first field of invalid multi-field', async () => {
+  it('should only resolve the first field of invalid multi-field', async () => {
     let didResolveImportantEmail = false;
     let didResolveNonImportantEmail = false;
 
@@ -437,7 +456,7 @@ describe('Subscription Initialization Phase', () => {
     subscription.return();
   });
 
-  it.skip('resolves to an error for unknown subscription field', async () => {
+  it('resolves to an error for unknown subscription field', async () => {
     const ast = parse(`
       subscription {
         unknownField
@@ -451,15 +470,14 @@ describe('Subscription Initialization Phase', () => {
     deepStrictEqual(subscription, {
       errors: [
         {
-          // NOTE: Different
-          message: 'Cannot query field "unknownField" on type "Subscription".',
+          message: 'The subscription field "unknownField" is not defined.',
           locations: [{ line: 3, column: 9 }],
         },
       ],
     });
   });
 
-  it.skip('throws an error if subscribe does not return an iterator', async () => {
+  it('throws an error if subscribe does not return an iterator', async () => {
     const invalidEmailSchema = new GraphQLSchema({
       query: QueryType,
       subscription: new GraphQLObjectType({
@@ -481,7 +499,7 @@ describe('Subscription Initialization Phase', () => {
     );
   });
 
-  it.skip('resolves to an error for subscription resolver errors', async () => {
+  it('resolves to an error for subscription resolver errors', async () => {
     // Returning an error
     const subscriptionReturningErrorSchema = emailSchemaWithResolvers(
       () => new Error('test error')
@@ -529,7 +547,7 @@ describe('Subscription Initialization Phase', () => {
     }
   });
 
-  it('resolves to an error for source event stream resolver errors', async () => {
+  it.skip('resolves to an error for source event stream resolver errors', async () => {
     // Returning an error
     const subscriptionReturningErrorSchema = emailSchemaWithResolvers(
       () => new Error('test error')
@@ -556,20 +574,20 @@ describe('Subscription Initialization Phase', () => {
 
     async function testReportsError(schema: GraphQLSchema) {
       // Promise<AsyncIterable<ExecutionResult> | ExecutionResult>
-      const result = await createSourceEventStream(
+      const result = await subscribe({
         schema,
-        parse(`
-          subscription {
-            importantEmail
-          }
-        `)
-      );
+        document: parse(`
+        subscription {
+          importantEmail
+        }
+      `),
+      });
 
       deepStrictEqual(result, {
         errors: [
           {
             message: 'test error',
-            locations: [{ line: 3, column: 13 }],
+            locations: [{ column: 13, line: 3 }],
             path: ['importantEmail'],
           },
         ],
@@ -577,7 +595,7 @@ describe('Subscription Initialization Phase', () => {
     }
   });
 
-  it.skip('resolves to an error if variables were wrong type', async () => {
+  it('resolves to an error if variables were wrong type', async () => {
     // If we receive variables that cannot be coerced correctly, subscribe()
     // will resolve to an ExecutionResult that contains an informative error
     // description.
@@ -605,8 +623,9 @@ describe('Subscription Initialization Phase', () => {
     deepStrictEqual(result, {
       errors: [
         {
+          // Different
           message:
-            'Variable "$priority" got invalid value "meow"; Int cannot represent non-integer value: "meow"',
+            'Variable "$priority" got invalid value "meow"; Expected type Int; Int cannot represent non-integer value: "meow"',
           locations: [{ line: 2, column: 21 }],
         },
       ],
@@ -1024,7 +1043,7 @@ describe('Subscription Publish Phase', () => {
     });
   });
 
-  it.skip('should handle error during execution of source event', async () => {
+  it('should handle error during execution of source event', async () => {
     const erroringEmailSchema = emailSchemaWithResolvers(
       async function* () {
         yield { email: { subject: 'Hello' } };
@@ -1032,7 +1051,7 @@ describe('Subscription Publish Phase', () => {
         yield { email: { subject: 'Bonjour' } };
       },
       (event) => {
-        if (event.email.subject === 'Goodbye') {
+        if ((event as any).email.subject === 'Goodbye') {
           throw new Error('Never leave.');
         }
         return event;
@@ -1089,7 +1108,7 @@ describe('Subscription Publish Phase', () => {
     // However that does not close the response event stream. Subsequent
     // events are still executed.
     // @ts-ignore
-    const payload3 = (await subscription).next();
+    const payload3 = await subscription.next();
     deepStrictEqual(payload3, {
       done: false,
       value: {
@@ -1216,5 +1235,51 @@ describe('Subscription Publish Phase', () => {
       done: true,
       value: undefined,
     });
+  });
+});
+
+describe('isAsyncIterable', () => {
+  it('should return `true` for AsyncIterable', () => {
+    const asyncIteratable = { [Symbol.asyncIterator]: (x) => x };
+    strictEqual(isAsyncIterable(asyncIteratable), true);
+
+    // istanbul ignore next (Never called and use just as a placeholder)
+    async function* asyncGeneratorFunc() {
+      /* do nothing */
+    }
+
+    strictEqual(isAsyncIterable(asyncGeneratorFunc()), true);
+
+    // But async generator function itself is not iteratable
+    strictEqual(isAsyncIterable(asyncGeneratorFunc), false);
+  });
+
+  it('should return `false` for all other values', () => {
+    strictEqual(isAsyncIterable(null), false);
+    strictEqual(isAsyncIterable(undefined), false);
+
+    strictEqual(isAsyncIterable('ABC'), false);
+    strictEqual(isAsyncIterable('0'), false);
+    strictEqual(isAsyncIterable(''), false);
+
+    strictEqual(isAsyncIterable([]), false);
+    strictEqual(isAsyncIterable(new Int8Array(1)), false);
+
+    strictEqual(isAsyncIterable({}), false);
+    strictEqual(isAsyncIterable({ iterable: true }), false);
+
+    const iterator = { [Symbol.iterator]: (x) => x };
+    strictEqual(isAsyncIterable(iterator), false);
+
+    // istanbul ignore next (Never called and use just as a placeholder)
+    function* generatorFunc() {
+      /* do nothing */
+    }
+    strictEqual(isAsyncIterable(generatorFunc()), false);
+
+    const invalidAsyncIteratable = {
+      [Symbol.asyncIterator]: { next: (x) => x },
+    };
+    strictEqual(isAsyncIterable(invalidAsyncIteratable), false);
   });
 });
