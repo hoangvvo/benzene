@@ -21,7 +21,7 @@ import {
   ExecutionResult,
 } from 'graphql';
 import { strictEqual, deepStrictEqual as deepStrictEquall } from 'assert';
-import { GraphQL } from '../src';
+import { GraphQL, isAsyncIterable } from '../src';
 import { compileQuery, isCompiledQuery } from '@hoangvvo/graphql-jit';
 
 function formatError(error: any) {
@@ -1235,5 +1235,51 @@ describe('Subscription Publish Phase', () => {
       done: true,
       value: undefined,
     });
+  });
+});
+
+describe('isAsyncIterable', () => {
+  it('should return `true` for AsyncIterable', () => {
+    const asyncIteratable = { [Symbol.asyncIterator]: (x) => x };
+    strictEqual(isAsyncIterable(asyncIteratable), true);
+
+    // istanbul ignore next (Never called and use just as a placeholder)
+    async function* asyncGeneratorFunc() {
+      /* do nothing */
+    }
+
+    strictEqual(isAsyncIterable(asyncGeneratorFunc()), true);
+
+    // But async generator function itself is not iteratable
+    strictEqual(isAsyncIterable(asyncGeneratorFunc), false);
+  });
+
+  it('should return `false` for all other values', () => {
+    strictEqual(isAsyncIterable(null), false);
+    strictEqual(isAsyncIterable(undefined), false);
+
+    strictEqual(isAsyncIterable('ABC'), false);
+    strictEqual(isAsyncIterable('0'), false);
+    strictEqual(isAsyncIterable(''), false);
+
+    strictEqual(isAsyncIterable([]), false);
+    strictEqual(isAsyncIterable(new Int8Array(1)), false);
+
+    strictEqual(isAsyncIterable({}), false);
+    strictEqual(isAsyncIterable({ iterable: true }), false);
+
+    const iterator = { [Symbol.iterator]: (x) => x };
+    strictEqual(isAsyncIterable(iterator), false);
+
+    // istanbul ignore next (Never called and use just as a placeholder)
+    function* generatorFunc() {
+      /* do nothing */
+    }
+    strictEqual(isAsyncIterable(generatorFunc()), false);
+
+    const invalidAsyncIteratable = {
+      [Symbol.asyncIterator]: { next: (x) => x },
+    };
+    strictEqual(isAsyncIterable(invalidAsyncIteratable), false);
   });
 });
