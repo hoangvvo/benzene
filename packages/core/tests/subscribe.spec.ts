@@ -50,7 +50,7 @@ const deepStrictEqual = (actual: any, expected: any) => {
 function eventEmitterAsyncIterator(
   eventEmitter: EventEmitter,
   eventName: string
-): AsyncIterator<any> {
+): AsyncIterableIterator<any> {
   const pullQueue = [] as any;
   const pushQueue = [] as any;
   let listening = true;
@@ -106,7 +106,7 @@ function eventEmitterAsyncIterator(
 
 async function subscribe(
   args: SubscriptionArgs
-): Promise<AsyncIterator<ExecutionResult> | ExecutionResult> {
+): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
   // Will be change in the next version
   const GQL = new GraphQL({
     schema: args.schema,

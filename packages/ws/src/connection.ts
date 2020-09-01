@@ -11,7 +11,10 @@ import MessageTypes from './messageTypes';
 import { OperationMessage } from './types';
 
 export class SubscriptionConnection {
-  private operations: Map<string, AsyncIterator<ExecutionResult>> = new Map();
+  private operations: Map<
+    string,
+    AsyncIterableIterator<ExecutionResult>
+  > = new Map();
 
   constructor(
     public gql: GraphQL,
@@ -83,13 +86,8 @@ export class SubscriptionConnection {
     };
 
     if (cachedOrResult.operation !== 'subscription') {
-      // Make this into an async iterator
       const result = await this.gql.execute(execArg);
-      this.sendMessage(
-        MessageTypes.GQL_DATA,
-        data.id,
-        result as ExecutionResult
-      );
+      this.sendMessage(MessageTypes.GQL_DATA, data.id, result);
       this.sendMessage(MessageTypes.GQL_COMPLETE, data.id);
     } else {
       const result = await this.gql.subscribe(execArg);
@@ -97,7 +95,6 @@ export class SubscriptionConnection {
         // Something prevents a subscription from being created properly
         // Send GQL_ERROR because the operation cannot be continued
         // See https://github.com/graphql/graphql-js/blob/master/src/subscription/subscribe.js#L52-L54
-        // @ts-ignore
         return this.sendMessage(MessageTypes.GQL_ERROR, data.id, result);
       }
       this.operations.set(data.id, result);

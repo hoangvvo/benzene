@@ -22,7 +22,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@hoangvvo/graphql-jit": "^0.6.0",
+    "@hoangvvo/graphql-jit": "^0.6.1",
     "flatstr": "^1.0.12",
     "tiny-lru": "^7.0.6"
   },

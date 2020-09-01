@@ -366,10 +366,10 @@
     human-id "^1.0.2"
     prettier "^1.18.2"
 
-"@hoangvvo/graphql-jit@^0.6.0":
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/@hoangvvo/graphql-jit/-/graphql-jit-0.6.0.tgz#7098599436000ab186f3987e2d372cb413bed926"
-  integrity sha512-YQMacw297OFmR+0pRc3K5ay3Ktdq7Zaqkqt3ggIhXmYW3uc/btGAteZJARbO0PESOrCi5EvpPyodZqfUlQ5juw==
+"@hoangvvo/graphql-jit@^0.6.1":
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@hoangvvo/graphql-jit/-/graphql-jit-0.6.1.tgz#05ba9472aa76a5ddc1e60c141f816443f114e10a"
+  integrity sha512-jE7gu9o46Xlwt3AAr636RCcLAqa8zJsVKjYc8FXij/LXpY/U/37HGX47J6Kgg2aQE5FmQD6lY64LDQbuc1Z0qQ==
   dependencies:
     generate-function "^2.3.1"
     lodash.memoize "^4.1.2"
