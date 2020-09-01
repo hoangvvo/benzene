@@ -119,7 +119,7 @@ export class SubscriptionConnection {
       }
     }
     // Complete
-    if (this.options.onStop) this.options.onStop.call(this, data.id);
+    if (this.options.onComplete) this.options.onComplete.call(this, data.id);
     this.sendMessage(MessageTypes.GQL_COMPLETE, data.id);
   }
 

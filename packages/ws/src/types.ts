@@ -30,5 +30,5 @@ export interface HandlerConfig {
       operationName: string | null | undefined;
     }
   ) => void;
-  onStop?: (this: SubscriptionConnection, id: string) => void;
+  onComplete?: (this: SubscriptionConnection, id: string) => void;
 }

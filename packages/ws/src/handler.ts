@@ -41,7 +41,7 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
     socket.off('message', queueUnhandled);
     const connection = new SubscriptionConnection(gql, socket, context, {
       onStart: options.onStart,
-      onStop: options.onStop,
+      onComplete: options.onComplete,
     });
     // Flush all queued unhandled message
     for (let i = 0; i < unhandledQueue.length; i += 1) {

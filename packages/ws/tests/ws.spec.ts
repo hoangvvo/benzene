@@ -758,11 +758,11 @@ connSuite('call onStart on execution', async () => {
   });
 });
 
-connSuite('call onStop on subscription stop', async () => {
+connSuite('call onComplete on subscription stop', async () => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve) => {
     const { client } = await startServer({
-      onStop(id) {
+      onComplete(id) {
         assert.instance(this, SubscriptionConnection);
         assert.is(id, 1);
         resolve();
