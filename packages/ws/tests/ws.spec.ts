@@ -4,8 +4,7 @@ import WebSocket from 'ws';
 import { httpHandler } from '@benzene/server';
 import { GraphQL } from '@benzene/core';
 import { Config as GraphQLConfig } from '@benzene/core/src/types';
-import { PubSub } from 'graphql-subscriptions';
-import { createServer } from 'http';
+import { createServer, Server } from 'http';
 import fetch from 'node-fetch';
 import {
   GraphQLError,
@@ -16,8 +15,65 @@ import {
 import { wsHandler } from '../src';
 import MessageTypes from '../src/messageTypes';
 import { HandlerConfig } from '../src/types';
+import { Duplex } from 'stream';
+import { EventEmitter } from 'events';
 
-const pubsub = new PubSub();
+function emitterAsyncIterator(
+  eventEmitter: EventEmitter,
+  eventName: string
+): AsyncIterableIterator<any> {
+  const pullQueue = [] as any;
+  const pushQueue = [] as any;
+  let listening = true;
+  eventEmitter.addListener(eventName, pushValue);
+
+  function pushValue(event: any) {
+    if (pullQueue.length !== 0) {
+      pullQueue.shift()({ value: event, done: false });
+    } else {
+      pushQueue.push(event);
+    }
+  }
+
+  function pullValue() {
+    return new Promise((resolve) => {
+      if (pushQueue.length !== 0) {
+        resolve({ value: pushQueue.shift(), done: false });
+      } else {
+        pullQueue.push(resolve);
+      }
+    });
+  }
+
+  function emptyQueue() {
+    if (listening) {
+      listening = false;
+      eventEmitter.removeListener(eventName, pushValue);
+      for (const resolve of pullQueue) {
+        resolve({ value: undefined, done: true });
+      }
+      pullQueue.length = 0;
+      pushQueue.length = 0;
+    }
+  }
+
+  return {
+    next() {
+      return listening ? pullValue() : this.return();
+    },
+    return() {
+      emptyQueue();
+      return Promise.resolve({ value: undefined, done: true });
+    },
+    throw(error: any) {
+      emptyQueue();
+      return Promise.reject(error);
+    },
+    [Symbol.asyncIterator]() {
+      return this;
+    },
+  } as any;
+}
 
 const Notification = new GraphQLObjectType({
   name: 'Notification',
@@ -42,51 +98,54 @@ const Notification = new GraphQLObjectType({
   },
 });
 
-const schema = new GraphQLSchema({
-  query: new GraphQLObjectType({
-    name: 'Query',
-    fields: {
-      test: {
-        type: GraphQLString,
-      },
-    },
-  }),
-  mutation: new GraphQLObjectType({
-    name: 'Mutation',
-    fields: {
-      addNotification: {
-        type: Notification,
-        args: {
-          message: { type: GraphQLString },
-        },
-        resolve: async (_: any, { message }: { message: string }) => {
-          const notification = { message };
-          await pubsub.publish('NOTIFICATION_ADDED', {
-            notificationAdded: notification,
-          });
-          return notification;
-        },
-      },
-    },
-  }),
-  subscription: new GraphQLObjectType({
-    name: 'Subscription',
-    fields: {
-      notificationAdded: {
-        type: Notification,
-        subscribe: () => pubsub.asyncIterator('NOTIFICATION_ADDED'),
-      },
-    },
-  }),
-});
-
-let serverInit;
+let serverInit: { client: Duplex; server: Server; publish: () => Promise<any> };
 
 async function startServer(
   handlerConfig?: Partial<HandlerConfig>,
   options?: Partial<GraphQLConfig>,
   ws: WebSocket = new WebSocket('ws://localhost:4000', 'graphql-ws')
 ) {
+  const ee = new EventEmitter();
+
+  const schema = new GraphQLSchema({
+    query: new GraphQLObjectType({
+      name: 'Query',
+      fields: {
+        test: {
+          type: GraphQLString,
+          resolve: () => 'test',
+        },
+      },
+    }),
+    mutation: new GraphQLObjectType({
+      name: 'Mutation',
+      fields: {
+        addNotification: {
+          type: Notification,
+          args: {
+            message: { type: GraphQLString },
+          },
+          resolve: async (_: any, { message }: any) => {
+            const notification = { message };
+            await ee.emit('NOTIFICATION_ADDED', {
+              notificationAdded: notification,
+            });
+            return notification;
+          },
+        },
+      },
+    }),
+    subscription: new GraphQLObjectType({
+      name: 'Subscription',
+      fields: {
+        notificationAdded: {
+          type: Notification,
+          subscribe: () => emitterAsyncIterator(ee, 'NOTIFICATION_ADDED'),
+        },
+      },
+    }),
+  });
+
   const gql = new GraphQL({ schema, ...options });
   // @ts-ignore
   const server = createServer(httpHandler(gql));
@@ -99,7 +158,24 @@ async function startServer(
     objectMode: true,
   });
   await new Promise((resolve) => server.listen(4000, resolve));
-  return (serverInit = { server, client, ws });
+
+  return (serverInit = {
+    server,
+    client,
+    publish: async () => {
+      return fetch('http://localhost:4000/graphql', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          query: `mutation {
+          addNotification(message: "Hello World") {
+            message
+          }
+        }`,
+        }),
+      });
+    },
+  });
 }
 
 const wsSuite = suite('wsHandler');
@@ -110,22 +186,6 @@ wsSuite.after.each(() => {
   client.end();
   server.close();
 });
-
-function sendMessageMutation() {
-  return fetch('http://localhost:4000/graphql', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      query: `mutation {
-          addNotification(message: "Hello World") {
-            message
-          }
-        }`,
-    }),
-  });
-}
 
 wsSuite('replies with connection_ack', async () => {
   const { client } = await startServer();
@@ -143,7 +203,7 @@ wsSuite('replies with connection_ack', async () => {
   });
 });
 wsSuite('sends updates via subscription', async function () {
-  const { client } = await startServer();
+  const { client, publish } = await startServer();
   client.write(
     JSON.stringify({
       type: MessageTypes.GQL_CONNECTION_INIT,
@@ -169,7 +229,7 @@ wsSuite('sends updates via subscription', async function () {
     client.on('data', (chunk) => {
       const data = JSON.parse(chunk);
       if (data.type === MessageTypes.GQL_CONNECTION_ACK) {
-        return sendMessageMutation();
+        return publish();
       }
       if (data.type === MessageTypes.GQL_DATA) {
         assert.equal(data, {
@@ -216,7 +276,7 @@ wsSuite('errors on malformed message', async () => {
   });
 });
 wsSuite('format errors using formatError', async () => {
-  const { client } = await startServer(
+  const { client, publish } = await startServer(
     {},
     {
       formatError: () => {
@@ -250,7 +310,7 @@ wsSuite('format errors using formatError', async () => {
     client.on('data', (chunk) => {
       const json = JSON.parse(chunk);
       if (json.type === MessageTypes.GQL_CONNECTION_ACK) {
-        sendMessageMutation();
+        publish();
       }
       if (json.type === MessageTypes.GQL_DATA) {
         assert.equal(json, {
@@ -314,13 +374,7 @@ wsSuite('resolves also queries and mutations', async function () {
       id: 1,
       type: MessageTypes.GQL_START,
       payload: {
-        query: `
-            mutation {
-              addNotification(message: "Hello World") {
-                message
-              }
-            }
-          `,
+        query: `query { test }`,
       },
     })
   );
@@ -332,7 +386,7 @@ wsSuite('resolves also queries and mutations', async function () {
         assert.equal(json, {
           type: MessageTypes.GQL_DATA,
           id: 1,
-          payload: { data: { addNotification: { message: 'Hello World' } } },
+          payload: { data: { test: 'test' } },
         });
         resolved = true;
       }
@@ -387,7 +441,7 @@ wsSuite('errors on syntax error', async () => {
 });
 
 wsSuite('resolves options.context that is an object', async () => {
-  const { client } = await startServer({
+  const { client, publish } = await startServer({
     context: { user: 'Alexa' },
   });
   client.write(
@@ -414,7 +468,7 @@ wsSuite('resolves options.context that is an object', async () => {
     client.on('data', (chunk) => {
       const data = JSON.parse(chunk);
       if (data.type === MessageTypes.GQL_CONNECTION_ACK) {
-        return sendMessageMutation();
+        return publish();
       }
       if (data.type === MessageTypes.GQL_DATA) {
         assert.equal(data, {
@@ -434,7 +488,7 @@ wsSuite('resolves options.context that is an object', async () => {
   });
 });
 wsSuite('resolves options.context that is a function', async () => {
-  const { client } = await startServer({
+  const { client, publish } = await startServer({
     context: async () => ({
       user: 'Alice',
     }),
@@ -463,7 +517,7 @@ wsSuite('resolves options.context that is a function', async () => {
     client.on('data', (chunk) => {
       const data = JSON.parse(chunk);
       if (data.type === MessageTypes.GQL_CONNECTION_ACK) {
-        return sendMessageMutation();
+        return publish();
       }
       if (data.type === MessageTypes.GQL_DATA) {
         assert.equal(data, {
@@ -484,7 +538,7 @@ wsSuite('resolves options.context that is a function', async () => {
 });
 
 wsSuite('queue messages until context is resolved', async () => {
-  const { client } = await startServer({
+  const { client, publish } = await startServer({
     context: () =>
       new Promise((resolve) => {
         // Reasonable time for messages to start to queue
@@ -516,7 +570,7 @@ wsSuite('queue messages until context is resolved', async () => {
     client.on('data', (chunk) => {
       const data = JSON.parse(chunk);
       if (data.type === MessageTypes.GQL_CONNECTION_ACK) {
-        return sendMessageMutation();
+        return publish();
       }
       if (data.type === MessageTypes.GQL_DATA) {
         assert.equal(data, {
@@ -568,7 +622,7 @@ wsSuite('closes connection on error in context function', async () => {
   });
 });
 wsSuite('stops subscription upon MessageTypes.GQL_STOP', async () => {
-  const { client } = await startServer();
+  const { client, publish } = await startServer();
   client.write(
     JSON.stringify({
       type: MessageTypes.GQL_CONNECTION_INIT,
@@ -600,7 +654,7 @@ wsSuite('stops subscription upon MessageTypes.GQL_STOP', async () => {
             type: MessageTypes.GQL_STOP,
           })
         );
-        sendMessageMutation().then(() => {
+        publish().then(() => {
           // Wait for little bit more to see if there is notification
           timer = setTimeout(resolve, 20);
         });
