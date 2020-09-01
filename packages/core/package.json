@@ -13,14 +13,16 @@
   "homepage": "https://hoangvvo.github.io/benzene/",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "mocha"
   },
   "license": "MIT",
   "dependencies": {
-    "@hoangvvo/graphql-jit": "^0.5.0",
+    "@hoangvvo/graphql-jit": "^0.6.0",
     "flatstr": "^1.0.12",
     "tiny-lru": "^7.0.6"
   },
