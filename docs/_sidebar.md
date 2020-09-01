@@ -34,6 +34,7 @@
     - [Usage](ws/#usage)
     - [API](ws/#api)
     - [Building Context](ws/#context)
+    - [Hooks](ws/#hooks)
   - [Authentication](ws/#authentication)
   - [Protocol](ws/PROTOCOL)
   - [Integration](ws/ws-integration)
