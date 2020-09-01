@@ -1,5 +1,6 @@
+import { suite } from 'uvu';
+import assert from 'uvu/assert';
 import * as fetch from 'node-fetch';
-import { strict as assert } from 'assert';
 import { HttpQueryResponse } from '@benzene/core/src';
 import { GraphQL, fetchHandler } from '../src';
 import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
@@ -47,15 +48,15 @@ async function testFetch(
   expected: Partial<HttpQueryResponse> | null,
   options?: HandlerConfig,
   GQLInstance = new GraphQL({ schema: TestSchema })
-) {
+): Promise<void> {
   return new Promise((resolve, reject) => {
     const fetchEvent: FetchEvent = {
       // @ts-ignore
       request: new fetch.Request(request),
       respondWith: async (maybeResponse) => {
         const response = await maybeResponse;
-        assert.strictEqual(expected.body, await response.text());
-        assert.strictEqual(expected.status || 200, response.status);
+        assert.equal(expected.body, await response.text());
+        assert.equal(expected.status || 200, response.status);
         // TODO: Add headers
         resolve();
         return response;
@@ -65,96 +66,95 @@ async function testFetch(
   });
 }
 
-before(() => {
-  // @ts-ignore
-  global.Request = fetch.Request;
-  // @ts-ignore
-  global.Response = fetch.Response;
+// @ts-ignore
+global.Request = fetch.Request;
+// @ts-ignore
+global.Response = fetch.Response;
+
+const suiteFetch = suite('fetchHandler');
+
+suiteFetch('handles GET request', () => {
+  return testFetch(new fetch.Request('http://localhost/graphql?query={test}'), {
+    body: JSON.stringify({ data: { test: 'Hello World' } }),
+  });
 });
 
-describe('fetchHandler', () => {
-  it('handles GET request', () => {
-    return testFetch(
-      new fetch.Request('http://localhost/graphql?query={test}'),
-      { body: JSON.stringify({ data: { test: 'Hello World' } }) }
-    );
-  });
+suiteFetch('handles POST request', () => {
+  return testFetch(
+    new fetch.Request('http://localhost/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{test}' }),
+    }),
+    { body: JSON.stringify({ data: { test: 'Hello World' } }) }
+  );
+});
 
-  it('handles POST request', () => {
-    return testFetch(
-      new fetch.Request('http://localhost/graphql', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ query: '{test}' }),
-      }),
-      { body: JSON.stringify({ data: { test: 'Hello World' } }) }
-    );
-  });
+suiteFetch('resolves options.context that is an object', async () => {
+  await testFetch(
+    new fetch.Request('/graphql?query={testCtx}'),
+    { body: `{"data":{"testCtx":"Hello Jane"}}` },
+    { context: { who: 'Jane' } }
+  );
+});
 
-  describe('resolves options.context that is', () => {
-    it('an object', async () => {
-      await testFetch(
-        new fetch.Request('/graphql?query={testCtx}'),
-        { body: `{"data":{"testCtx":"Hello Jane"}}` },
-        { context: { who: 'Jane' } }
-      );
-    });
+suiteFetch('resolves options.context that is a function', async () => {
+  await testFetch(
+    new fetch.Request('http://localhost/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{testCtx}' }),
+    }),
+    { body: `{"data":{"testCtx":"Hello John"}}` },
+    { context: async () => ({ who: 'John' }) }
+  );
+});
 
-    it('a function', async () => {
-      await testFetch(
-        new fetch.Request('http://localhost/graphql', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ query: '{testCtx}' }),
-        }),
-        { body: `{"data":{"testCtx":"Hello John"}}` },
-        { context: async () => ({ who: 'John' }) }
-      );
-    });
-  });
-
-  it('catches error thrown in context function', async () => {
-    await testFetch(
-      new fetch.Request('http://localhost/graphql', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ query: '{testCtx}' }),
-      }),
-      {
-        body: `{"errors":[{"message":"Context creation failed: uh oh"}]}`,
-        status: 500,
+suiteFetch('catches error thrown in context function', async () => {
+  await testFetch(
+    new fetch.Request('http://localhost/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query: '{testCtx}' }),
+    }),
+    {
+      body: `{"errors":[{"message":"Context creation failed: uh oh"}]}`,
+      status: 500,
+    },
+    {
+      context: async () => {
+        throw new Error('uh oh');
       },
-      {
-        context: async () => {
-          throw new Error('uh oh');
-        },
-      }
+    }
+  );
+});
+
+suiteFetch('Ignore requests of different to options.path', () => {
+  const badFetchEvent: FetchEvent = {
+    // @ts-ignore
+    request: new fetch.Request('http://localhost/notAPI'),
+    respondWith: () => {
+      throw new Error("DON'T CALL ME!!!");
+    },
+  };
+  fetchHandler(new GraphQL({ schema: TestSchema }), { path: '/api' })(
+    badFetchEvent
+  );
+});
+suiteFetch('Respond to requests to options.path', (done) => {
+  return new Promise((resolve) => {
+    const correctFetchEvent: FetchEvent = {
+      // @ts-ignore
+      request: new fetch.Request('http://localhost:/api'),
+      respondWith: async (maybeResponse) => {
+        resolve();
+        return maybeResponse;
+      },
+    };
+    fetchHandler(new GraphQL({ schema: TestSchema }), { path: '/api' })(
+      correctFetchEvent
     );
   });
-
-  describe('When options.path is set', () => {
-    const gql = new GraphQL({ schema: TestSchema });
-    it('ignore requests of different path', (done) => {
-      const badFetchEvent: FetchEvent = {
-        // @ts-ignore
-        request: new fetch.Request('http://localhost/notAPI'),
-        respondWith: () => {
-          throw new Error("DON'T CALL ME!!!");
-        },
-      };
-      fetchHandler(gql, { path: '/api' })(badFetchEvent);
-      done();
-    });
-    it('response to requests to defined path', (done) => {
-      const correctFetchEvent: FetchEvent = {
-        // @ts-ignore
-        request: new fetch.Request('http://localhost:/api'),
-        respondWith: async (maybeResponse) => {
-          done();
-          return maybeResponse;
-        },
-      };
-      fetchHandler(gql, { path: '/api' })(correctFetchEvent);
-    });
-  });
 });
+
+suiteFetch.run();
