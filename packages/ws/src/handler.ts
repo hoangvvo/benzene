@@ -4,6 +4,7 @@ import * as WebSocket from 'ws';
 import { SubscriptionConnection } from './connection';
 import MessageTypes, { GRAPHQL_WS } from './messageTypes';
 import { HandlerConfig } from './types';
+import { connect } from 'http2';
 
 export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
   async function handleSocket(
@@ -38,7 +39,10 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
 
     // No longer need to queue
     socket.off('message', queueUnhandled);
-    const connection = new SubscriptionConnection(gql, socket, context);
+    const connection = new SubscriptionConnection(gql, socket, context, {
+      onStart: options.onStart,
+      onStop: options.onStop,
+    });
     // Flush all queued unhandled message
     for (let i = 0; i < unhandledQueue.length; i += 1) {
       // FIXME: Need test for this behavior

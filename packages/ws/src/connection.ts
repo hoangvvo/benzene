@@ -8,7 +8,7 @@ import {
 } from '@benzene/core';
 import * as WebSocket from 'ws';
 import MessageTypes from './messageTypes';
-import { OperationMessage } from './types';
+import { OperationMessage, HandlerConfig } from './types';
 
 export class SubscriptionConnection {
   private operations: Map<
@@ -17,9 +17,10 @@ export class SubscriptionConnection {
   > = new Map();
 
   constructor(
-    public gql: GraphQL,
+    private gql: GraphQL,
     public socket: WebSocket,
-    public context: TContext
+    public context: TContext,
+    private options: Omit<HandlerConfig, 'context'>
   ) {}
 
   init() {
@@ -86,9 +87,16 @@ export class SubscriptionConnection {
     };
 
     if (cachedOrResult.operation !== 'subscription') {
+      if (this.options.onStart) {
+        this.options.onStart.call(this, data.id, {
+          document: cachedOrResult.document,
+          contextValue: this.context,
+          variableValues: variables,
+          operationName,
+        });
+      }
       const result = await this.gql.execute(execArg);
       this.sendMessage(MessageTypes.GQL_DATA, data.id, result);
-      this.sendMessage(MessageTypes.GQL_COMPLETE, data.id);
     } else {
       const result = await this.gql.subscribe(execArg);
       if (!isAsyncIterable<ExecutionResult>(result)) {
@@ -98,12 +106,21 @@ export class SubscriptionConnection {
         return this.sendMessage(MessageTypes.GQL_ERROR, data.id, result);
       }
       this.operations.set(data.id, result);
+      if (this.options.onStart) {
+        this.options.onStart.call(this, data.id, {
+          document: cachedOrResult.document,
+          contextValue: this.context,
+          variableValues: variables,
+          operationName,
+        });
+      }
       for await (const value of result) {
         this.sendMessage(MessageTypes.GQL_DATA, data.id, value);
       }
-      // Complete
-      this.sendMessage(MessageTypes.GQL_COMPLETE, data.id);
     }
+    // Complete
+    if (this.options.onStop) this.options.onStop.call(this, data.id);
+    this.sendMessage(MessageTypes.GQL_COMPLETE, data.id);
   }
 
   handleGQLStop(opId: string) {

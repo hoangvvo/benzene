@@ -17,6 +17,7 @@ import MessageTypes from '../src/messageTypes';
 import { HandlerConfig } from '../src/types';
 import { Duplex } from 'stream';
 import { EventEmitter } from 'events';
+import { SubscriptionConnection } from '../src/connection';
 
 function emitterAsyncIterator(
   eventEmitter: EventEmitter,
@@ -178,14 +179,15 @@ async function startServer(
   });
 }
 
-const wsSuite = suite('wsHandler');
-
-wsSuite.after.each(() => {
-  if (!serverInit) return;
+const cleanupTest = () => {
   const { server, client } = serverInit;
   client.end();
   server.close();
-});
+};
+
+const wsSuite = suite('wsHandler');
+
+wsSuite.after.each(cleanupTest);
 
 wsSuite('replies with connection_ack', async () => {
   const { client } = await startServer();
@@ -644,9 +646,13 @@ wsSuite('stops subscription upon MessageTypes.GQL_STOP', async () => {
     })
   );
   await new Promise((resolve, reject) => {
+    let done = false;
     client.on('data', (chunk) => {
       const data = JSON.parse(chunk);
       let timer;
+      if (data.type === MessageTypes.GQL_COMPLETE) {
+        done = true;
+      }
       if (data.type === MessageTypes.GQL_CONNECTION_ACK) {
         client.write(
           JSON.stringify({
@@ -656,7 +662,10 @@ wsSuite('stops subscription upon MessageTypes.GQL_STOP', async () => {
         );
         publish().then(() => {
           // Wait for little bit more to see if there is notification
-          timer = setTimeout(resolve, 20);
+          timer = setTimeout(() => {
+            assert.ok(done);
+            resolve();
+          }, 20);
         });
       }
       if (data.type === MessageTypes.GQL_DATA) {
@@ -690,3 +699,107 @@ wsSuite('closes connection on connection_terminate', async () => {
 });
 
 wsSuite.run();
+
+const connSuite = suite('SubscriptionConnection');
+
+connSuite.after.each(cleanupTest);
+
+connSuite('call onStart on subscription start', async () => {
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise(async (resolve) => {
+    const { client } = await startServer({
+      context: { test: 'test' },
+      onStart(id, execArg) {
+        assert.instance(this, SubscriptionConnection);
+        assert.is(id, 1);
+        assert.is(execArg.document.kind, 'Document');
+        assert.is(execArg.contextValue.test, 'test');
+        resolve();
+      },
+    });
+    client.write(
+      JSON.stringify({
+        id: 1,
+        type: MessageTypes.GQL_START,
+        payload: {
+          query: `
+              subscription {
+                notificationAdded {
+                  user
+                }
+              }
+            `,
+        },
+      })
+    );
+  });
+});
+
+connSuite('call onStart on execution', async () => {
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise(async (resolve) => {
+    const { client } = await startServer({
+      onStart(id, execArg) {
+        assert.instance(this, SubscriptionConnection);
+        assert.is(id, 1);
+        assert.is(execArg.document.kind, 'Document');
+        resolve();
+      },
+    });
+    client.write(
+      JSON.stringify({
+        id: 1,
+        type: MessageTypes.GQL_START,
+        payload: {
+          query: `query { test }`,
+        },
+      })
+    );
+  });
+});
+
+connSuite('call onStop on subscription stop', async () => {
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise(async (resolve) => {
+    const { client } = await startServer({
+      onStop(id) {
+        assert.instance(this, SubscriptionConnection);
+        assert.is(id, 1);
+        resolve();
+      },
+    });
+    client.on('data', (chunk) => {
+      const json = JSON.parse(chunk);
+      if (json.type === MessageTypes.GQL_CONNECTION_ACK) {
+        client.write(
+          JSON.stringify({
+            id: 1,
+            type: MessageTypes.GQL_STOP,
+          })
+        );
+      }
+    });
+    client.write(
+      JSON.stringify({
+        type: MessageTypes.GQL_CONNECTION_INIT,
+      })
+    );
+    client.write(
+      JSON.stringify({
+        id: 1,
+        type: MessageTypes.GQL_START,
+        payload: {
+          query: `
+              subscription {
+                notificationAdded {
+                  user
+                }
+              }
+            `,
+        },
+      })
+    );
+  });
+});
+
+connSuite.run();
