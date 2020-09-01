@@ -82,6 +82,8 @@ Create a handler for incoming WebSocket connection (from `wss.on('connection')`)
 | options | description | default |
 |---------|-------------|---------|
 | context | An object or function called to creates a context shared across resolvers per connection. The function is called with the arguments [socket](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket), [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) | `{}` |
+| onStart | (Experimental) A function to be called when a subscription (or query/execution) started (or executed). See [`Hook`](#hooks). | `undefined` |
+| onStop | (Experimental) A function to be called when a subscription (or query/execution) finished (or right after their execution). See [`Hook`](#hooks). | `undefined` |
 
 ## Building Context :id=context
 
@@ -113,3 +115,51 @@ If an error is thrown in `options.context`, `@benzene/ws` will send a `{ type = 
 ```
 
 See [Authentication](/ws/authentication) on possible authentication mechanism.
+
+## Hooks
+
+!> This API is experimental and may be modified/removed in a future version. See [#9](https://github.com/hoangvvo/benzene/issues/9). These are hooks are for **listening only**.
+
+### Subscription Start
+
+When a subscription is started, `options.onStart` will be called with a unique subscription `id` and an `execArg` object containing `document`, `contextValue`, `variableValues`, and `operationName`. 
+
+The function is called with `this = SubscriptionConnection` (except [arrow function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions)). 
+
+The `SubscriptionConnection` class is internal and should not be used since its components can be changed without notice. (even though `SubscriptionConnection#socket` (`WebSocket`) is fairly stable). 
+
+> You can use the instance to share states. Be aware that it can lead to memory leaks if not careful.
+
+```js
+const CONN_STATE = Symbol('connection#state')
+
+const wsHandle = wsHandler(GQL, {
+  onStart(id, { document, contextValue, variableValues, operationName }) {
+    // Do whatever you need
+    this[CONN_STATE] = this[CONN_STATE] || {};
+    if (operationName === `onRoomUpdated`) {
+      if (!contextValue.user?.id) return;
+      setUserCurrentRoom(contextValue.user.id, variableValues.roomId)
+      this[CONN_STATE][`roomPresence`] = { subId: id, roomId: variableValues.roomId };
+    }
+  }
+});
+```
+
+### Subscription Stop
+
+When a subscription is completed/finished, `options.onStart` will be called with tehe unique subscription `id`. Similarly, you have access to `SubscriptionConnection` via `this`.
+
+```js
+const wsHandle = wsHandler(GQL, {
+  /* Continue the above */
+  onStop(id) {
+    const roomPresence = this[CONN_STATE][`roomPresence`];
+    if (roomPresence && id === roomPresence.subId) {
+      // User unsubscribe from onRoomUpdated, meaning he/she is leaving
+      this[CONN_STATE][`roomPresence`] = null;
+      setUserCurrentRoom(contextValue.user.id, null)
+    }
+  }
+});
+```
