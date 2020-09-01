@@ -71,9 +71,9 @@ wss.on('connection', wsHandler(GQL, options));
 
 ### wsHandler(GQL, options)
 
-Create a handler for incoming WebSocket connection (from `wss.on('connection')`) and execute GraphQL based on [GraphQL over WebSocket Protocol](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md).
+Create a handler for incoming WebSocket connection (from `wss.on('connection')`) and execute GraphQL based on the [modified GraphQL over WebSocket Protocol](https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md).
 
-`GQL` in a [Benzene GraphQL instance](/core/) instance.
+`GQL` is a [Benzene GraphQL instance](/core/) instance.
 
 ?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
 
@@ -82,8 +82,8 @@ Create a handler for incoming WebSocket connection (from `wss.on('connection')`)
 | options | description | default |
 |---------|-------------|---------|
 | context | An object or function called to creates a context shared across resolvers per connection. The function is called with the arguments [socket](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket), [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) | `{}` |
-| onStart | (Experimental) A function to be called when a subscription (or query/execution) started (or executed). See [`Hook`](#hooks). | `undefined` |
-| onStop | (Experimental) A function to be called when a subscription (or query/execution) finished (or right after their execution). See [`Hook`](#hooks). | `undefined` |
+| onStart | (Experimental) A function to be called when a subscription (or query/execution) started (or executed). See [`Hooks`](#hooks). | `undefined` |
+| onComplete | (Experimental) A function to be called when a subscription (or query/execution) finished (or after their execution which is immediate). See [`Hooks`](#hooks). | `undefined` |
 
 ## Building Context :id=context
 
@@ -118,11 +118,11 @@ See [Authentication](/ws/authentication) on possible authentication mechanism.
 
 ## Hooks
 
-!> This API is experimental and may be modified/removed in a future version. See [#9](https://github.com/hoangvvo/benzene/issues/9). These are hooks are for **listening only**.
+!> This API is experimental and may be modified/removed in a future version. See [#9](https://github.com/hoangvvo/benzene/issues/9).
 
 ### Subscription Start
 
-When a subscription is started, `options.onStart` will be called with a unique subscription `id` and an `execArg` object containing `document`, `contextValue`, `variableValues`, and `operationName`. 
+When a subscription **have started** (not before, so you cannot mutate the request), `options.onStart` will be called with a unique subscription `id` and an `execArg` object containing `document`, `contextValue`, `variableValues`, and `operationName`.
 
 The function is called with `this = SubscriptionConnection` (except [arrow function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions)). 
 
@@ -146,14 +146,14 @@ const wsHandle = wsHandler(GQL, {
 });
 ```
 
-### Subscription Stop
+### Subscription Complete
 
-When a subscription is completed/finished, `options.onStart` will be called with tehe unique subscription `id`. Similarly, you have access to `SubscriptionConnection` via `this`.
+When a subscription have completed/finished, `options.onComplete` will be called with tehe unique subscription `id`. Similarly, you have access to `SubscriptionConnection` via `this`.
 
 ```js
 const wsHandle = wsHandler(GQL, {
   /* Continue the above */
-  onStop(id) {
+  onComplete(id) {
     const roomPresence = this[CONN_STATE][`roomPresence`];
     if (roomPresence && id === roomPresence.subId) {
       // User unsubscribe from onRoomUpdated, meaning he/she is leaving
