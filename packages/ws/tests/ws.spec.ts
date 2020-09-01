@@ -1,9 +1,9 @@
 import { suite } from 'uvu';
+import assert from 'uvu/assert';
 import WebSocket from 'ws';
 import { httpHandler } from '@benzene/server';
 import { GraphQL } from '@benzene/core';
 import { Config as GraphQLConfig } from '@benzene/core/src/types';
-import { strict as assert } from 'assert';
 import { PubSub } from 'graphql-subscriptions';
 import { createServer } from 'http';
 import fetch from 'node-fetch';
@@ -137,7 +137,7 @@ wsSuite('replies with connection_ack', async () => {
   await new Promise((resolve) => {
     client.on('data', (chunk) => {
       const json = JSON.parse(chunk);
-      assert.deepStrictEqual(json, { type: MessageTypes.GQL_CONNECTION_ACK });
+      assert.equal(json, { type: MessageTypes.GQL_CONNECTION_ACK });
       resolve();
     });
   });
@@ -172,7 +172,7 @@ wsSuite('sends updates via subscription', async function () {
         return sendMessageMutation();
       }
       if (data.type === MessageTypes.GQL_DATA) {
-        assert.deepStrictEqual(data, {
+        assert.equal(data, {
           type: MessageTypes.GQL_DATA,
           id: 1,
           payload: {
@@ -206,7 +206,7 @@ wsSuite('errors on malformed message', async () => {
     client.on('data', (chunk) => {
       const json = JSON.parse(chunk);
       if (json.type === 'error') {
-        assert.deepStrictEqual(json, {
+        assert.equal(json, {
           type: 'error',
           payload: { errors: [{ message: 'Malformed message' }] },
         });
@@ -253,7 +253,7 @@ wsSuite('format errors using formatError', async () => {
         sendMessageMutation();
       }
       if (json.type === MessageTypes.GQL_DATA) {
-        assert.deepStrictEqual(json, {
+        assert.equal(json, {
           id: 1,
           type: MessageTypes.GQL_DATA,
           payload: {
@@ -292,7 +292,7 @@ wsSuite('errors on empty query', async function () {
     client.on('data', (chunk) => {
       const json = JSON.parse(chunk);
       if (json.type === 'error') {
-        assert.deepStrictEqual(json, {
+        assert.equal(json, {
           type: 'error',
           payload: { errors: [{ message: 'Must provide query string.' }] },
         });
@@ -329,7 +329,7 @@ wsSuite('resolves also queries and mutations', async function () {
     client.on('data', (chunk) => {
       const json = JSON.parse(chunk);
       if (json.type === `data`) {
-        assert.deepStrictEqual(json, {
+        assert.equal(json, {
           type: MessageTypes.GQL_DATA,
           id: 1,
           payload: { data: { addNotification: { message: 'Hello World' } } },
@@ -375,7 +375,7 @@ wsSuite('errors on syntax error', async () => {
             errors: [{ message }],
           },
         } = json;
-        assert.deepEqual(
+        assert.is(
           message,
           `Cannot query field "NNotificationAdded" on type "Subscription". Did you mean "notificationAdded"?`
         );
@@ -417,7 +417,7 @@ wsSuite('resolves options.context that is an object', async () => {
         return sendMessageMutation();
       }
       if (data.type === MessageTypes.GQL_DATA) {
-        assert.deepStrictEqual(data, {
+        assert.equal(data, {
           type: MessageTypes.GQL_DATA,
           id: 1,
           payload: {
@@ -466,7 +466,7 @@ wsSuite('resolves options.context that is a function', async () => {
         return sendMessageMutation();
       }
       if (data.type === MessageTypes.GQL_DATA) {
-        assert.deepStrictEqual(data, {
+        assert.equal(data, {
           type: MessageTypes.GQL_DATA,
           id: 1,
           payload: {
@@ -519,7 +519,7 @@ wsSuite('queue messages until context is resolved', async () => {
         return sendMessageMutation();
       }
       if (data.type === MessageTypes.GQL_DATA) {
-        assert.deepStrictEqual(data, {
+        assert.equal(data, {
           type: MessageTypes.GQL_DATA,
           id: 1,
           payload: {
@@ -551,7 +551,7 @@ wsSuite('closes connection on error in context function', async () => {
     client.on('data', (chunk) => {
       const json = JSON.parse(chunk);
       if (json.type !== MessageTypes.GQL_CONNECTION_ERROR) return;
-      assert.deepStrictEqual(json, {
+      assert.equal(json, {
         type: MessageTypes.GQL_CONNECTION_ERROR,
         payload: {
           errors: [
@@ -562,7 +562,7 @@ wsSuite('closes connection on error in context function', async () => {
       isErrored = true;
     });
     client.on('end', () => {
-      assert(isErrored);
+      assert.ok(isErrored);
       resolve();
     });
   });

@@ -7,6 +7,7 @@
  */
 
 import { suite } from 'uvu';
+import assert from 'uvu/assert';
 import { EventEmitter } from 'events';
 import {
   GraphQLObjectType,
@@ -21,9 +22,16 @@ import {
   SubscriptionArgs,
   ExecutionResult,
 } from 'graphql';
-import { strictEqual, deepStrictEqual as deepStrictEquall } from 'assert';
 import { GraphQL, isAsyncIterable } from '../src';
 import { compileQuery, isCompiledQuery } from '@hoangvvo/graphql-jit';
+
+function checkDeepEqual(actual, expected) {
+  // FIXME: Should not have to do this
+  if (actual.value?.errors)
+    actual.value.errors = actual.value.errors.map(formatError);
+  if (actual.errors) actual.errors = actual.errors.map(formatError);
+  assert.equal(actual, expected);
+}
 
 function formatError(error: any) {
   let _error$message;
@@ -40,13 +48,6 @@ function formatError(error: any) {
     ...(locations && { locations }),
   };
 }
-
-const deepStrictEqual = (actual: any, expected: any) => {
-  if (actual.value?.errors)
-    actual.value.errors = actual.value.errors.map(formatError);
-  if (actual.errors) actual.errors = actual.errors.map(formatError);
-  return deepStrictEquall(actual, expected);
-};
 
 function eventEmitterAsyncIterator(
   eventEmitter: EventEmitter,
@@ -260,8 +261,8 @@ async function expectPromiseToThrow(
     await promise();
     throw new Error('promise should have thrown but did not');
   } catch (error) {
-    strictEqual(error instanceof Error, true);
-    strictEqual(error.message, message);
+    assert.instance(error, Error);
+    assert.is(error.message, message);
   }
 }
 
@@ -454,8 +455,8 @@ suiteInit(
     // @ts-ignore
     subscription.next(); // Ask for a result, but ignore it.
 
-    strictEqual(didResolveImportantEmail, true);
-    strictEqual(didResolveNonImportantEmail, false);
+    assert.is(didResolveImportantEmail, true);
+    assert.is(didResolveNonImportantEmail, false);
 
     // Close subscription
     // @ts-ignore
@@ -474,7 +475,7 @@ suiteInit('resolves to an error for unknown subscription field', async () => {
 
   const { subscription } = await createSubscription(pubsub, emailSchema, ast);
 
-  deepStrictEqual(subscription, {
+  checkDeepEqual(subscription, {
     errors: [
       {
         message: 'The subscription field "unknownField" is not defined.',
@@ -545,7 +546,7 @@ suiteInit('resolves to an error for subscription resolver errors', async () => {
         `),
     });
 
-    deepStrictEqual(result, {
+    checkDeepEqual(result, {
       errors: [
         {
           message: 'test error',
@@ -595,7 +596,7 @@ suiteInit.skip(
       `),
       });
 
-      deepStrictEqual(result, {
+      checkDeepEqual(result, {
         errors: [
           {
             message: 'test error',
@@ -633,7 +634,7 @@ suiteInit('resolves to an error if variables were wrong type', async () => {
     variableValues: { priority: 'meow' },
   });
 
-  deepStrictEqual(result, {
+  checkDeepEqual(result, {
     errors: [
       {
         // Different
@@ -666,7 +667,7 @@ suitePub(
     // @ts-ignore
     const payload2 = second.subscription.next();
 
-    strictEqual(
+    assert.is(
       sendImportantEmail({
         from: 'yuzhi@graphql.org',
         subject: 'Alright',
@@ -694,8 +695,8 @@ suitePub(
       },
     };
 
-    deepStrictEqual(await payload1, expectedPayload);
-    deepStrictEqual(await payload2, expectedPayload);
+    checkDeepEqual(await payload1, expectedPayload);
+    checkDeepEqual(await payload2, expectedPayload);
   }
 );
 
@@ -708,7 +709,7 @@ suitePub('produces a payload per subscription event', async () => {
   const payload = subscription.next();
 
   // A new email arrives!
-  strictEqual(
+  assert.is(
     sendImportantEmail({
       from: 'yuzhi@graphql.org',
       subject: 'Alright',
@@ -719,7 +720,7 @@ suitePub('produces a payload per subscription event', async () => {
   );
 
   // The previously waited on payload now has a value.
-  deepStrictEqual(await payload, {
+  checkDeepEqual(await payload, {
     done: false,
     value: {
       data: {
@@ -738,7 +739,7 @@ suitePub('produces a payload per subscription event', async () => {
   });
 
   // Another new email arrives, before subscription.next() is called.
-  strictEqual(
+  assert.is(
     sendImportantEmail({
       from: 'hyo@graphql.org',
       subject: 'Tools',
@@ -750,7 +751,7 @@ suitePub('produces a payload per subscription event', async () => {
 
   // The next waited on payload will have a value.
   // @ts-ignore
-  deepStrictEqual(await subscription.next(), {
+  checkDeepEqual(await subscription.next(), {
     done: false,
     value: {
       data: {
@@ -770,13 +771,13 @@ suitePub('produces a payload per subscription event', async () => {
 
   // The client decides to disconnect.
   // @ts-ignore
-  deepStrictEqual(await subscription.return(), {
+  checkDeepEqual(await subscription.return(), {
     done: true,
     value: undefined,
   });
 
   // Which may result in disconnecting upstream services as well.
-  strictEqual(
+  assert.is(
     sendImportantEmail({
       from: 'adam@graphql.org',
       subject: 'Important',
@@ -788,7 +789,7 @@ suitePub('produces a payload per subscription event', async () => {
 
   // Awaiting a subscription after closing it results in completed results.
   // @ts-ignore
-  deepStrictEqual(await subscription.next(), {
+  checkDeepEqual(await subscription.next(), {
     done: true,
     value: undefined,
   });
@@ -801,7 +802,7 @@ suitePub('produces a payload when there are multiple events', async () => {
   let payload = subscription.next();
 
   // A new email arrives!
-  strictEqual(
+  assert.is(
     sendImportantEmail({
       from: 'yuzhi@graphql.org',
       subject: 'Alright',
@@ -811,7 +812,7 @@ suitePub('produces a payload when there are multiple events', async () => {
     true
   );
 
-  deepStrictEqual(await payload, {
+  checkDeepEqual(await payload, {
     done: false,
     value: {
       data: {
@@ -833,7 +834,7 @@ suitePub('produces a payload when there are multiple events', async () => {
   payload = subscription.next();
 
   // A new email arrives!
-  strictEqual(
+  assert.is(
     sendImportantEmail({
       from: 'yuzhi@graphql.org',
       subject: 'Alright 2',
@@ -843,7 +844,7 @@ suitePub('produces a payload when there are multiple events', async () => {
     true
   );
 
-  deepStrictEqual(await payload, {
+  checkDeepEqual(await payload, {
     done: false,
     value: {
       data: {
@@ -869,7 +870,7 @@ suitePub('should not trigger when subscription is already done', async () => {
   let payload = subscription.next();
 
   // A new email arrives!
-  strictEqual(
+  assert.is(
     sendImportantEmail({
       from: 'yuzhi@graphql.org',
       subject: 'Alright',
@@ -879,7 +880,7 @@ suitePub('should not trigger when subscription is already done', async () => {
     true
   );
 
-  deepStrictEqual(await payload, {
+  checkDeepEqual(await payload, {
     done: false,
     value: {
       data: {
@@ -903,7 +904,7 @@ suitePub('should not trigger when subscription is already done', async () => {
   subscription.return();
 
   // A new email arrives!
-  strictEqual(
+  assert.is(
     sendImportantEmail({
       from: 'yuzhi@graphql.org',
       subject: 'Alright 2',
@@ -913,7 +914,7 @@ suitePub('should not trigger when subscription is already done', async () => {
     false
   );
 
-  deepStrictEqual(await payload, {
+  checkDeepEqual(await payload, {
     done: true,
     value: undefined,
   });
@@ -926,7 +927,7 @@ suitePub('should not trigger when subscription is thrown', async () => {
   let payload = subscription.next();
 
   // A new email arrives!
-  strictEqual(
+  assert.is(
     sendImportantEmail({
       from: 'yuzhi@graphql.org',
       subject: 'Alright',
@@ -936,7 +937,7 @@ suitePub('should not trigger when subscription is thrown', async () => {
     true
   );
 
-  deepStrictEqual(await payload, {
+  checkDeepEqual(await payload, {
     done: false,
     value: {
       data: {
@@ -965,10 +966,10 @@ suitePub('should not trigger when subscription is thrown', async () => {
   } catch (e) {
     caughtError = e;
   }
-  strictEqual(caughtError, 'ouch');
+  assert.is(caughtError, 'ouch');
 
   // A new email arrives!
-  strictEqual(
+  assert.is(
     sendImportantEmail({
       from: 'yuzhi@graphql.org',
       subject: 'Alright 2',
@@ -978,7 +979,7 @@ suitePub('should not trigger when subscription is thrown', async () => {
     false
   );
 
-  deepStrictEqual(await payload, {
+  checkDeepEqual(await payload, {
     done: true,
     value: undefined,
   });
@@ -991,7 +992,7 @@ suitePub('event order is correct for multiple publishes', async () => {
   let payload = subscription.next();
 
   // A new email arrives!
-  strictEqual(
+  assert.is(
     sendImportantEmail({
       from: 'yuzhi@graphql.org',
       subject: 'Message',
@@ -1002,7 +1003,7 @@ suitePub('event order is correct for multiple publishes', async () => {
   );
 
   // A new email arrives!
-  strictEqual(
+  assert.is(
     sendImportantEmail({
       from: 'yuzhi@graphql.org',
       subject: 'Message 2',
@@ -1012,7 +1013,7 @@ suitePub('event order is correct for multiple publishes', async () => {
     true
   );
 
-  deepStrictEqual(await payload, {
+  checkDeepEqual(await payload, {
     done: false,
     value: {
       data: {
@@ -1033,7 +1034,7 @@ suitePub('event order is correct for multiple publishes', async () => {
   // @ts-ignore
   payload = subscription.next();
 
-  deepStrictEqual(await payload, {
+  checkDeepEqual(await payload, {
     done: false,
     value: {
       data: {
@@ -1082,7 +1083,7 @@ suitePub('should handle error during execution of source event', async () => {
 
   // @ts-ignore
   const payload1 = await subscription.next();
-  deepStrictEqual(payload1, {
+  checkDeepEqual(payload1, {
     done: false,
     value: {
       data: {
@@ -1098,7 +1099,7 @@ suitePub('should handle error during execution of source event', async () => {
   // An error in execution is presented as such.
   // @ts-ignore
   const payload2 = await subscription.next();
-  deepStrictEqual(payload2, {
+  checkDeepEqual(payload2, {
     done: false,
     value: {
       errors: [
@@ -1118,7 +1119,7 @@ suitePub('should handle error during execution of source event', async () => {
   // events are still executed.
   // @ts-ignore
   const payload3 = await subscription.next();
-  deepStrictEqual(payload3, {
+  checkDeepEqual(payload3, {
     done: false,
     value: {
       data: {
@@ -1158,7 +1159,7 @@ suitePub(
 
     // @ts-ignore
     const payload1 = await subscription.next();
-    deepStrictEqual(payload1, {
+    checkDeepEqual(payload1, {
       done: false,
       value: {
         data: {
@@ -1179,12 +1180,12 @@ suitePub(
       expectedError = error;
     }
 
-    strictEqual(expectedError instanceof Error, true);
-    strictEqual('message' in expectedError, true);
+    assert.instance(expectedError, Error);
+    assert.ok('message' in expectedError);
 
     // @ts-ignore
     const payload2 = await subscription.next();
-    deepStrictEqual(payload2, {
+    checkDeepEqual(payload2, {
       done: true,
       value: undefined,
     });
@@ -1215,7 +1216,7 @@ suitePub('should resolve GraphQL error from source event stream', async () => {
 
   // @ts-ignore
   const payload1 = await subscription.next();
-  deepStrictEqual(payload1, {
+  checkDeepEqual(payload1, {
     done: false,
     value: {
       data: {
@@ -1230,7 +1231,7 @@ suitePub('should resolve GraphQL error from source event stream', async () => {
 
   // @ts-ignore
   const payload2 = await subscription.next();
-  deepStrictEqual(payload2, {
+  checkDeepEqual(payload2, {
     done: false,
     value: {
       errors: [
@@ -1243,7 +1244,7 @@ suitePub('should resolve GraphQL error from source event stream', async () => {
 
   // @ts-ignore
   const payload3 = await subscription.next();
-  deepStrictEqual(payload3, {
+  checkDeepEqual(payload3, {
     done: true,
     value: undefined,
   });
@@ -1255,46 +1256,46 @@ const suiteIsAI = suite('isAsyncIterable');
 
 suiteIsAI('should return `true` for AsyncIterable', () => {
   const asyncIteratable = { [Symbol.asyncIterator]: (x) => x };
-  strictEqual(isAsyncIterable(asyncIteratable), true);
+  assert.is(isAsyncIterable(asyncIteratable), true);
 
   // istanbul ignore next (Never called and use just as a placeholder)
   async function* asyncGeneratorFunc() {
     /* do nothing */
   }
 
-  strictEqual(isAsyncIterable(asyncGeneratorFunc()), true);
+  assert.is(isAsyncIterable(asyncGeneratorFunc()), true);
 
   // But async generator function itself is not iteratable
-  strictEqual(isAsyncIterable(asyncGeneratorFunc), false);
+  assert.is(isAsyncIterable(asyncGeneratorFunc), false);
 });
 
 suiteIsAI('should return `false` for all other values', () => {
-  strictEqual(isAsyncIterable(null), false);
-  strictEqual(isAsyncIterable(undefined), false);
+  assert.is(isAsyncIterable(null), false);
+  assert.is(isAsyncIterable(undefined), false);
 
-  strictEqual(isAsyncIterable('ABC'), false);
-  strictEqual(isAsyncIterable('0'), false);
-  strictEqual(isAsyncIterable(''), false);
+  assert.is(isAsyncIterable('ABC'), false);
+  assert.is(isAsyncIterable('0'), false);
+  assert.is(isAsyncIterable(''), false);
 
-  strictEqual(isAsyncIterable([]), false);
-  strictEqual(isAsyncIterable(new Int8Array(1)), false);
+  assert.is(isAsyncIterable([]), false);
+  assert.is(isAsyncIterable(new Int8Array(1)), false);
 
-  strictEqual(isAsyncIterable({}), false);
-  strictEqual(isAsyncIterable({ iterable: true }), false);
+  assert.is(isAsyncIterable({}), false);
+  assert.is(isAsyncIterable({ iterable: true }), false);
 
   const iterator = { [Symbol.iterator]: (x) => x };
-  strictEqual(isAsyncIterable(iterator), false);
+  assert.is(isAsyncIterable(iterator), false);
 
   // istanbul ignore next (Never called and use just as a placeholder)
   function* generatorFunc() {
     /* do nothing */
   }
-  strictEqual(isAsyncIterable(generatorFunc()), false);
+  assert.is(isAsyncIterable(generatorFunc()), false);
 
   const invalidAsyncIteratable = {
     [Symbol.asyncIterator]: { next: (x) => x },
   };
-  strictEqual(isAsyncIterable(invalidAsyncIteratable), false);
+  assert.is(isAsyncIterable(invalidAsyncIteratable), false);
 });
 
 suiteIsAI.run();

@@ -1,6 +1,6 @@
 import { suite } from 'uvu';
+import assert from 'uvu/assert';
 import * as fetch from 'node-fetch';
-import { strict as assert } from 'assert';
 import { HttpQueryResponse } from '@benzene/core/src';
 import { GraphQL, fetchHandler } from '../src';
 import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
@@ -55,8 +55,8 @@ async function testFetch(
       request: new fetch.Request(request),
       respondWith: async (maybeResponse) => {
         const response = await maybeResponse;
-        assert.strictEqual(expected.body, await response.text());
-        assert.strictEqual(expected.status || 200, response.status);
+        assert.equal(expected.body, await response.text());
+        assert.equal(expected.status || 200, response.status);
         // TODO: Add headers
         resolve();
         return response;

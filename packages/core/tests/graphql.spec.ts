@@ -1,4 +1,5 @@
 import { suite } from 'uvu';
+import assert from 'uvu/assert';
 import {
   GraphQLArgs,
   FormattedExecutionResult,
@@ -6,7 +7,6 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
-import { deepStrictEqual } from 'assert';
 import { GraphQL } from '../src';
 import { TestSchema } from './schema.spec';
 
@@ -25,7 +25,7 @@ async function testGraphql(
   GQLInstance = GQL
 ) {
   const result = await GQLInstance.graphql(args);
-  return deepStrictEqual(result, expected);
+  return assert.equal(result, expected);
 }
 suiteGraphql('allows with query', () => {
   return testGraphql({ source: '{test}' }, { data: { test: 'Hello World' } });

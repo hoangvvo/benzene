@@ -1,6 +1,6 @@
 // Adapted from https://github.com/graphql/express-graphql/blob/master/src/__tests__/http-test.ts
 import { suite } from 'uvu';
-import { deepStrictEqual } from 'assert';
+import assert from 'uvu/assert';
 import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
 import {
   GraphQL,
@@ -69,7 +69,7 @@ async function httpTest(
   expected.status = expected.status || 200;
   expected.headers = expected.headers || { 'content-type': 'application/json' };
 
-  deepStrictEqual(
+  assert.equal(
     await runHttpQuery(GQLInstance, {
       body:
         typeof httpParams.body === 'object' &&

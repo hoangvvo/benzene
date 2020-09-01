@@ -1,6 +1,6 @@
 import { suite } from 'uvu';
+import assert from 'uvu/assert';
 import { Lru } from 'tiny-lru';
-import { strict as assert } from 'assert';
 import { GraphQL } from '../src';
 import { TestSchema } from './schema.spec';
 import { QueryCache } from '../src/types';
@@ -13,7 +13,7 @@ suiteCache('saves compiled query to cache', async () => {
   });
   const lru: Lru<QueryCache> = (GQL as any).lru;
   await GQL.getCachedGQL(`{ test }`);
-  assert(lru.has('{ test }'));
+  assert.ok(lru.has('{ test }'));
 });
 suiteCache('uses compiled query from cache', async () => {
   const GQL = new GraphQL({
@@ -30,7 +30,7 @@ suiteCache('uses compiled query from cache', async () => {
   });
 
   const result = await GQL.graphql({ source: '{ test }' });
-  assert.deepStrictEqual(result, { data: { test: 'Goodbye' } });
+  assert.equal(result, { data: { test: 'Goodbye' } });
 });
 suiteCache('does not cache bad query', async () => {
   const GQL = new GraphQL({
@@ -38,7 +38,7 @@ suiteCache('does not cache bad query', async () => {
   });
   const lru: Lru<QueryCache> = (GQL as any).lru;
   await GQL.getCachedGQL('{ baddd }');
-  assert(lru.has('{ baddd }') !== true);
+  assert.not.ok(lru.has('{ baddd }'));
 });
 
 suiteCache.run();

@@ -1,9 +1,9 @@
 // Adapted from https://github.com/graphql/express-graphql/blob/master/src/__tests__/http-test.ts
 import { suite } from 'uvu';
+import assert from 'uvu/assert';
 import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
 import request from 'supertest';
 import { Config } from '@benzene/core/src/types';
-import { strictEqual } from 'assert';
 import { createServer } from 'http';
 import { GraphQL, httpHandler } from '../src';
 import { HandlerConfig } from '../src/http/types';
@@ -111,7 +111,7 @@ suiteHttp('allows for pre-parsed POST bodies', () => {
   return new Promise((resolve) => {
     // @ts-expect-error
     readBody({ body: test }, (err, body) => {
-      strictEqual(test, body);
+      assert.equal(test, body);
       resolve();
     });
   });
@@ -120,7 +120,7 @@ suiteHttp('skips body parsing if no content-type presented', (done) => {
   return new Promise((resolve) => {
     // @ts-expect-error
     readBody({ headers: {} }, (err, body) => {
-      strictEqual(body, null);
+      assert.equal(body, null);
       resolve();
     });
   });
