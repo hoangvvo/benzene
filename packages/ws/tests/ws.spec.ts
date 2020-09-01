@@ -37,7 +37,7 @@ const Notification = new GraphQLObjectType({
     },
     user: {
       type: GraphQLString,
-      resolve: (obj, variables, context) => context.user,
+      resolve: (_, __, context) => context.user,
     },
   },
 });
@@ -165,7 +165,7 @@ wsSuite('sends updates via subscription', async function () {
       },
     })
   );
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
     client.on('data', (chunk) => {
       const data = JSON.parse(chunk);
       if (data.type === MessageTypes.GQL_CONNECTION_ACK) {
@@ -200,7 +200,7 @@ wsSuite('rejects socket protocol other than graphql-ws', async () => {
 });
 wsSuite('errors on malformed message', async () => {
   // eslint-disable-next-line no-async-promise-executor
-  const { server, client, ws } = await startServer();
+  const { client } = await startServer();
   return new Promise((resolve) => {
     client.write(`{"type":"connection_init","payload":`);
     client.on('data', (chunk) => {
@@ -216,7 +216,7 @@ wsSuite('errors on malformed message', async () => {
   });
 });
 wsSuite('format errors using formatError', async () => {
-  const { server, client, ws } = await startServer(
+  const { client } = await startServer(
     {},
     {
       formatError: () => {
@@ -288,7 +288,7 @@ wsSuite('errors on empty query', async function () {
       },
     })
   );
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
     client.on('data', (chunk) => {
       const json = JSON.parse(chunk);
       if (json.type === 'error') {
@@ -324,7 +324,7 @@ wsSuite('resolves also queries and mutations', async function () {
       },
     })
   );
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
     let resolved = false;
     client.on('data', (chunk) => {
       const json = JSON.parse(chunk);
@@ -366,7 +366,7 @@ wsSuite('errors on syntax error', async () => {
       },
     })
   );
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
     client.on('data', (chunk) => {
       const json = JSON.parse(chunk);
       if (json.type === MessageTypes.GQL_ERROR) {
@@ -410,7 +410,7 @@ wsSuite('resolves options.context that is an object', async () => {
       },
     })
   );
-  await new Promise((resolve, reject) => {
+  await new Promise((resolve) => {
     client.on('data', (chunk) => {
       const data = JSON.parse(chunk);
       if (data.type === MessageTypes.GQL_CONNECTION_ACK) {
@@ -536,7 +536,7 @@ wsSuite('queue messages until context is resolved', async () => {
   });
 });
 wsSuite('closes connection on error in context function', async () => {
-  const context = async (s, r) => {
+  const context = async () => {
     throw new Error('You must be authenticated!');
   };
   // eslint-disable-next-line no-async-promise-executor
@@ -613,7 +613,7 @@ wsSuite('stops subscription upon MessageTypes.GQL_STOP', async () => {
     });
   });
 });
-wsSuite('closes connection on connection_terminate', async (done) => {
+wsSuite('closes connection on connection_terminate', async () => {
   const { client } = await startServer();
 
   client.write(
