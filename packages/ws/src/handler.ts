@@ -4,7 +4,6 @@ import * as WebSocket from 'ws';
 import { SubscriptionConnection } from './connection';
 import MessageTypes, { GRAPHQL_WS } from './messageTypes';
 import { HandlerConfig } from './types';
-import { connect } from 'http2';
 
 export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
   async function handleSocket(
