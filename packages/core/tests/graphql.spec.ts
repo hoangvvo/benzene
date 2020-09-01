@@ -15,7 +15,7 @@ describe('GraphQL#graphql', () => {
   async function testGraphql(
     args: Pick<
       GraphQLArgs,
-      'contextValue' | 'variableValues' | 'operationName'
+      'contextValue' | 'variableValues' | 'operationName' | 'rootValue'
     > & {
       source: string;
     },
@@ -127,7 +127,7 @@ describe('GraphQL#graphql', () => {
     );
   });
 
-  describe('allows options.rootValue', () => {
+  it('allows passing in a rootValue', () => {
     const schema = new GraphQLSchema({
       query: new GraphQLObjectType({
         name: 'Query',
@@ -140,20 +140,10 @@ describe('GraphQL#graphql', () => {
       }),
     });
     const rootValue = { test: 'testValue' };
-    // FIXME: need better test
-    it('as an object', () => {
-      return testGraphql(
-        { source: 'query { test }' },
-        { data: { test: 'testValue' } },
-        new GraphQL({ schema, rootValue })
-      );
-    });
-    it('as a function', () => {
-      return testGraphql(
-        { source: 'query { test }' },
-        { data: { test: 'testValue' } },
-        new GraphQL({ schema, rootValue: () => rootValue })
-      );
-    });
+    return testGraphql(
+      { source: 'query { test }', rootValue },
+      { data: { test: 'testValue' } },
+      new GraphQL({ schema })
+    );
   });
 });

@@ -115,7 +115,11 @@ export class GraphQL {
     contextValue,
     variableValues,
     operationName,
-  }: Pick<GraphQLArgs, 'contextValue' | 'variableValues' | 'operationName'> & {
+    rootValue,
+  }: Pick<
+    GraphQLArgs,
+    'contextValue' | 'variableValues' | 'operationName' | 'rootValue'
+  > & {
     source: string;
   }): Promise<FormattedExecutionResult> {
     const cachedOrResult = this.getCachedGQL(source, operationName);
@@ -126,6 +130,7 @@ export class GraphQL {
             document: cachedOrResult.document,
             contextValue,
             variableValues,
+            rootValue,
           })
         : cachedOrResult
     );
@@ -134,36 +139,24 @@ export class GraphQL {
   // Reimplements graphql/execution/execute but using jit
   execute({
     jit,
-    document,
     contextValue,
     variableValues,
+    rootValue,
   }: Omit<ExecutionArgs, 'schema'> & {
     jit: CompiledQuery;
   }): ValueOrPromise<ExecutionResult> {
-    return jit.query(
-      typeof this.options.rootValue === 'function'
-        ? this.options.rootValue(document)
-        : this.options.rootValue || {},
-      contextValue,
-      variableValues
-    );
+    return jit.query(rootValue, contextValue, variableValues);
   }
 
   // Reimplements graphql/subscription/subscribe but using jit
   async subscribe({
-    document,
     contextValue,
     variableValues,
+    rootValue,
     jit,
   }: Omit<SubscriptionArgs, 'schema'> & {
     jit: CompiledQuery;
   }): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
-    return jit.subscribe!(
-      typeof this.options.rootValue === 'function'
-        ? this.options.rootValue(document)
-        : this.options.rootValue || {},
-      contextValue,
-      variableValues
-    );
+    return jit.subscribe!(rootValue, contextValue, variableValues);
   }
 }

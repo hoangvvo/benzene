@@ -10,7 +10,6 @@ export type TContext = { [key: string]: any };
 
 export interface Config {
   schema: GraphQLSchema;
-  rootValue?: ((parsedQuery: DocumentNode) => any) | any;
   formatError?: (error: GraphQLError) => GraphQLFormattedError;
 }
 

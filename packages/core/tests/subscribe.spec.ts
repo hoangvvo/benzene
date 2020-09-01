@@ -110,7 +110,6 @@ async function subscribe(
   // Will be change in the next version
   const GQL = new GraphQL({
     schema: args.schema,
-    rootValue: args.rootValue,
   });
 
   const jit = compileQuery(args.schema, args.document, args.operationName);

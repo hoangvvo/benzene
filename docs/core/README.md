@@ -24,18 +24,17 @@ The `GraphQL` constructor requires a `options` argument, which accepts the follo
 | options | description | default |
 |---------|-------------|---------|
 | schema | A [`GraphQLSchema` instance](https://hoangvvo.github.io/benzene/#/getting-started?id=create-a-benzen-graphql-instance). | (required) |
-| rootValue | A value or function called with the parsed `Document` that creates the root value passed to the GraphQL executor. | `{}` |
 | formatError | An optional function that will be used to format any errors from GraphQL execution result. | [`formatError`](https://github.com/graphql/graphql-js/blob/master/src/error/formatError.js) |
 
 Unlike other frameworks `options.context` is not used in the constructor but rather in its API and binding packages.
 
 The `schema` will be used throughout its [API](#api) and binding packages. It is validated only once on construction.
 
-Other options like `rootValue` and `formatError` also applies everywhere.
+Options `formatError` also applies everywhere.
 
 ## GraphQL methods :id=method
 
-### `GraphQL#graphql({ source, contextValue, variableValues, operationName })` :id=api-graphql
+### `GraphQL#graphql({ source, contextValue, variableValues, operationName, rootValue })` :id=api-graphql
 
 Execute the GraphQL query with:
 
@@ -43,6 +42,7 @@ Execute the GraphQL query with:
 - `contextValue` (object): the context value that will get passed to resolve functions.
 - `variablesValues` (object): the variables object that will be used in the executor.
 - `operationName` (string): The operation to be run if `source` contains multiple operations.
+- `rootValue` (any): The root value passed to the GraphQL executor.
 
 The function returns a never-rejected promise of the execution result, which is an object of `data` and `errors`.
 
@@ -82,22 +82,6 @@ const GQL = new GraphQL({
     }
     // Otherwise return the original error.
     return err;
-  },
-});
-```
-
-## RootValue
-
-`options.rootValue` defines away to supply a `rootValue` to the GraphQL execution. While this value is not mentioned anywhere and the official document, this [Stackoverflow answer](https://stackoverflow.com/a/53987189/14114942) provides some insight.
-
-While it's unlikely you will need this, you can either provide an **object** or a **function** to dynamically provide `rootValue` on each GraphQL query. In the case of a function, it receives `document`, which is [parsed](https://graphql.org/graphql-js/language/#parse) from `source`.
-
-```js
-// Adapted from Apollo Server documentation
-const GQL = new GraphQL({
-  rootValue: (documentAST) => {
-    const op = getOperationAST(documentNode);
-    return op === 'mutation' ? mutationRoot : queryRoot;
   },
 });
 ```
