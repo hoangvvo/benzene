@@ -1,18 +1,24 @@
 # GraphQL over WebSocket Protocol
 
-The protocol used in `@benzene/ws` is a modified version of [`subscriptions-transport-ws`](https://github.com/apollographql/subscriptions-transport-ws). It still works with clients implementing the original `subscriptions-transport-ws` as expected.
+The protocol used in `@benzene/ws` is a modified version of [`subscriptions-transport-ws`](https://github.com/apollographql/subscriptions-transport-ws). 
 
-One of the notable differences is that there is no `connection_init` (or `connectionParams`) and `connection_ack` in this modified protocol.
-
-?> For compatible reason, if the client sends a `type = "connection_init" `, it would receive `type = "connection_ack"` as expected.
+It is backward compatible with clients implementing the original `subscriptions-transport-ws`, with an exception of not supporting `connectionParams`.
 
 Each WebSocket connection has the subprotocol of `graphql-ws`. Otherwise, it will be closed with `1011` status.
+
+## Differences from [`subscriptions-transport-ws`](https://github.com/apollographql/subscriptions-transport-ws)
+
+- There is no `connection_init` (or `connectionParams`) and `connection_ack`. [How about authentication?](#authentication_and_initialization)
+- There is no `connection_terminate`. The client simply calls [`WebSocket.close()`](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/close) to close the connection.
+- `type = "error"` messages' `payload` fields are **always** in GraphQL response form (with a `errors` key). This avoids inconsistency in error handing as seen in `subscriptions-transport-ws`.
+
+?> For compatibility, if the client sends a `type = "connection_init" `, it will still receive `type = "connection_ack"`, and if the client sends a `type = "connection_terminate"`, the connection is still closed.
 
 ## Client-server communication
 
 Each message has a `type` and `payload` field. An `id` field will present to identify different subscriptions. Every message should be JSON stringified (We only handle UTF-8 [RFC3629](https://tools.ietf.org/html/rfc3629) text).
 
-### OperationMessage
+### Message
 
 ```js
 interface OperationMessage {
@@ -29,8 +35,8 @@ Some `type` are used in messages sent from client to server and some otherwise. 
 ```js
 type MessageType =
   | 'connection_error' // Server -> Client
-  | 'connection_terminate' // Client -> Server
   | 'start' // Client -> Server
+  | 'start_ack' // Server -> Client
   | 'data' // Server -> Client
   | 'error' // Server -> Client
   | 'complete' // Server -> Client
@@ -45,6 +51,9 @@ type MessageType =
     |                                       |
     |         Register Subscription         |
     | -------- { type = 'start' } --------> |
+    |                                       |
+    |         Register Acknowledge          |
+    | <----- { type = 'start_ack' } ------- |
     |                                       | <-- GraphQL Mutation --
     |       Subscription Notification       |
     | <------- { type = 'data' } ---------- |
@@ -72,7 +81,7 @@ See [Authentication](https://hoangvvo.github.io/benzene/#/ws/authentication) for
 
 ### Start a subscription
 
-The client can start a subscription by sending a `type="start"` message with the GraphQL params in `payload`:
+The client can start a subscription by sending a `type = "start"` message with the GraphQL params in `payload`:
 
 ```json
 {
@@ -87,7 +96,18 @@ The client can start a subscription by sending a `type="start"` message with the
 }
 ```
 
-An `id` must be included to differentiate between different subscriptions. It must be unique.
+An `id` must be included to differentiate between different subscriptions. It is the client's responsibility to make it unique.
+
+If the subscription is successfully, the server will send back a `type = "start_ack"` with the unique id:
+
+```json
+{
+  "id": "UNIQUE_ID",
+  "type": "start_ack"
+}
+```
+
+This **does not** happen in queries/mutations, where a `type = "complete"` message is followed immediately. Otherwise, the client may receive a `type = "error"` indicates why the subscription is unsuccessful.
 
 ### Subscription Data
 
@@ -129,16 +149,6 @@ The server will acknowledge the request by sending back a `type = "complete"` me
 }
 ```
 
-### Terminate connection
-
-If the client is done with GraphQL subscription, it can close the socket connection by sending a `type = "connection_terminate"`:
-
-```json
-{
-  "type": "connection_termiante"
-}
-```
-
 ## Error
 
 If an error is part of the GraphQL resolve, it will be sent as part of `errors` field in the payload of a `type = "data"`, just like a typical GraphQL response.
@@ -164,13 +174,15 @@ The server would send a `type = "connection_error"` message. It will include a `
 
 If this error is sent, the server **will** close the socket, so the client may have to establish another connection.
 
-### Operation error
+### Subscription error
 
-For other types of errors, the server would send it via `type = "error"`. Similarly, it will include a `payload` that also represents a typical GraphQL response with an `errors` field:
+For other types of errors, the server would send it via `type = "error"`. This will often happen before the subscription registration. **Note that errors thrown in resolvers are sent via `type = "data"`**
+
+It will include a `payload` that also represents a typical GraphQL response with an `errors` field:
 
 ```json
 {
-  "type": "connection_error",
+  "type": "error",
   "payload": {
     "errors": [
       { "message": "There is an error" }
@@ -183,7 +195,7 @@ Unlike *connection error*, the server **will not** close the socket. However, it
 
 Some of the cases for this will be:
 
-- Invalid message
+- Invalid message (message cannot be JSON parsed)
 - Parsing error (such as invalid GraphQL query)
 - Validation error (such as invalid arguments)
 

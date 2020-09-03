@@ -2,7 +2,7 @@
 
 `@benzene/ws` does nothing but returning a listener handler for [`ws connection event`](https://github.com/websockets/ws/blob/master/doc/ws.md#event-connection). Therefore, when it comes to integration, the question is not *~~How to use `@benzene/ws` with framework X~~* but *How to use `ws` with framework X*. However, for your convenience, I added several ones below.
 
-## [Express](https://github.com/expressjs/express)
+## Express
 
 Since `app.listen` [returns an http.Server object](http://expressjs.com/de/4x/api.html#app.listen), we can use that in `Websocket.Server`.
 
@@ -18,9 +18,9 @@ const wss = new WebSocket.Server({ path: '/graphql', server });
 wss.on('connection', wsHandler(GQL, options));
 ```
 
-## [Micro](https://github.com/vercel/micro)
+## Micro
 
-You need to [use Micro programmatically](https://www.npmjs.com/package/micro#programmatic-use) for WebSocket support since `micro()` returns the `http.Server`instance.
+You need to [use Micro programmatically](https://www.npmjs.com/package/micro#programmatic-use) for WebSocket support since only by using `micro()` that you get the `http.Server`instance.
 
 ```js
 const micro = require('micro');

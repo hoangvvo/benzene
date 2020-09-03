@@ -22,15 +22,15 @@ There are two separate modules in `@benzene/server` package with their own docum
 
 ?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
 
-### [HTTP](/server/http)
+### HTTP
 
-Create a HTTP/HTTPS server. Can used in Node [HTTP server](https://nodejs.org/api/http.html) or [HTTPS server](https://nodejs.org/api/https.html) and compatible frameworks.
+Create a HTTP/HTTPS server. Can used in Node [HTTP server](https://nodejs.org/api/http.html) or [HTTPS server](https://nodejs.org/api/https.html) and [compatible frameworks](/server/http-integration).
 
 Use this module by import `httpHandler` from `@benzene/server`. See [documentation](/server/http) for more information.
 
-### [HTTP/2](/server/http2)
+### HTTP/2
 
-Create a HTTP/2 server. Can be used in Node [HTTP/2 server](https://nodejs.org/api/http2.html)
+Create a HTTP/2 server. Can be used in Node [HTTP/2 server](https://nodejs.org/api/http2.html).
 
 Use this module by import `http2Handler` from `@benzene/server`. See [documentation](/server/http2) for more information.
 

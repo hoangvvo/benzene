@@ -1,4 +1,4 @@
-import { GraphQL, TContext, ValueOrPromise } from '@benzene/core';
+import { GraphQL, TContext } from '@benzene/core';
 import { IncomingMessage } from 'http';
 import * as WebSocket from 'ws';
 import { SubscriptionConnection } from './connection';
@@ -6,10 +6,17 @@ import MessageTypes, { GRAPHQL_WS } from './messageTypes';
 import { HandlerConfig } from './types';
 
 export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
-  async function handleSocket(
+  return async function connection(
     socket: WebSocket,
-    contextPromise?: ValueOrPromise<TContext>
+    request: IncomingMessage
   ) {
+    if (
+      socket.protocol === undefined ||
+      socket.protocol.indexOf(GRAPHQL_WS) === -1
+    )
+      // 1002: protocol error. We only support graphql_ws for now
+      return socket.close(1002);
+
     // We will wait until the context is resolved while queuing the messages
     const unhandledQueue: string[] = [];
     const queueUnhandled = (data: WebSocket.Data) =>
@@ -19,9 +26,12 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
 
     let context: TContext = {};
 
-    if (contextPromise)
+    if (options.context)
       try {
-        context = await contextPromise;
+        context =
+          typeof options.context === 'function'
+            ? await options.context(socket, request)
+            : options.context;
       } catch (err) {
         // 1011: Internal Error
         // TODO: We should allow custom code via e.code
@@ -30,9 +40,9 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
           JSON.stringify({
             type: MessageTypes.GQL_CONNECTION_ERROR,
             payload: gql.formatExecutionResult({ errors: [err] }),
-          })
+          }),
+          () => socket.close()
         );
-        socket.close(1011);
         return;
       }
 
@@ -49,21 +59,5 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
     }
 
     connection.init();
-  }
-
-  return function connection(socket: WebSocket, request: IncomingMessage) {
-    if (
-      socket.protocol === undefined ||
-      socket.protocol.indexOf(GRAPHQL_WS) === -1
-    )
-      // 1002: protocol error. We only support graphql_ws for now
-      return socket.close(1002);
-
-    handleSocket(
-      socket,
-      typeof options.context === 'function'
-        ? options.context(socket, request)
-        : options.context
-    );
   };
 }

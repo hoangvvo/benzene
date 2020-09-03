@@ -9,7 +9,7 @@
 ## Features
 
 - LRU caching of schema validation and compilation
-- Highly performant Just-In-Time compiler via [graphql-jit](https://github.com/zalando-incubator/graphql-jit).
+- Highly performant Just-In-Time compiler via (a [fork](https://github.com/hoangvvo/graphql-jit/) of) [graphql-jit](https://github.com/zalando-incubator/graphql-jit).
 - Lightweight and non-coupled integration with great extensibility: Does nothing more but returning handle functions.
 
 ## Documentation

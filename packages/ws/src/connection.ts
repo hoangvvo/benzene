@@ -45,6 +45,11 @@ export class SubscriptionConnection {
         // It is fine to not send connection_init
         this.sendMessage(MessageTypes.GQL_CONNECTION_ACK);
         break;
+      // This is also compatibility-only
+      // The client can simply closes using the JS API
+      case MessageTypes.GQL_CONNECTION_TERMINATE:
+        this.handleConnectionClose();
+        break;
       case MessageTypes.GQL_START:
         this.handleGQLStart(
           data as OperationMessage & { id: string; payload: GraphQLParams }
@@ -53,19 +58,17 @@ export class SubscriptionConnection {
       case MessageTypes.GQL_STOP:
         this.handleGQLStop(data.id as string);
         break;
-      case MessageTypes.GQL_CONNECTION_TERMINATE:
-        this.handleConnectionClose();
-        break;
     }
   }
 
   async handleGQLStart(
     data: OperationMessage & { id: string; payload: GraphQLParams }
   ) {
-    // https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md#gql_start
+    // https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md#start-a-subscription
     const { query, variables, operationName } = data.payload;
 
     if (!query) {
+      // https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md#subscription-error
       return this.sendMessage(MessageTypes.GQL_ERROR, undefined, {
         errors: [new GraphQLError('Must provide query string.')],
       });
@@ -75,6 +78,7 @@ export class SubscriptionConnection {
 
     if (!('document' in cachedOrResult)) {
       // There is an validation/syntax error, cannot continue
+      // https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md#subscription-error
       return this.sendMessage(MessageTypes.GQL_ERROR, data.id, cachedOrResult);
     }
 
@@ -101,10 +105,12 @@ export class SubscriptionConnection {
       const result = await this.gql.subscribe(execArg);
       if (!isAsyncIterable<ExecutionResult>(result)) {
         // Something prevents a subscription from being created properly
-        // Send GQL_ERROR because the operation cannot be continued
-        // See https://github.com/graphql/graphql-js/blob/master/src/subscription/subscribe.js#L52-L54
+        // https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md#subscription-error
         return this.sendMessage(MessageTypes.GQL_ERROR, data.id, result);
       }
+      // https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md#start-a-subscription
+      // An acknowledge of subscription start, DOES NOT happen in queries/mutations
+      this.sendMessage(MessageTypes.GQL_START_ACK, data.id);
       this.operations.set(data.id, result);
       if (this.options.onStart) {
         this.options.onStart.call(this, data.id, {
@@ -125,19 +131,19 @@ export class SubscriptionConnection {
 
   handleGQLStop(opId: string) {
     // Unsubscribe from specific operation
+    // https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md#deregister-subscription
     const removingOperation = this.operations.get(opId);
     if (!removingOperation) return;
+    // Return async iterator
     removingOperation.return?.();
     this.operations.delete(opId);
   }
 
   handleConnectionClose() {
-    setTimeout(() => {
-      // Unsubscribe from the whole socket
-      Object.keys(this.operations).forEach((opId) => this.handleGQLStop(opId));
-      //  Close connection after sending error message
-      this.socket.close();
-    }, 10);
+    // Unsubscribe from the whole socket
+    // This makes sure each async iterators are returned
+    Object.keys(this.operations).forEach((opId) => this.handleGQLStop(opId));
+    this.socket.close();
   }
 
   sendMessage(type: string, id?: string | null, result?: ExecutionResult) {
