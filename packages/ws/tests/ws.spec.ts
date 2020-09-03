@@ -2,7 +2,7 @@ import { suite } from 'uvu';
 import assert from 'uvu/assert';
 import WebSocket from 'ws';
 import { httpHandler } from '@benzene/server';
-import { GraphQL } from '@benzene/core';
+import { GraphQL, FormattedExecutionResult } from '@benzene/core';
 import { Config as GraphQLConfig } from '@benzene/core/src/types';
 import { createServer, Server } from 'http';
 import fetch from 'node-fetch';
@@ -189,7 +189,10 @@ async function startServer(
   });
 }
 
-const expectMessage = (ws: WebSocket, message: OperationMessage) => {
+const expectMessage = (
+  ws: WebSocket,
+  message: OperationMessage & { payload?: FormattedExecutionResult }
+) => {
   return new Promise((resolve, reject) => {
     const fn = (chunk: WebSocket.Data) => {
       const json: OperationMessage = JSON.parse(chunk.toString());
@@ -239,7 +242,25 @@ wsSuite('replies with connection_ack', async () => {
   await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
   await expectMessage(ws, { type: MessageTypes.GQL_CONNECTION_ACK });
 });
-wsSuite('sends updates via subscription', async function () {
+wsSuite('send start_ack on subscription start', async () => {
+  const { ws } = await startServer();
+  await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
+  sendMessage(ws, MessageTypes.GQL_START, '1', {
+    query: `
+        subscription {
+          notificationAdded {
+            message
+            dummy
+          }
+        }
+      `,
+  });
+  await expectMessage(ws, {
+    type: MessageTypes.GQL_START_ACK,
+    id: '1',
+  });
+});
+wsSuite('sends updates via subscription', async () => {
   const { ws, publish } = await startServer();
   await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
   await expectMessage(ws, { type: MessageTypes.GQL_CONNECTION_ACK });
