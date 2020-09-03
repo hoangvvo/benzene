@@ -134,12 +134,14 @@ export class SubscriptionConnection {
     // https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md#deregister-subscription
     const removingOperation = this.operations.get(opId);
     if (!removingOperation) return;
+    // Return async iterator
     removingOperation.return?.();
     this.operations.delete(opId);
   }
 
   handleConnectionClose() {
     // Unsubscribe from the whole socket
+    // This makes sure each async iterators are returned
     Object.keys(this.operations).forEach((opId) => this.handleGQLStop(opId));
     this.socket.close();
   }
