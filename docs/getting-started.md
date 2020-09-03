@@ -20,9 +20,7 @@ Let's try out `@benzene/server` for example.
 yarn add graphql @benzene/server
 ```
 
-## Making the Benzene GraphQL instance
-
-### Create a GraphQLSchema instance
+## Create a GraphQLSchema instance
 
 At its minimum `benzene` requires a [`GraphQLSchema`](https://graphql.org/graphql-js/type/#graphqlschema) instance. Therefore, as a prerequisite, one must be created.
 
@@ -31,7 +29,7 @@ The `GraphQLSchema` can be created either using
 - *SDL-first* libraries like [graphql-tools](https://github.com/ardatan/graphql-tools) 
 - *code-first* libraries likes [type-graphql](https://github.com/MichalLytek/type-graphql) and [@nexus/schema](https://github.com/graphql-nexus/schema).
 
-### Create a Benzen GraphQL instance
+## Create a Benzen GraphQL instance
 
 Each package reexports `GraphQL` from `@benzene/core`, which can be used to create a [Benzene GraphQL instance](core/). 
 
@@ -43,7 +41,7 @@ const { GraphQL } = require('@benzene/server');
 const GQL = new GraphQL({ schema: yourGraphQLSchema });
 ```
 
-### Start a server
+## Start a server
 
 Now `GQL` can be used in one or more `benzene` packages. Below is an example using `@benzene/server`.
 

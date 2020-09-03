@@ -11,7 +11,7 @@ const GQL = new GraphQL({ schema });
 const gqlHandle = httpHandler(GQL, options);
 ```
 
-## [Express](https://github.com/expressjs/express)
+## Express
 
 [Example](https://github.com/hoangvvo/benzene/tree/main/examples/with-express)
 
@@ -26,7 +26,7 @@ app.listen(3000, () => {
 });
 ```
 
-## [Micro](https://github.com/vercel/micro)
+## Micro
 
 [Example](https://github.com/hoangvvo/benzene/tree/main/examples/with-micro)
 
@@ -34,7 +34,7 @@ app.listen(3000, () => {
 module.exports = gqlHandle;
 ```
 
-## [Next.js](https://github.com/vercel/next.js/)
+## Next.js
 
 ```js
 // pages/api/graphql.js
