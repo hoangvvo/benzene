@@ -139,7 +139,6 @@ export class SubscriptionConnection {
   }
 
   handleConnectionClose() {
-    // Wait for 10ms to flush any messages
     // Unsubscribe from the whole socket
     Object.keys(this.operations).forEach((opId) => this.handleGQLStop(opId));
     this.socket.close();
