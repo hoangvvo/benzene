@@ -42,7 +42,7 @@ Node: `v12.18.2`
 
 | Library | Request/sec | Latency |
 | --- | --- | --- |
-| benzene-server | 12732.4 | 0.0078 secs |
+| benzene-server | 12732.3593 | 0.0078 secs |
 | fastify-gql | 12206.9334 | 0.0082 secs |
 | apollo-server-fastify | 3557.1205 | 0.0280 secs |
 | apollo-server | 2139.7377 | 0.0466 secs |
