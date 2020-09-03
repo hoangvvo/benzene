@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+server="$1"
+
+NODE_ENV=production node library/$server &
+pid=$!
+
+# Warm up
+printf "$server\n"
+
+hey -z 5s -D body.txt -T application/json -m POST http://localhost:4000/graphql > /dev/null
+
+hey -c 100 -z 8s -D body.txt -T application/json -m POST http://localhost:4000/graphql \
+  | grep 'Average' -A 1
+
+kill $pid
