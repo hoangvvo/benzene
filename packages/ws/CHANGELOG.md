@@ -1,5 +1,11 @@
 # @benzene/ws
 
+## 0.1.2
+
+### Patch Changes
+
+- dbef0d3: (ws) Add start_ack and drop connection_terminate
+
 ## 0.1.1
 
 ### Patch Changes
