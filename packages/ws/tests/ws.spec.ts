@@ -237,14 +237,15 @@ const wsSuite = suite('wsHandler');
 
 wsSuite.after.each(cleanupTest);
 
+// Compat-only
 wsSuite('replies with connection_ack', async () => {
   const { ws } = await startServer();
   await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
   await expectMessage(ws, { type: MessageTypes.GQL_CONNECTION_ACK });
 });
+
 wsSuite('send start_ack on subscription start', async () => {
   const { ws } = await startServer();
-  await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
   sendMessage(ws, MessageTypes.GQL_START, '1', {
     query: `
         subscription {
@@ -260,10 +261,9 @@ wsSuite('send start_ack on subscription start', async () => {
     id: '1',
   });
 });
+
 wsSuite('sends updates via subscription', async () => {
   const { ws, publish } = await startServer();
-  await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
-  await expectMessage(ws, { type: MessageTypes.GQL_CONNECTION_ACK });
   await sendMessage(ws, MessageTypes.GQL_START, '1', {
     query: `
         subscription {
@@ -274,6 +274,7 @@ wsSuite('sends updates via subscription', async () => {
         }
       `,
   });
+  await expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK });
   publish();
   await expectMessage(ws, {
     type: MessageTypes.GQL_DATA,
@@ -317,7 +318,6 @@ wsSuite('format errors using formatError', async () => {
       },
     }
   );
-  await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
   await sendMessage(ws, MessageTypes.GQL_START, '1', {
     query: `
         subscription {
@@ -328,6 +328,7 @@ wsSuite('format errors using formatError', async () => {
         }
       `,
   });
+  await expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK });
   publish();
   await expectMessage(ws, {
     id: '1',
@@ -346,21 +347,22 @@ wsSuite('format errors using formatError', async () => {
 });
 wsSuite('errors on empty query', async function () {
   const { ws } = await startServer();
-  await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
   await sendMessage(ws, MessageTypes.GQL_START, '1', {
     query: null,
   });
   await expectMessage(ws, {
-    type: 'error',
+    type: MessageTypes.GQL_ERROR,
     payload: { errors: [{ message: 'Must provide query string.' }] },
   });
 });
 wsSuite('resolves also queries and mutations', async function () {
   // We can also add a Query test just to be sure but Mutation one only should be sufficient
   const { ws } = await startServer();
-  await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
   await sendMessage(ws, MessageTypes.GQL_START, '1', {
     query: `query { test }`,
+  });
+  expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK }).then(() => {
+    throw new Error('Should not call this');
   });
   await Promise.all([
     expectMessage(ws, {
@@ -376,7 +378,6 @@ wsSuite('resolves also queries and mutations', async function () {
 });
 wsSuite('errors on syntax error', async () => {
   const { ws } = await startServer();
-  await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
   await sendMessage(ws, MessageTypes.GQL_START, '1', {
     query: `
           subscription {
@@ -404,7 +405,6 @@ wsSuite('resolves options.context that is an object', async () => {
   const { ws, publish } = await startServer({
     context: { user: 'Alexa' },
   });
-  await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
   await sendMessage(ws, MessageTypes.GQL_START, '1', {
     query: `
           subscription {
@@ -414,6 +414,7 @@ wsSuite('resolves options.context that is an object', async () => {
           }
         `,
   });
+  await expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK });
   publish();
   await expectMessage(ws, {
     type: MessageTypes.GQL_DATA,
@@ -433,7 +434,6 @@ wsSuite('resolves options.context that is a function', async () => {
       user: 'Alice',
     }),
   });
-  await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
   await sendMessage(ws, MessageTypes.GQL_START, '1', {
     query: `
           subscription {
@@ -443,6 +443,7 @@ wsSuite('resolves options.context that is a function', async () => {
           }
         `,
   });
+  await expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK });
   publish();
   await expectMessage(ws, {
     type: MessageTypes.GQL_DATA,
@@ -457,7 +458,7 @@ wsSuite('resolves options.context that is a function', async () => {
   });
 });
 
-wsSuite.skip('queue messages until context is resolved', async () => {
+wsSuite('queue messages until context is resolved', async () => {
   const { ws, publish } = await startServer({
     context: () =>
       new Promise((resolve) => {
@@ -466,7 +467,6 @@ wsSuite.skip('queue messages until context is resolved', async () => {
         setTimeout(() => resolve({ user: 'Alice' }), 50);
       }),
   });
-  await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
   await sendMessage(ws, MessageTypes.GQL_START, '1', {
     query: `
         subscription {
@@ -476,6 +476,7 @@ wsSuite.skip('queue messages until context is resolved', async () => {
         }
       `,
   });
+  await expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK });
   publish();
   await expectMessage(ws, {
     type: MessageTypes.GQL_DATA,
@@ -521,7 +522,6 @@ wsSuite('closes connection on error in context function', async () => {
 });
 wsSuite('stops subscription upon MessageTypes.GQL_STOP', async () => {
   const { ws, publish } = await startServer();
-  await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
   await sendMessage(ws, MessageTypes.GQL_START, '1', {
     query: `
         subscription {
@@ -531,7 +531,7 @@ wsSuite('stops subscription upon MessageTypes.GQL_STOP', async () => {
         }
       `,
   });
-  await expectMessage(ws, { type: MessageTypes.GQL_CONNECTION_ACK });
+  await expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK });
   await sendMessage(ws, MessageTypes.GQL_STOP, '1');
   await expectMessage(ws, { type: MessageTypes.GQL_COMPLETE, id: '1' });
   await new Promise((resolve, reject) => {
@@ -608,13 +608,13 @@ connSuite('call onStart on execution', async () => {
   });
 });
 
-connSuite.skip('call onComplete on subscription stop', async () => {
+connSuite('call onComplete on subscription stop', async () => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve) => {
     const { ws } = await startServer({
       onComplete(id) {
         assert.instance(this, SubscriptionConnection);
-        assert.is(id, 1);
+        assert.is(id, '1');
         resolve();
       },
     });
@@ -627,6 +627,7 @@ connSuite.skip('call onComplete on subscription stop', async () => {
           }
         `,
     });
+    await expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK });
     await sendMessage(ws, MessageTypes.GQL_STOP, '1');
   });
 });
