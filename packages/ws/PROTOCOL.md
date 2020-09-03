@@ -2,11 +2,14 @@
 
 The protocol used in `@benzene/ws` is a modified version of [`subscriptions-transport-ws`](https://github.com/apollographql/subscriptions-transport-ws). It still works with clients implementing the original `subscriptions-transport-ws` as expected.
 
-One of the notable differences is that there is no `connection_init` (or `connectionParams`) and `connection_ack` in this modified protocol.
-
-?> For compatible reason, if the client sends a `type = "connection_init" `, it would receive `type = "connection_ack"` as expected.
-
 Each WebSocket connection has the subprotocol of `graphql-ws`. Otherwise, it will be closed with `1011` status.
+
+## Differences from [`subscriptions-transport-ws`](https://github.com/apollographql/subscriptions-transport-ws)
+
+- There is no `connection_init` (or `connectionParams`) and `connection_ack`. [How about authentication?](#authentication_and_initialization)
+- There is no `connection_terminate`. The client simply calls [`WebSocket.close()`](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/close) to close the connection.
+
+?> For compatibility, if the client sends a `type = "connection_init" `, it will still receive `type = "connection_ack"`, and if the client sends a `type = "connection_terminate"`, the connection is still closed.
 
 ## Client-server communication
 
@@ -29,8 +32,8 @@ Some `type` are used in messages sent from client to server and some otherwise. 
 ```js
 type MessageType =
   | 'connection_error' // Server -> Client
-  | 'connection_terminate' // Client -> Server
   | 'start' // Client -> Server
+  | 'start_ack' // Server -> Client
   | 'data' // Server -> Client
   | 'error' // Server -> Client
   | 'complete' // Server -> Client
@@ -45,6 +48,9 @@ type MessageType =
     |                                       |
     |         Register Subscription         |
     | -------- { type = 'start' } --------> |
+    |                                       |
+    |         Register Acknowledge          |
+    | <----- { type = 'start_ack' } ------- |
     |                                       | <-- GraphQL Mutation --
     |       Subscription Notification       |
     | <------- { type = 'data' } ---------- |
@@ -87,7 +93,7 @@ The client can start a subscription by sending a `type="start"` message with the
 }
 ```
 
-An `id` must be included to differentiate between different subscriptions. It must be unique.
+An `id` must be included to differentiate between different subscriptions. It is the client's responsibility to make it unique.
 
 ### Subscription Data
 
@@ -126,16 +132,6 @@ The server will acknowledge the request by sending back a `type = "complete"` me
 {
   "id": "UNIQUE_ID_THAT_SHOULD_BE_SUBSCRIBED",
   "type": "complete"
-}
-```
-
-### Terminate connection
-
-If the client is done with GraphQL subscription, it can close the socket connection by sending a `type = "connection_terminate"`:
-
-```json
-{
-  "type": "connection_termiante"
 }
 ```
 
