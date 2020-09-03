@@ -11,6 +11,6 @@ printf "$server\n"
 hey -z 5s -D body.txt -T application/json -m POST http://localhost:4000/graphql > /dev/null
 
 hey -c 100 -z 8s -D body.txt -T application/json -m POST http://localhost:4000/graphql \
-  | grep 'Summary' -A 6
+  | grep 'Slowest' -A 4
 
 kill $pid
