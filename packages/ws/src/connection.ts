@@ -105,6 +105,7 @@ export class SubscriptionConnection {
         // See https://github.com/graphql/graphql-js/blob/master/src/subscription/subscribe.js#L52-L54
         return this.sendMessage(MessageTypes.GQL_ERROR, data.id, result);
       }
+      this.sendMessage(MessageTypes.GQL_START_ACK, data.id);
       this.operations.set(data.id, result);
       if (this.options.onStart) {
         this.options.onStart.call(this, data.id, {
@@ -135,7 +136,6 @@ export class SubscriptionConnection {
     setTimeout(() => {
       // Unsubscribe from the whole socket
       Object.keys(this.operations).forEach((opId) => this.handleGQLStop(opId));
-      //  Close connection after sending error message
       this.socket.close();
     }, 10);
   }
