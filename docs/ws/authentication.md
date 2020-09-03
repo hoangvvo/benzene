@@ -2,7 +2,12 @@
 
 `@benzene/ws` does not implement `onConnect` (due to [security & memory leak issues](https://github.com/apollographql/subscriptions-transport-ws/issues/349) on the upstream implementation). 
 
-However, `options.context` can be used to authenticate via headers if you have session authentication implementation in HTTP requests. Let's peek into a sample `getUserFromReq` function.
+There are two methods for authentication its place:
+
+- `options.context`
+- [`ws` approach](https://github.com/websockets/ws#client-authentication) (more recommended)
+
+Let's peek into a sample `getUserFromReq` function.
 
 ```js
 import { parse as parseCookie } from 'cookie';
@@ -47,7 +52,7 @@ const resolvers = {
 
 ## Block unauthorized request
 
-It is possible to forcibly close the connection if the user is not authenticated too:
+It is possible to forcibly close the connection if the user is not authenticated:
 
 ```js
 const wsHandle = wsHandler(GQL, {
@@ -59,7 +64,7 @@ const wsHandle = wsHandler(GQL, {
 });
 ```
 
-This, however, only occurs after the handshake, so to be more efficient, you can choose to reject it even before that:
+This, however, only occurs after the handshake, so to be more efficient, you can choose to reject it even before that by [using the approach suggested by `ws`](https://github.com/websockets/ws#client-authentication):
 
 ```js
 const wsHandle = wsHandler(GQL, {

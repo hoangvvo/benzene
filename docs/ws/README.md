@@ -87,16 +87,20 @@ Create a handler for incoming WebSocket connection (from `wss.on('connection')`)
 
 ## Building Context :id=context
 
-`options.context` in `wsHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it is called with two arguements [socket](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket), [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage).
+`options.context` in `wsHandler` can be used to build a context for GraphQL execution layer or even *authentication* (even though we recommend [using this approach](https://github.com/websockets/ws#client-authentication) instead). 
+
+This can either be an object or a function. In the case of function, it is called with two arguements [socket](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket) and [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage).
 
 ```js
 const wsHandle = wsHandler(GQL, {
   context: async (socket, req) => {
     // Get user
     const user = await getUserFromReq(req);
-    // Maybe a signal to let resolver knows we are in WebSocket?
-    const isWs = true;
-    return { user, isWs };
+    // You can also close the connection if the request is not authenticated by
+    // throw new Error('You are not authenticated!')
+    // or simply close the socket
+    // socket.close()
+    return { user };
   },
 });
 ```
@@ -107,7 +111,7 @@ If an error is thrown in `options.context`, `@benzene/ws` will send a `{ type = 
 {
   "payload": {
     "errors": [
-      { "message": "Context creation failed: Error Message Blah Blah" }
+      { "message": "Context creation failed: You are not authenticated!" }
     ]
   },
   "type": "connection_error"
