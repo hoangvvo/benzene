@@ -1,11 +1,9 @@
 import { suite } from 'uvu';
 import assert from 'uvu/assert';
 import WebSocket from 'ws';
-import { httpHandler } from '@benzene/server';
 import { GraphQL, FormattedExecutionResult } from '@benzene/core';
 import { Config as GraphQLConfig } from '@benzene/core/src/types';
 import { createServer, Server } from 'http';
-import fetch from 'node-fetch';
 import {
   GraphQLError,
   GraphQLSchema,
@@ -99,7 +97,7 @@ const Notification = new GraphQLObjectType({
   },
 });
 
-let serverInit: { ws: WebSocket; server: Server; publish: () => Promise<any> };
+let serverInit: { ws: WebSocket; server: Server; publish: () => void };
 
 async function startServer(
   handlerConfig?: Partial<HandlerConfig>,
@@ -121,24 +119,6 @@ async function startServer(
         },
       },
     }),
-    mutation: new GraphQLObjectType({
-      name: 'Mutation',
-      fields: {
-        addNotification: {
-          type: Notification,
-          args: {
-            message: { type: GraphQLString },
-          },
-          resolve: async (_: any, { message }: any) => {
-            const notification = { message };
-            await ee.emit('NOTIFICATION_ADDED', {
-              notificationAdded: notification,
-            });
-            return notification;
-          },
-        },
-      },
-    }),
     subscription: new GraphQLObjectType({
       name: 'Subscription',
       fields: {
@@ -152,7 +132,7 @@ async function startServer(
 
   const gql = new GraphQL({ schema, ...options });
   // @ts-ignore
-  const server = createServer(httpHandler(gql));
+  const server = createServer();
   const wss = new WebSocket.Server({ server });
   await new Promise((resolve) => server.listen(0, resolve));
   const port = (server.address() as AddressInfo).port;
@@ -173,17 +153,9 @@ async function startServer(
   return (serverInit = {
     server,
     ws,
-    publish: async () => {
-      return fetch(`http://localhost:${port}/graphql`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          query: `mutation {
-          addNotification(message: "Hello World") {
-            message
-          }
-        }`,
-        }),
+    publish: (message = 'Hello World') => {
+      ee.emit('NOTIFICATION_ADDED', {
+        notificationAdded: { message },
       });
     },
   });
@@ -191,7 +163,8 @@ async function startServer(
 
 const expectMessage = (
   ws: WebSocket,
-  message: OperationMessage & { payload?: FormattedExecutionResult }
+  message: OperationMessage & { payload?: FormattedExecutionResult },
+  preFn?: () => any
 ) => {
   return new Promise((resolve, reject) => {
     const fn = (chunk: WebSocket.Data) => {
@@ -206,6 +179,7 @@ const expectMessage = (
       resolve();
     };
     ws.on('message', fn);
+    preFn?.();
   });
 };
 
@@ -275,19 +249,22 @@ wsSuite('sends updates via subscription', async () => {
       `,
   });
   await expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK });
-  publish();
-  await expectMessage(ws, {
-    type: MessageTypes.GQL_DATA,
-    id: '1',
-    payload: {
-      data: {
-        notificationAdded: {
-          message: 'Hello World',
-          dummy: 'Hello World',
+  await expectMessage(
+    ws,
+    {
+      type: MessageTypes.GQL_DATA,
+      id: '1',
+      payload: {
+        data: {
+          notificationAdded: {
+            message: 'Hello World',
+            dummy: 'Hello World',
+          },
         },
       },
     },
-  });
+    publish
+  );
 });
 wsSuite('rejects socket protocol other than graphql-ws', async () => {
   // eslint-disable-next-line no-async-promise-executor
@@ -329,21 +306,24 @@ wsSuite('format errors using formatError', async () => {
       `,
   });
   await expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK });
-  publish();
-  await expectMessage(ws, {
-    id: '1',
-    type: MessageTypes.GQL_DATA,
-    payload: {
-      data: {
-        notificationAdded: {
-          DO_NOT_USE_THIS_FIELD: null,
-          message: 'Hello World',
+  await expectMessage(
+    ws,
+    {
+      id: '1',
+      type: MessageTypes.GQL_DATA,
+      payload: {
+        data: {
+          notificationAdded: {
+            DO_NOT_USE_THIS_FIELD: null,
+            message: 'Hello World',
+          },
         },
+        // Override "I told you so" error
+        errors: [{ message: 'Internal server error' }],
       },
-      // Override "I told you so" error
-      errors: [{ message: 'Internal server error' }],
     },
-  });
+    publish
+  );
 });
 wsSuite('errors on empty query', async function () {
   const { ws } = await startServer();
@@ -415,18 +395,21 @@ wsSuite('resolves options.context that is an object', async () => {
         `,
   });
   await expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK });
-  publish();
-  await expectMessage(ws, {
-    type: MessageTypes.GQL_DATA,
-    id: '1',
-    payload: {
-      data: {
-        notificationAdded: {
-          user: 'Alexa',
+  await expectMessage(
+    ws,
+    {
+      type: MessageTypes.GQL_DATA,
+      id: '1',
+      payload: {
+        data: {
+          notificationAdded: {
+            user: 'Alexa',
+          },
         },
       },
     },
-  });
+    publish
+  );
 });
 wsSuite('resolves options.context that is a function', async () => {
   const { ws, publish } = await startServer({
@@ -444,18 +427,21 @@ wsSuite('resolves options.context that is a function', async () => {
         `,
   });
   await expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK });
-  publish();
-  await expectMessage(ws, {
-    type: MessageTypes.GQL_DATA,
-    id: '1',
-    payload: {
-      data: {
-        notificationAdded: {
-          user: 'Alice',
+  await expectMessage(
+    ws,
+    {
+      type: MessageTypes.GQL_DATA,
+      id: '1',
+      payload: {
+        data: {
+          notificationAdded: {
+            user: 'Alice',
+          },
         },
       },
     },
-  });
+    publish
+  );
 });
 
 wsSuite('queue messages until context is resolved', async () => {
@@ -477,18 +463,21 @@ wsSuite('queue messages until context is resolved', async () => {
       `,
   });
   await expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK });
-  publish();
-  await expectMessage(ws, {
-    type: MessageTypes.GQL_DATA,
-    id: '1',
-    payload: {
-      data: {
-        notificationAdded: {
-          user: 'Alice',
+  await expectMessage(
+    ws,
+    {
+      type: MessageTypes.GQL_DATA,
+      id: '1',
+      payload: {
+        data: {
+          notificationAdded: {
+            user: 'Alice',
+          },
         },
       },
     },
-  });
+    publish
+  );
 });
 wsSuite('closes connection on error in context function', async () => {
   const context = async () => {
