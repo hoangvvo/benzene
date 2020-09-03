@@ -1,4 +1,4 @@
-import { GraphQL, TContext, ValueOrPromise } from '@benzene/core';
+import { GraphQL, TContext } from '@benzene/core';
 import { IncomingMessage } from 'http';
 import * as WebSocket from 'ws';
 import { SubscriptionConnection } from './connection';
