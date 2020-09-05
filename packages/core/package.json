@@ -1,6 +1,6 @@
 {
   "name": "@benzene/core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Fast and non-coupled JavaScript GraphQL Server and Executor",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "repository": {
@@ -13,9 +13,7 @@
   "homepage": "https://hoangvvo.github.io/benzene/",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "tsc",
     "test": "mocha"

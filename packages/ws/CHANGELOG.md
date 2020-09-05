@@ -1,5 +1,12 @@
 # @benzene/ws
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [942f990]
+  - @benzene/core@0.2.0
+
 ## 0.1.2
 
 ### Patch Changes
