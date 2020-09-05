@@ -2,7 +2,6 @@
   "name": "@benzene/persisted",
   "version": "0.0.0",
   "description": "Persisted queries for benzene",
-  "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hoangvvo/benzene.git"
@@ -11,6 +10,7 @@
     "url": "https://github.com/hoangvvo/benzene/issues"
   },
   "homepage": "https://hoangvvo.github.io/benzene/",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
@@ -19,6 +19,11 @@
     "build": "tsc",
     "test": "mocha"
   },
+  "keywords": [
+    "graphql",
+    "persisted",
+    "optimization"
+  ],
   "license": "MIT",
   "dependencies": {
     "@benzene/core": "^0.1.1",
