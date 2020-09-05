@@ -1,8 +1,8 @@
-import { GraphQLParams, KeyValueStore } from '../types';
+import { GraphQLParams } from '../types';
 import lru from 'tiny-lru';
 import { sha256 } from 'crypto-hash';
 import { BenzeneHTTPError } from '../error';
-import { GraphQLPersisted } from './types';
+import { GraphQLPersisted, KeyValueStore } from './types';
 
 const APQ_CACHE_PREFIX = 'apq:';
 

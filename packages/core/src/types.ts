@@ -54,13 +54,3 @@ export interface FormattedExecutionResult<
 }
 
 export type ValueOrPromise<T> = T | Promise<T>;
-
-export interface PersistedOptions {
-  cache?: KeyValueStore;
-}
-
-export interface KeyValueStore<V = string> {
-  get(key: string): ValueOrPromise<V | undefined | null>;
-  set(key: string, value: V): ValueOrPromise<any>;
-  delete(key: string): ValueOrPromise<any>;
-}
