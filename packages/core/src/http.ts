@@ -87,18 +87,31 @@ export async function runHttpQuery(
     });
   }
 
-  const { query, variables, operationName } = getGraphQLParams({
+  const params = getGraphQLParams({
     queryParams: request.queryParams,
     body,
   });
 
-  if (!query) {
+  if (gql.persisted?.isPersistedQuery(params)) {
+    try {
+      const queryOrResult = await gql.persisted.getQuery(params);
+      if (typeof queryOrResult !== 'string') {
+        // ExecutionResult
+        return createResponse(gql, 200, queryOrResult);
+      }
+      params.query = queryOrResult;
+    } catch(err) {
+      return createResponse(gql, err.status || 500, { errors: [err] })
+    }
+  }
+
+  if (!params.query) {
     return createResponse(gql, 400, {
       errors: [new GraphQLError('Must provide query string.')],
     });
   }
 
-  const cachedOrResult = gql.getCachedGQL(query, operationName);
+  const cachedOrResult = gql.getCachedGQL(params.query, params.operationName);
 
   if (!('document' in cachedOrResult)) {
     return createResponse(gql, 400, cachedOrResult);
@@ -126,7 +139,7 @@ export async function runHttpQuery(
       jit: cachedOrResult.jit,
       document: cachedOrResult.document,
       contextValue: request.context,
-      variableValues: variables,
+      variableValues: params.variables,
     })
   );
 }

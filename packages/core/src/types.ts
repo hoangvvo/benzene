@@ -5,12 +5,14 @@ import {
   GraphQLFormattedError,
 } from 'graphql';
 import { CompiledQuery } from '@hoangvvo/graphql-jit';
+import { GraphQLPersisted } from './persisted';
 
 export type TContext = { [key: string]: any };
 
 export interface Config {
   schema: GraphQLSchema;
   formatError?: (error: GraphQLError) => GraphQLFormattedError;
+  persisted?: GraphQLPersisted;
 }
 
 export interface GraphQLParams {
@@ -52,3 +54,13 @@ export interface FormattedExecutionResult<
 }
 
 export type ValueOrPromise<T> = T | Promise<T>;
+
+export interface PersistedOptions {
+  cache?: KeyValueStore;
+}
+
+export interface KeyValueStore<V = string> {
+  get(key: string): ValueOrPromise<V | undefined | null>;
+  set(key: string, value: V): ValueOrPromise<any>;
+  delete(key: string): ValueOrPromise<any>;
+}

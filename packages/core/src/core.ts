@@ -17,6 +17,7 @@ import {
   CompiledQuery,
 } from '@hoangvvo/graphql-jit';
 import lru, { Lru } from 'tiny-lru';
+import { GraphQLPersisted } from './persisted';
 import {
   Config,
   QueryCache,
@@ -28,6 +29,7 @@ export class GraphQL {
   private lru: Lru<QueryCache>;
   public schema: GraphQLSchema;
   protected options: Config;
+  persisted?: GraphQLPersisted;
 
   constructor(options: Config) {
     // validate options
@@ -43,6 +45,8 @@ export class GraphQL {
     if (schemaValidationErrors.length > 0) {
       throw schemaValidationErrors;
     }
+    // persisted config
+    this.persisted = options.persisted;
   }
 
   // This API is internal even if it is defined as public
