@@ -1,8 +1,7 @@
 {
-  "name": "@benzene/core",
-  "version": "0.1.1",
-  "description": "Fast and non-coupled JavaScript GraphQL Server and Executor",
-  "author": "Hoang Vo (https://hoangvvo.com)",
+  "name": "@benzene/persisted",
+  "version": "0.0.0",
+  "description": "Persisted queries for benzene",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hoangvvo/benzene.git"
@@ -20,10 +19,15 @@
     "build": "tsc",
     "test": "mocha"
   },
+  "keywords": [
+    "graphql",
+    "persisted",
+    "optimization"
+  ],
   "license": "MIT",
   "dependencies": {
-    "@hoangvvo/graphql-jit": "^0.6.1",
-    "flatstr": "^1.0.12",
+    "@benzene/core": "^0.1.1",
+    "crypto-hash": "^1.3.0",
     "tiny-lru": "^7.0.6"
   },
   "peerDependencies": {

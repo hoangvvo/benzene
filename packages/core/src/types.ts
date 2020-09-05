@@ -11,6 +11,7 @@ export type TContext = { [key: string]: any };
 export interface Config {
   schema: GraphQLSchema;
   formatError?: (error: GraphQLError) => GraphQLFormattedError;
+  persisted?: GraphQLPersisted;
 }
 
 export interface GraphQLParams {
@@ -49,6 +50,13 @@ export interface FormattedExecutionResult<
   errors?: ReadonlyArray<GraphQLFormattedError>;
   data?: TData | null;
   extensions?: TExtensions;
+}
+
+export abstract class GraphQLPersisted {
+  abstract isPersistedQuery: (params: GraphQLParams) => boolean;
+  abstract getQuery: (
+    params: GraphQLParams
+  ) => ValueOrPromise<string | undefined>;
 }
 
 export type ValueOrPromise<T> = T | Promise<T>;
