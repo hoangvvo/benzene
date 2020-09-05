@@ -94,14 +94,9 @@ export async function runHttpQuery(
 
   if (gql.persisted?.isPersistedQuery(params)) {
     try {
-      const queryOrResult = await gql.persisted.getQuery(params);
-      if (typeof queryOrResult !== 'string') {
-        // ExecutionResult
-        return createResponse(gql, 200, queryOrResult);
-      }
-      params.query = queryOrResult;
-    } catch(err) {
-      return createResponse(gql, err.status || 500, { errors: [err] })
+      params.query = await gql.persisted.getQuery(params);
+    } catch (err) {
+      return createResponse(gql, err.status || 500, { errors: [err] });
     }
   }
 
