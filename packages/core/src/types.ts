@@ -5,7 +5,6 @@ import {
   GraphQLFormattedError,
 } from 'graphql';
 import { CompiledQuery } from '@hoangvvo/graphql-jit';
-import { GraphQLPersisted } from './persisted';
 
 export type TContext = { [key: string]: any };
 
@@ -51,6 +50,13 @@ export interface FormattedExecutionResult<
   errors?: ReadonlyArray<GraphQLFormattedError>;
   data?: TData | null;
   extensions?: TExtensions;
+}
+
+export abstract class GraphQLPersisted {
+  abstract isPersistedQuery: (params: GraphQLParams) => boolean;
+  abstract getQuery: (
+    params: GraphQLParams
+  ) => ValueOrPromise<string | undefined>;
 }
 
 export type ValueOrPromise<T> = T | Promise<T>;

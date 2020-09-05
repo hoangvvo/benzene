@@ -1,12 +1,12 @@
-import { GraphQLParams } from '../types';
+import { GraphQLParams } from '@benzene/core/src/types';
 import lru from 'tiny-lru';
 import { sha256 } from 'crypto-hash';
-import { BenzeneHTTPError } from '../error';
-import { GraphQLPersisted, KeyValueStore } from './types';
+import { GraphQLPersisted, BenzeneHTTPError } from '@benzene/core';
+import { KeyValueStore } from './types';
 
 const APQ_CACHE_PREFIX = 'apq:';
 
-export class PersistedAutomatic implements GraphQLPersisted {
+export default class PersistedAutomatic implements GraphQLPersisted {
   cache: KeyValueStore;
 
   constructor(options?: { cache?: KeyValueStore }) {

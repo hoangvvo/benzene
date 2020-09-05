@@ -6,8 +6,8 @@ export {
   FormattedExecutionResult,
   ValueOrPromise,
   TContext,
+  GraphQLPersisted,
 } from './types';
 export { isAsyncIterable } from './utils';
 export { runHttpQuery } from './http';
-export { GraphQLPersisted, PersistedAutomatic } from './persisted';
 export { BenzeneError, BenzeneHTTPError } from './error';

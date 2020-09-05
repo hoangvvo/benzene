@@ -5,10 +5,10 @@ import {
   runHttpQuery,
   FormattedExecutionResult,
   HttpQueryResponse,
-} from '../../src';
-import { PersistedAutomatic } from '../../src/persisted';
-import { TestSchema } from '../schema.spec';
+} from '@benzene/core';
 import { sha256 } from 'crypto-hash';
+import { PersistedAutomatic } from '../src';
+import { TestSchema } from '../../core/tests/schema.spec';
 
 const GQL = new GraphQL({
   schema: TestSchema,

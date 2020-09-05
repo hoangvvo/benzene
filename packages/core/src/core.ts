@@ -17,12 +17,12 @@ import {
   CompiledQuery,
 } from '@hoangvvo/graphql-jit';
 import lru, { Lru } from 'tiny-lru';
-import { GraphQLPersisted } from './persisted';
 import {
   Config,
   QueryCache,
   FormattedExecutionResult,
   ValueOrPromise,
+  GraphQLPersisted,
 } from './types';
 
 export class GraphQL {
