@@ -4,33 +4,84 @@
 
 Benzene allows flexible persisted query implementation (not just limited to the popular [APQ](https://www.apollographql.com/docs/apollo-server/performance/apq/))
 
-## Usage
-
 Add `options.persisted` when create a [GraphQL instance](/core#graphql)
 
 ```js
-import { GraphQL } from '@benzene/<package>';
+import { GraphQL } from '@benzene/server';
 
 const GQL = new GraphQL({
-  persisted: GraphQLPersisted,
+  persisted: YourGraphQLPersistedInterface,
 });
 ```
 
-## Implementation
+`options.persisted` accepts a `GraphQLPersisted` interface:
 
 ```ts
 interface GraphQLPersisted {
   isPersistedQuery: (params: GraphQLParams) => boolean;
   getQuery: (params: GraphQLParams) => ValueOrPromise<string | undefined>;
 }
+
+interface GraphQLParams {
+  query?: string | null;
+  variables?: Record<string, any> | null;
+  operationName?: string | null;
+  extensions?: Record<string, any> | null;
+}
 ```
+
+There are two options. You can either use the `@benzene/persisted`, which bundles popular persisted query implementation, or [create a custom one](#custom-implementation)
+
+## Use @benzene/persisted
+
+[@benzene/persisted](https://www.npmjs.com/package/@benzene/persisted) package can be used to add popular persisted queries implementation including:
+
+- [Automatic Persisted Queries](https://www.apollographql.com/docs/apollo-server/performance/apq/)
+
+### Install
+
+```bash
+yarn add @benzene/persisted
+```
+
+### Usage
+
+`@benzene/persisted` currently includes one module, `PersistedAutomatic`. More are expected to be added in the future.
+
+```js
+import { GraphQL } from '@benzene/server';
+import { PersistedAutomatic } from '@benzene/persisted';
+
+const GQL = new GraphQL({
+  persisted: new PersistedAutomatic(options),
+});
+```
+
+#### Custom store
+
+`options.cache` can be used to get and save persisted queries in stores like Redis. The default uses a in-memory LRU cache that does not retain states between startup. It should be an object implement three methods: `get`, `set`, and `delete`. The keys will be prefixed with `apq:`.
+
+```js
+const GQL = new GraphQL({
+  persisted: new PersistedAutomatic({
+    cache: {
+      get: (hash) => redis.get(hash),
+      set: (hash, query) => redis.set(hash, query),
+    },
+  }),
+});
+```
+
+## Custom implementation
 
 A `GraphQLPersisted` is an object or instance that contains two methods:
 
 - `isPersistedQuery` that takes `GraphQLParams`, where `GraphQLParams` is an object containing `query`, `variables`, `operationName`, and `extensions`, and returns a boolean determining if the query is a persisted query.
-- `getQuery`, that takes the same `GraphQLParams` object and returns the `query` string or `undefined`. It can also throw an error to return a response early, with status code set to `error.status`.
+- `getQuery` that takes the same `GraphQLParams` object and returns the `query` string or `undefined`. It can also throw an error to return a response early, with status code set to `error.status`.
 
-To learn about the implementation, see [PersistedAutomatic](https://github.com/hoangvvo/benzene/blob/persisted/packages/core/src/persisted/automatic.ts), which implements [Apollo APQ](https://www.apollographql.com/docs/apollo-server/performance/apq/), or the example below.
+See [PersistedAutomatic](https://github.com/hoangvvo/benzene/blob/main/packages/persisted/src/automatic.ts), which implements [Apollo APQ](https://www.apollographql.com/docs/apollo-server/performance/apq/).
+
+The sections below also explore a custom persisted queries implementation. Note that this implementation is just an example and not used in any GraphQL client.
 
 ### Send a hash instead of full queries
 
@@ -50,7 +101,7 @@ query {
 }
 ```
 
-The query is huge and not efficient to be sent over the network. We solve this by enabling the server to identify the query with a `hash` or `id`, without having the client to send over the query.
+The query is huge and not efficient to be sent over the network. We solve this by enabling the server to identify the query with a `hash` or `id`, without having the client to send over the query. It can be done by something like below:
 
 ```js
 const queryMap = {
@@ -109,7 +160,7 @@ The client can opt-out of persisted query by not including `isPersisted` in `ext
 
 The nature of GraphQL allows the client to send any GraphQL query it wants. This can be bad because a malicious actor may send a complex query to DDOS the server. 
 
-A workaround is that the server rejects any arbitrary `query` and instead only allows known persisted queries.
+Beside using tools like GraphQL cost or depth calculator, a workaround is to reject any arbitrary `query` and instead only allow known persisted queries.
 
 ```js
 const queryMap = {
