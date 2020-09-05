@@ -4,6 +4,9 @@
 
 - **[Core](core/)**
 
+- **[Persisted Queries](persisted/)**
+  - [Automatic Persisted Queries](persisted/apq)
+
 - **[Server](server/)**
   - **[HTTP Server](server/http)**
   - **[HTTP Integration](server/http-integration)**
