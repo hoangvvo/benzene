@@ -30,7 +30,7 @@ interface GraphQLParams {
 }
 ```
 
-There are two options. You can either use the `@benzene/persisted`, which bundles popular persisted query implementation, or [create a custom one](#custom-implementation)
+There are two options. You can either use the `@benzene/persisted` package, which bundles popular persisted query implementation or [create a custom one](#custom-implementation)
 
 ## Use @benzene/persisted
 
