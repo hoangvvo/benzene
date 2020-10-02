@@ -1,13 +1,6 @@
 # @benzene/worker
 
-GraphQL server right in the browser ([Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)) or at the edge ([Cloudflare Workers®](https://workers.cloudflare.com/)).
-
-## Why GraphQL in the browser
-
-- You can query 3rd parties' APIs without making a redundant round to and from the backend.
-- It enables query deduplication so that you do not waste server resources for identical requests while improving speed/performance.
-
-In addition, you can (and more often) use `@benzene/worker` in [Cloudflare Workers®](https://workers.cloudflare.com/).
+GraphQL server right in the browser ([Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)) or at the edge (such as [Cloudflare Workers®](https://workers.cloudflare.com/)).
 
 ## Install
 
@@ -35,7 +28,6 @@ addEventListener('fetch', gqlHandle);
 ```
 
 Fetch requests to `/graphql` will now be intercepted by the registered worker.
-
 
 ?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
 
