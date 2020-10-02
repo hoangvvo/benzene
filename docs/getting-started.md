@@ -1,8 +1,8 @@
 # Getting Started
 
-This tutorial takes you through the process of building a GraphQL server with `benzene`. We will build a todo app.
+This tutorial takes you through the process of building a GraphQL server with `benzene`. We will build a simple todo app.
 
-## Create our Todo App
+## Create our Todo App with Query and Mutation
 
 We will install `@benzene/server` and [`graphql-js`](https://github.com/graphql/graphql-js).
 
