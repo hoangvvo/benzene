@@ -8,30 +8,52 @@ Fast and simple GraphQL Server for Node.js
 yarn add graphql @benzene/server
 ```
 
-## Philosophy
+## Usage
 
-GraphQL Server like `apollo-server` and its `applyMiddleware` is too coupled and overly opinionated. While this helps beginners, it becomes difficult to configure and extend (See [apollographql/apollo-server#1308](https://github.com/apollographql/apollo-server/issues/1308)).
+```js
+const { GraphQL, httpHandler } = require('@benzene/server');
+const http = require('http');
 
-`@benzene/server` takes the opposite path and returns nothing but a `requestListener` function (which is in the familiar `(req, res) => void` form) to be used in different frameworks/routers or simply `http.createServer`.
+const GQL = new GraphQL({ schema });
+const gqlHandle = httpHandler(GQL, options);
 
-Middleware like `cors` and `body-parser` is all up to the users to implement as they wish.
+const server = http.createServer(gqlHandle);
+server.listen(3000, () => {
+  console.log(`🚀  Server ready at :3000`);
+});
+```
 
-## Documentation
+You can use `gqlHandle` in other compatible frameworks (those that accepts the `(req, res) => void` function). See [Framework integrations](/server/http-integration.md) for additional usage.
 
-There are two separate modules in `@benzene/server` package with their own documentations.
+## API
 
-?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
+### httpHandler(GQL, options)
 
-### HTTP
+The `httpHandler` function returns a `requestListener` function (`(req, res) => void`).
 
-Create a HTTP/HTTPS server. Can used in Node [HTTP server](https://nodejs.org/api/http.html) or [HTTPS server](https://nodejs.org/api/https.html) and [compatible frameworks](/server/http-integration).
+`GQL` in an instance [Benzene GraphQL instance](/core/#graphql).
 
-Use this module by import `httpHandler` from `@benzene/server`. See [documentation](/server/http) for more information.
+`options` is optional and accepts the following:
 
-### HTTP/2
+| options | description | default |
+|---------|-------------|---------|
+| context | An object or function called to creates a context shared across resolvers per request. The function accepts [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) as the only argument. | `{}` |
+| path | Specify a path for the GraphQL endpoint, and `@benzene/server` will respond with `404` elsewhere. You **should not** set this when using with frameworks with built-in routers (such as `express`). | `undefined` (run on all paths) |
 
-Create a HTTP/2 server. Can be used in Node [HTTP/2 server](https://nodejs.org/api/http2.html).
+## Building Context :id=context
 
-Use this module by import `http2Handler` from `@benzene/server`. See [documentation](/server/http2) for more information.
+`options.context` in `httpHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it accepts `req` (`http.IncomingMessage`) and `res` (`http.ServerResponse`). Depends on the framework, you may receive an extended `IncomingMessage` and `ServerResponse` (such as in `express`).
 
-!> This is **not** to be used with the [Compatiblility API](https://nodejs.org/api/http2.html#http2_compatibility_api) but the [stream listener](https://nodejs.org/api/http2.html#http2_server_side_example). You can use the `HTTP` version for the Compatiblility API.
+```js
+const gqlHandle = httpHandler(GQL, {
+  context: async (req, res) => {
+    const user = await getUserFromReq(req);
+    // Return the context object
+    return { user };
+  },
+});
+```
+
+## Authentication
+
+`benzene` recommends seperating authentication from GraphQL layer. You can often use packages like [`passport`](https://github.com/jaredhanson/passport), which set the user to `req.user` that can later be accessed inside the `context` function.
