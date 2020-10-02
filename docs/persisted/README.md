@@ -4,6 +4,8 @@
 
 Benzene allows flexible persisted query implementation (not just limited to the popular [APQ](https://www.apollographql.com/docs/apollo-server/performance/apq/))
 
+## Config persisted queries
+
 Add `options.persisted` when create a [GraphQL instance](/core#graphql)
 
 ```js
