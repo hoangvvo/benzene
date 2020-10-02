@@ -42,11 +42,11 @@ The `httpHandler` function returns a `requestListener` function (`(req, res) => 
 
 ## Building Context :id=context
 
-`options.context` in `httpHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it accepts `req` (`http.IncomingMessage`) and `res` (`http.ServerResponse`). Depends on the framework, you may receive an extended `IncomingMessage` and `ServerResponse` (such as in `express`).
+`options.context` in `httpHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it accepts `req` (`http.IncomingMessage`). Depends on the framework, you may receive an extended `IncomingMessage` (such as in `express`) that has extra properties.
 
 ```js
 const gqlHandle = httpHandler(GQL, {
-  context: async (req, res) => {
+  context: async (req) => {
     const user = await getUserFromReq(req);
     // Return the context object
     return { user };
@@ -56,4 +56,4 @@ const gqlHandle = httpHandler(GQL, {
 
 ## Authentication
 
-`benzene` recommends seperating authentication from GraphQL layer. You can often use packages like [`passport`](https://github.com/jaredhanson/passport), which set the user to `req.user` that can later be accessed inside the `context` function.
+`benzene` recommends seperating authentication from GraphQL layer. You can use packages like [`passport`](https://github.com/jaredhanson/passport), which sets the user to `req.user` that can later be accessed inside the `context` function.
