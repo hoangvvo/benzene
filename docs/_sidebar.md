@@ -4,10 +4,11 @@
 
 - **[Core](core/)**
 
-- **[Persisted Queries](persisted/)**
-
 - **[Server](server/)**
 
-- **[Web Worker](worker/)**
+- **[WebWorker](worker/)**
 
-- **[GraphQL over ws](ws/)**
+- **[WebSocket](ws/)**
+
+- **Extra**
+  - **[Persisted Queries](persisted/)**
