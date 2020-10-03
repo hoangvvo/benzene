@@ -75,7 +75,7 @@ Create a handler for incoming WebSocket connection (from `wss.on('connection')`)
 
 `GQL` is a [Benzene GraphQL instance](/core/) instance.
 
-?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
+?> For error formatting and more, learn about Benzene's `GraphQL` class in [Core](core/).
 
 `options` is optional and accepts the following:
 

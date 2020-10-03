@@ -29,15 +29,15 @@ addEventListener('fetch', gqlHandle);
 
 Fetch requests to `/graphql` will now be intercepted by the registered worker.
 
-?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
-
-!> **Note:** While `@benzene/worker` is not so large in size ([~20kb Minified + Gzipped](http://bundlephobia.com/result?p=@benzene/worker)), it is recommended to lazy-load it and implement [Offline/Progressive Web Apps](https://web.dev/progressive-web-apps/).
+!> **Note:** In browser: while `@benzene/worker` is not so large in size ([~20kb Minified + Gzipped](http://bundlephobia.com/result?p=@benzene/worker)), it is recommended to lazy-load it and implement [Offline/Progressive Web Apps](https://web.dev/progressive-web-apps/).
 
 ## API
 
 ### `fetchHandler(GQL, options)`
 
 `GQL` is an instance of [`GraphQL`](/core/)
+
+?> For error formatting and more, learn about Benzene's `GraphQL` class in [Core](core/).
 
 `options` is optional and accepts the following:
 

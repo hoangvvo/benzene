@@ -33,6 +33,8 @@ The `httpHandler` function returns a `requestListener` function (`(req, res) => 
 
 `GQL` in an instance [Benzene GraphQL instance](/core/#graphql).
 
+?> For error formatting and more, learn about Benzene's `GraphQL` class in [Core](core/).
+
 `options` is optional and accepts the following:
 
 | options | description | default |
@@ -42,7 +44,7 @@ The `httpHandler` function returns a `requestListener` function (`(req, res) => 
 
 ## Building Context :id=context
 
-`options.context` in `httpHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it accepts `req` (`http.IncomingMessage`). Depends on the framework, you may receive an extended `IncomingMessage` (such as in `express`) that has extra properties.
+`options.context` in `httpHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it accepts `req` (`http.IncomingMessage`). Depends on the framework, you may receive an extended `IncomingMessage` that has extra properties. For example, in `express`, `req` will also contain properties like `req.body` or `req.query`.
 
 ```js
 const gqlHandle = httpHandler(GQL, {
