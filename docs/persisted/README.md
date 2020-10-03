@@ -186,4 +186,4 @@ const GQL = new GraphQL({
 
 With the config above, `isPersistedQuery` always returns `true`, thus forcing the `Benzene` to always treat the request as a persisted query and run it through `getQuery`.
 
-`getQuery` would look up the `query` using a prepared map object `queryMap`. If the query is not found, it throws an error (with a `status` key set to `400` to be used as the HTTP status code) and the request is not rejected.
+`getQuery` would look up the `query` using a prepared map object `queryMap`. If the query is not found, it throws an error (with a `status` key set to `400` to be used as the HTTP status code) and the request is rejected.
