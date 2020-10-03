@@ -11,7 +11,11 @@
     "subscription",
     "websocket"
   ],
-  "repository": "git+https://github.com/hoangvvo/benzene.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoangvvo/benzene.git",
+    "directory": "packages/ws"
+  },
   "bugs": {
     "url": "https://github.com/hoangvvo/benzene/issues"
   },

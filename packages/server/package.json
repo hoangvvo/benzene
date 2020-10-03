@@ -9,7 +9,11 @@
     "api",
     "http"
   ],
-  "repository": "git+https://github.com/hoangvvo/benzene.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoangvvo/benzene.git",
+    "directory": "packages/server"
+  },
   "bugs": {
     "url": "https://github.com/hoangvvo/benzene/issues"
   },

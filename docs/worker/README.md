@@ -1,13 +1,6 @@
 # @benzene/worker
 
-GraphQL server right in the browser ([Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)) or at the edge ([Cloudflare Workers®](https://workers.cloudflare.com/)).
-
-## Why GraphQL in the browser
-
-- You can query 3rd parties' APIs without making a redundant round to and from the backend.
-- It enables query deduplication so that you do not waste server resources for identical requests while improving speed/performance.
-
-In addition, you can (and more often) use `@benzene/worker` in [Cloudflare Workers®](https://workers.cloudflare.com/).
+GraphQL server right in the browser ([Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)) or at the edge (such as [Cloudflare Workers®](https://workers.cloudflare.com/)).
 
 ## Install
 
@@ -36,16 +29,15 @@ addEventListener('fetch', gqlHandle);
 
 Fetch requests to `/graphql` will now be intercepted by the registered worker.
 
-
-?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
-
-!> **Note:** While `@benzene/worker` is not so large in size ([~20kb Minified + Gzipped](http://bundlephobia.com/result?p=@benzene/worker)), it is recommended to lazy-load it and implement [Offline/Progressive Web Apps](https://web.dev/progressive-web-apps/).
+!> **Note:** In browser: while `@benzene/worker` is not so large in size ([~20kb Minified + Gzipped](http://bundlephobia.com/result?p=@benzene/worker)), it is recommended to lazy-load it and implement [Offline/Progressive Web Apps](https://web.dev/progressive-web-apps/).
 
 ## API
 
 ### `fetchHandler(GQL, options)`
 
 `GQL` is an instance of [`GraphQL`](/core/)
+
+?> For error formatting and more, learn about Benzene's `GraphQL` class in [Core](core/).
 
 `options` is optional and accepts the following:
 

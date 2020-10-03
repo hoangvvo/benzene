@@ -75,7 +75,7 @@ Create a handler for incoming WebSocket connection (from `wss.on('connection')`)
 
 `GQL` is a [Benzene GraphQL instance](/core/) instance.
 
-?> It is recommended to read about `GraphQL` instance in the [Core Section](core/) first.
+?> For error formatting and more, learn about Benzene's `GraphQL` class in [Core](core/).
 
 `options` is optional and accepts the following:
 
@@ -105,20 +105,9 @@ const wsHandle = wsHandler(GQL, {
 });
 ```
 
-If an error is thrown in `options.context`, `@benzene/ws` will send a `{ type = 'connection_error' }` with a payload with the shape of a regular GraphQL response and close the connection. For example,
+## Authentication
 
-```json
-{
-  "payload": {
-    "errors": [
-      { "message": "Context creation failed: You are not authenticated!" }
-    ]
-  },
-  "type": "connection_error"
-}
-```
-
-See [Authentication](/ws/authentication) on possible authentication mechanism.
+`benzene` recommends seperating authentication from GraphQL layer. See [Authentication](/ws/authentication) on possible authentication mechanism.
 
 ## Hooks
 

@@ -25,6 +25,7 @@ The `GraphQL` constructor requires a `options` argument, which accepts the follo
 |---------|-------------|---------|
 | schema | A [`GraphQLSchema` instance](https://hoangvvo.github.io/benzene/#/getting-started?id=create-a-benzen-graphql-instance). | (required) |
 | formatError | An optional function that will be used to format any errors from GraphQL execution result. | [`formatError`](https://github.com/graphql/graphql-js/blob/master/src/error/formatError.js) |
+| persisted | Configurate persisted queries. See [Persisted queries](/persisted/). | `undefined` |
 
 Unlike other frameworks `options.context` is not used in the constructor but rather in its API and binding packages.
 
