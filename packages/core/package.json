@@ -1,7 +1,7 @@
 {
   "name": "@benzene/core",
   "version": "0.2.0",
-  "description": "Fast and non-coupled JavaScript GraphQL Server and Executor",
+  "description": "Fast and minimal JavaScript GraphQL Server and Executor",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "repository": {
     "type": "git",

@@ -4,13 +4,13 @@
 [![codecov](https://codecov.io/gh/hoangvvo/benzene/branch/main/graph/badge.svg?token=KUCEOC1JT2)](https://codecov.io/gh/hoangvvo/benzene)
 [![PRs Welcome](https://badgen.net/badge/PRs/welcome/ff5252)](/CONTRIBUTING.md)
 
-> A [**fast**](/benchmarks) and **non-coupled** JavaScript GraphQL Server and Executor
+> A [**fast**](/benchmarks) and minimal JavaScript GraphQL Server and Executor
 
 ## Features
 
 - LRU caching of schema validation and compilation
 - Highly performant Just-In-Time compiler via (a [fork](https://github.com/hoangvvo/graphql-jit/) of) [graphql-jit](https://github.com/zalando-incubator/graphql-jit).
-- Lightweight and non-coupled integration with great extensibility: Does nothing more but returning handle functions.
+- Lightweight and non-coupled: Does nothing more but returning handle functions.
 
 ## Documentation
 
