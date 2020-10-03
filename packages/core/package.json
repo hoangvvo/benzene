@@ -5,7 +5,8 @@
   "author": "Hoang Vo (https://hoangvvo.com)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hoangvvo/benzene.git"
+    "url": "git+https://github.com/hoangvvo/benzene.git",
+    "directory": "packages/core"
   },
   "bugs": {
     "url": "https://github.com/hoangvvo/benzene/issues"
