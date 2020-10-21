@@ -1,7 +1,7 @@
 # @benzene/server
 
 [![npm](https://badgen.net/npm/v/@benzene/server)](https://www.npmjs.com/package/@benzene/server)
-![ci](https://github.com/hoangvvo/benzene/workflows/Test%20&%20Coverage/badge.svg)
+![CI](https://github.com/hoangvvo/benzene/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/hoangvvo/benzene/branch/main/graph/badge.svg?token=KUCEOC1JT2)](https://codecov.io/gh/hoangvvo/benzene)
 [![PRs Welcome](https://badgen.net/badge/PRs/welcome/ff5252)](/CONTRIBUTING.md)
 

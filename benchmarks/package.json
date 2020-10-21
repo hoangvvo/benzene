@@ -8,7 +8,7 @@
     "apollo-server-fastify": "^2.17.0",
     "express-graphql": "^0.11.0",
     "fastify": "^3.3.0",
-    "fastify-gql": "^5.6.0",
+    "mercurius": "^6.3.0",
     "polka": "^1.0.0-next.11"
   },
   "resolutions": {

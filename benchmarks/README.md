@@ -24,7 +24,7 @@ The following can be used as `<library>`:
 - [`apollo-server-fastify`](https://github.com/apollographql/apollo-server)
 - `benzene-server` ([`@benzene/server`](https://github.com/hoangvvo/benzene/tree/main/packages/server))
 - [`express-graphql`](https://github.com/graphql/express-graphql)
-- [`fastify-gql`](https://github.com/mcollina/fastify-gql)
+- [`mercurius`](https://github.com/mercurius-js/mercurius)
 
 To run all benchmarks at once:
 
@@ -36,14 +36,14 @@ Make a PR to add one.
 
 ## Result
 
-Machine: Linux 5.4.0-45-generic x86_64 | 4 vCPUs | 16GB
+Machine: Linux 5.4.0-51-generic x86_64 | 4 vCPUs | 16GB
 
-Node: `v12.18.2`
+Node: `v14.12.0`
 
 | Library | Request/sec | Latency |
 | --- | --- | --- |
-| benzene-server | 14662.6688 | 0.0068 secs |
-| fastify-gql | 13208.0059 | 0.0076 secs |
-| apollo-server-fastify | 5570.7369 | 0.0311 secs |
-| apollo-server | 2117.7460 | 0.0471 secs |
-| express-graphql | 1791.4142 | 0.0556 secs |
+| benzene-server | 13592.2223 | 0.0073 secs |
+| fastify-gql | 12277.0624 | 0.0081 secs |
+| apollo-server-fastify | 3264.9005 | 0.0306 secs |
+| apollo-server | 2032.8558 | 0.0490 secs |
+| express-graphql | 1618.0362 | 0.0615 secs |

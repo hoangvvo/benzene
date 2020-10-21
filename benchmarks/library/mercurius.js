@@ -1,12 +1,12 @@
 'use strict';
 
 const Fastify = require('fastify');
-const GQL = require('fastify-gql');
+const mercurius = require('mercurius');
 const schema = require('../schema');
 
 const app = Fastify();
 
-app.register(GQL, {
+app.register(mercurius, {
   schema,
   jit: 1,
 });

@@ -1,6 +1,6 @@
 # ⌬ Benzene ⌬
 
-![ci](https://github.com/hoangvvo/benzene/workflows/Test%20&%20Coverage/badge.svg)
+![CI](https://github.com/hoangvvo/benzene/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/hoangvvo/benzene/branch/main/graph/badge.svg?token=KUCEOC1JT2)](https://codecov.io/gh/hoangvvo/benzene)
 [![PRs Welcome](https://badgen.net/badge/PRs/welcome/ff5252)](/CONTRIBUTING.md)
 
@@ -8,9 +8,9 @@
 
 ## Features
 
-- LRU caching of schema validation and compilation
-- Highly performant Just-In-Time compiler via (a [fork](https://github.com/hoangvvo/graphql-jit/) of) [graphql-jit](https://github.com/zalando-incubator/graphql-jit).
-- Lightweight and non-coupled: Does nothing more but returning handle functions.
+- Super lightweight and [performant](/benchmarks)
+- Transport & Framework agnostic: Node.js, Web Workers, and WebSocket
+- Observable APIs (Nothing like [`applyMiddleware`](https://www.apollographql.com/docs/apollo-server/api/apollo-server/#applymiddleware), returns only familiar handler functions)
 
 ## Documentation
 
@@ -23,18 +23,21 @@ There is also a [Getting Started](https://hoangvvo.github.io/benzene/#/getting-s
 There are currently three packages under `@benzene`.
 
 ### Server (`@benzene/server`)
+[![npm](https://badgen.net/npm/v/@benzene/server)](https://www.npmjs.com/package/@benzene/server)
 
 Fast and simple GraphQL Server for Node.js
 
 [Documentation](https://hoangvvo.github.io/benzene/#/server/) [npm](https://www.npmjs.com/package/@benzene/server) [yarn](https://yarnpkg.com/package/@benzene/server)
 
 ### Worker (`@benzene/worker`)
+[![npm](https://badgen.net/npm/v/@benzene/worker)](https://www.npmjs.com/package/@benzene/worker)
 
 GraphQL server right in the browser ([Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)) or at the edge ([Cloudflare Workers®](https://workers.cloudflare.com/))
 
 [Documentation](https://hoangvvo.github.io/benzene/#/worker/) [npm](https://www.npmjs.com/package/@benzene/worker) [yarn](https://yarnpkg.com/package/@benzene/worker)
 
 ### WebSocket (`@benzene/ws`)
+[![npm](https://badgen.net/npm/v/@benzene/ws)](https://www.npmjs.com/package/@benzene/ws)
 
 GraphQL over WebSocket using [`ws`](https://github.com/websockets/worker)
 
