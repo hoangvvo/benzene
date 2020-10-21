@@ -1,6 +1,6 @@
 {
   "name": "@benzene/server",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Fast and simple GraphQL Server for Node.js",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -21,7 +21,9 @@
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "uvu -r ts-node/register/transpile-only"
