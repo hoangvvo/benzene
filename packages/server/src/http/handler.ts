@@ -1,6 +1,6 @@
 import { GraphQL, HttpQueryResponse, runHttpQuery } from '@benzene/core';
+import { parse as parseQS } from 'querystring';
 import { readBody } from './readBody';
-import parseUrl from '@polka/url';
 import { HandlerConfig } from './types';
 import { IncomingMessage, ServerResponse } from 'http';
 
@@ -16,12 +16,14 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
     });
   }
   return function handler(
-    req: IncomingMessage & { path?: string },
+    req: IncomingMessage & { path?: string; query?: Record<string, string> },
     res: ServerResponse
   ) {
+    const idx = req.url!.indexOf('?');
     if (
       options.path &&
-      (req.path || parseUrl(req, true).pathname) !== options.path
+      (req.path || (idx !== -1 ? req.url!.substring(0, idx) : req.url)) !==
+        options.path
     )
       return sendResponse(res, { status: 404, body: 'not found', headers: {} });
     readBody(req, async (err, body) => {
@@ -35,14 +37,18 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
               : options.context;
         } catch (error) {
           error.message = `Context creation failed: ${error.message}`;
-          sendErrorResponse(res, error);
+          return sendErrorResponse(res, error);
         }
       sendResponse(
         res,
         await runHttpQuery(gql, {
           context: context || {},
           httpMethod: req.method as string,
-          queryParams: parseUrl(req, true).query || null,
+          queryParams:
+            req.query ||
+            (idx !== -1
+              ? (parseQS(req.url!.substring(idx + 1)) as Record<string, string>)
+              : null),
           body,
           headers: req.headers as Record<string, string>,
         })
