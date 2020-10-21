@@ -43,7 +43,7 @@ There are two options. You can either use the `@benzene/persisted` package, whic
 ### Install
 
 ```bash
-yarn add @benzene/persisted
+npm i @benzene/persisted
 ```
 
 ### Usage

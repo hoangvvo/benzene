@@ -5,7 +5,7 @@ Fast and simple GraphQL Server for Node.js
 ## Install
 
 ```bash
-yarn add graphql @benzene/server
+npm i graphql @benzene/server
 ```
 
 ## Usage

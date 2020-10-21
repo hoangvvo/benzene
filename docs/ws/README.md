@@ -7,13 +7,13 @@ WebSocket support via [`ws`](https://github.com/websockets/ws) implementing a [m
 Install `@benzene/ws` and `graphql` dependencies.
 
 ```bash
-yarn add @benzene/ws graphql
+npm i @benzene/ws graphql
 ```
 
 Since `@benzene/ws` is to be used in [`ws`](https://github.com/websockets/ws), you must also install it if you haven't already.
 
 ```bash
-yarn add ws
+npm i ws
 ```
 
 ?> `@benzene/ws` is not limited to `benzene` and can work along with *any* GraphQL Server.

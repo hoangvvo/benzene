@@ -7,7 +7,7 @@ GraphQL server right in the browser ([Web Workers](https://developer.mozilla.org
 Install `@benzene/worker` and `graphql` dependencies:
 
 ```shell
-yarn add @benzene/worker graphql
+npm i @benzene/worker graphql
 ```
 
 ## Usage
