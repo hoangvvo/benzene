@@ -120,7 +120,7 @@ suiteHttp('allows for pre-parsed POST bodies', () => {
   const test = {};
   return new Promise((resolve) => {
     // @ts-expect-error
-    readBody({ body: test }, (err, body) => {
+    readBody({ body: test }, (body) => {
       assert.equal(test, body);
       resolve();
     });
@@ -129,18 +129,11 @@ suiteHttp('allows for pre-parsed POST bodies', () => {
 suiteHttp('skips body parsing if no content-type presented', (done) => {
   return new Promise((resolve) => {
     // @ts-expect-error
-    readBody({ headers: {} }, (err, body) => {
+    readBody({ headers: {} }, (body) => {
       assert.equal(body, null);
       resolve();
     });
   });
-});
-suiteHttp('responses 500 on request error', async () => {
-  const server = createServer((req, res) => {
-    httpHandler(new GraphQL({ schema: TestSchema }))(req, res);
-    req.emit('error', new Error('Request Error!'));
-  });
-  await request(server).post('/graphql').send({ query: '{test}' }).expect(500);
 });
 suiteHttp('respond 404 by checking against req.url', async () => {
   const server = createServer(

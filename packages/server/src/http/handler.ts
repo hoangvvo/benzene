@@ -26,8 +26,7 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
         options.path
     )
       return sendResponse(res, { status: 404, body: 'not found', headers: {} });
-    readBody(req, async (err, body) => {
-      if (err) return sendErrorResponse(res, err);
+    readBody(req, async (body) => {
       let context;
       if (options.context)
         try {
