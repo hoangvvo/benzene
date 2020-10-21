@@ -17,7 +17,7 @@
   "files": ["dist"],
   "scripts": {
     "build": "tsc",
-    "test": "mocha"
+    "test": "uvu -r ts-node/register/transpile-only"
   },
   "license": "MIT",
   "dependencies": {

@@ -1,4 +1,4 @@
-name: Test & Coverage
+name: CI
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: [10, 12, 14]
 
     steps:
     - uses: actions/checkout@v2

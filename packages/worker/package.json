@@ -7,7 +7,7 @@
   "files": ["dist"],
   "scripts": {
     "build": "tsc",
-    "test": "mocha"
+    "test": "uvu -r ts-node/register/transpile-only"
   },
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
