@@ -45,10 +45,10 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
           context: context || {},
           httpMethod: req.method as string,
           queryParams:
-            idx !== -1
-              ? req.query ||
-                (parseQS(req.url!.substring(idx + 1)) as Record<string, string>)
-              : null,
+            req.query ||
+            (idx !== -1
+              ? (parseQS(req.url!.substring(idx + 1)) as Record<string, string>)
+              : null),
           body,
           headers: req.headers as Record<string, string>,
         })

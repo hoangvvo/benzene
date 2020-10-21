@@ -54,6 +54,16 @@ suiteHttp('handles GET request', async () => {
     .get('/graphql?query={test}')
     .expect(JSON.stringify({ data: { test: 'Hello World' } }));
 });
+suiteHttp('allows for pre-parsed query strings', async () => {
+  const gql = new GraphQL({ schema: TestSchema });
+  const server = createServer((req, res) => {
+    (req as any).query = { query: '{test}' };
+    httpHandler(gql)(req, res);
+  });
+  await request(server)
+    .get('/graphql')
+    .expect(JSON.stringify({ data: { test: 'Hello World' } }));
+});
 suiteHttp('handles POST request', async () => {
   const server = createGQLServer({ schema: TestSchema });
   await request(server)

@@ -26,7 +26,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "mocha"
+    "test": "uvu -r ts-node/register/transpile-only"
   },
   "dependencies": {
     "@benzene/core": "^0.2.0"
