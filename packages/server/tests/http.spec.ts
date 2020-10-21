@@ -146,6 +146,7 @@ suiteHttp('respond 404 by checking against req.url', async () => {
   const server = createServer(
     httpHandler(new GraphQL({ schema: TestSchema }), { path: '/api' })
   );
+  await request(server).post('/api').send({ query: '{test}' }).expect(200);
   await request(server).get('/api?query={test}').expect(200);
   await request(server).get('/graphql?query={test}').expect(404);
 });
