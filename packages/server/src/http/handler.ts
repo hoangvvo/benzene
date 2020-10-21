@@ -37,7 +37,7 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
               : options.context;
         } catch (error) {
           error.message = `Context creation failed: ${error.message}`;
-          sendErrorResponse(res, error);
+          return sendErrorResponse(res, error);
         }
       sendResponse(
         res,
