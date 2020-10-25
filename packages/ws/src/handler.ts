@@ -21,7 +21,6 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
     const unhandledQueue: string[] = [];
     const queueUnhandled = (data: WebSocket.Data) =>
       unhandledQueue.push(data.toString());
-
     socket.on('message', queueUnhandled);
 
     let context: TContext = {};
@@ -53,11 +52,7 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
       onComplete: options.onComplete,
     });
     // Flush all queued message
-    for (let i = 0; i < unhandledQueue.length; i += 1) {
-      // FIXME: Need test for this behavior
-      connection.onMessage(unhandledQueue[i]);
-    }
-
-    connection.init();
+    for (const unhandleMessage of unhandledQueue)
+      connection.onMessage(unhandleMessage);
   };
 }

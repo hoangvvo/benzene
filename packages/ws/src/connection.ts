@@ -21,9 +21,7 @@ export class SubscriptionConnection {
     public socket: WebSocket,
     public context: TContext,
     private listeners: Pick<HandlerConfig, 'onStart' | 'onComplete'>
-  ) {}
-
-  init() {
+  ) {
     // Listen to events
     this.socket.on('message', (data) => this.onMessage(data.toString()));
     this.socket.on('error', () => this.socket.close());
