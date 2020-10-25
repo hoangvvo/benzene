@@ -1,5 +1,15 @@
 # @benzene/ws
 
+## 0.2.0
+
+### Minor Changes
+
+- 96b9dc2: Drop start_ack from spec
+
+### Patch Changes
+
+- 83199ae: Close operations properly on connection closure
+
 ## 0.1.3
 
 ### Patch Changes
