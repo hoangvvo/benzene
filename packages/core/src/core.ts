@@ -144,19 +144,19 @@ export class GraphQL {
 
   // Reimplements graphql/execution/execute but using jit
   execute(
-    { contextValue, variableValues, rootValue }: Omit<ExecutionArgs, 'schema'>,
+    {
+      contextValue,
+      variableValues,
+      rootValue,
+    }: Omit<SubscriptionArgs, 'schema'>,
     jit: CompiledQuery
   ): ValueOrPromise<ExecutionResult> {
     return jit.query(rootValue, contextValue, variableValues);
   }
 
   // Reimplements graphql/subscription/subscribe but using jit
-  async subscribe(
-    {
-      contextValue,
-      variableValues,
-      rootValue,
-    }: Omit<SubscriptionArgs, 'schema'>,
+  subscribe(
+    { contextValue, variableValues, rootValue }: Omit<ExecutionArgs, 'schema'>,
     jit: CompiledQuery
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
     return jit.subscribe!(rootValue, contextValue, variableValues);
