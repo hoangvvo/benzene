@@ -117,14 +117,16 @@ async function subscribe(
   const jit = compileQuery(args.schema, args.document, args.operationName);
 
   if (!isCompiledQuery(jit)) return jit;
-  return GQL.subscribe({
-    document: args.document,
-    contextValue: args.contextValue,
-    variableValues: args.variableValues,
-    rootValue: args.rootValue,
-    operationName: args.operationName,
-    jit,
-  });
+  return GQL.subscribe(
+    {
+      document: args.document,
+      contextValue: args.contextValue,
+      variableValues: args.variableValues,
+      rootValue: args.rootValue,
+      operationName: args.operationName,
+    },
+    jit
+  );
 }
 
 const EmailType = new GraphQLObjectType({

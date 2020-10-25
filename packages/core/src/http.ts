@@ -130,11 +130,13 @@ export async function runHttpQuery(
   return createResponse(
     gql,
     200,
-    await gql.execute({
-      jit: cachedOrResult.jit,
-      document: cachedOrResult.document,
-      contextValue: request.context,
-      variableValues: params.variables,
-    })
+    await gql.execute(
+      {
+        document: cachedOrResult.document,
+        contextValue: request.context,
+        variableValues: params.variables,
+      },
+      cachedOrResult.jit
+    )
   );
 }

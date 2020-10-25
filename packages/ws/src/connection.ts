@@ -19,7 +19,7 @@ export class SubscriptionConnection {
   constructor(
     private gql: GraphQL,
     public socket: WebSocket,
-    public context: TContext,
+    private context: TContext,
     private listeners: Pick<HandlerConfig, 'onStart' | 'onComplete'>
   ) {
     // Listen to events
@@ -83,36 +83,23 @@ export class SubscriptionConnection {
       contextValue: this.context,
       variableValues: variables,
       operationName,
-      jit: cachedOrResult.jit,
     };
 
     if (cachedOrResult.operation !== 'subscription') {
-      if (this.listeners.onStart) {
-        this.listeners.onStart.call(this, data.id, {
-          document: cachedOrResult.document,
-          contextValue: this.context,
-          variableValues: variables,
-          operationName,
-        });
-      }
-      const result = await this.gql.execute(execArg);
+      if (this.listeners.onStart)
+        this.listeners.onStart.call(this, data.id, execArg);
+      const result = await this.gql.execute(execArg, cachedOrResult.jit);
       this.sendMessage(MessageTypes.GQL_DATA, data.id, result);
     } else {
-      const result = await this.gql.subscribe(execArg);
+      const result = await this.gql.subscribe(execArg, cachedOrResult.jit);
       if (!isAsyncIterable<ExecutionResult>(result)) {
         // Something prevents a subscription from being created properly
         // https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md#subscription-error
         return this.sendMessage(MessageTypes.GQL_ERROR, data.id, result);
       }
       this.operations.set(data.id, result);
-      if (this.listeners.onStart) {
-        this.listeners.onStart.call(this, data.id, {
-          document: cachedOrResult.document,
-          contextValue: this.context,
-          variableValues: variables,
-          operationName,
-        });
-      }
+      if (this.listeners.onStart)
+        this.listeners.onStart.call(this, data.id, execArg);
       for await (const value of result) {
         this.sendMessage(MessageTypes.GQL_DATA, data.id, value);
       }
