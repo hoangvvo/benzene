@@ -621,4 +621,29 @@ connSuite('call onComplete on subscription stop', async () => {
   });
 });
 
+connSuite('return all subscription operations on disconnection', async () => {
+  let operations: Map<string, any>;
+  const { ws } = await startServer({
+    onStart() {
+      // @ts-ignore
+      operations = operations || this.operations;
+    },
+  });
+  await sendMessage(ws, MessageTypes.GQL_START, '1', {
+    query: `
+        subscription {
+          notificationAdded {
+            user
+          }
+        }
+      `,
+  });
+  await expectMessage(ws, { id: '1', type: MessageTypes.GQL_START_ACK });
+  assert.equal(operations.size, 1);
+  ws.close();
+  // Wait a bit for ws to close
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.equal(operations.size, 0);
+});
+
 connSuite.run();
