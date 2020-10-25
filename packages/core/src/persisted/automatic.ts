@@ -8,7 +8,7 @@ export default function persistedAutomatic(options: {
   cache?: KeyValueStore;
   sha256: (query: string) => ValueOrPromise<string>;
 }): GraphQLPersisted {
-  const cache = options?.cache || lru(1024);
+  const cache = options.cache || lru(1024);
   return {
     isPersistedQuery(params) {
       return params.extensions?.persistedQuery?.version === 1;

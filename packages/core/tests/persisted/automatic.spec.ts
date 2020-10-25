@@ -1,14 +1,14 @@
 import { suite } from 'uvu';
 import assert from 'uvu/assert';
+import crypto from 'crypto';
+import lru from 'tiny-lru';
 import {
   GraphQL,
   runHttpQuery,
   FormattedExecutionResult,
   HttpQueryResponse,
-} from '@benzene/core';
-import crypto from 'crypto';
-import lru from 'tiny-lru';
-import { persistedQueryPresets } from '../../src';
+  persistedQueryPresets,
+} from '../../src';
 import { TestSchema } from '../schema.spec';
 
 const sha256 = (query) =>
