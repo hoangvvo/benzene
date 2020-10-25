@@ -129,38 +129,36 @@ export class GraphQL {
     const cachedOrResult = this.getCachedGQL(source, operationName);
     return this.formatExecutionResult(
       'document' in cachedOrResult
-        ? await this.execute({
-            jit: cachedOrResult.jit,
-            document: cachedOrResult.document,
-            contextValue,
-            variableValues,
-            rootValue,
-          })
+        ? await this.execute(
+            {
+              document: cachedOrResult.document,
+              contextValue,
+              variableValues,
+              rootValue,
+            },
+            cachedOrResult.jit
+          )
         : cachedOrResult
     );
   }
 
   // Reimplements graphql/execution/execute but using jit
-  execute({
-    jit,
-    contextValue,
-    variableValues,
-    rootValue,
-  }: Omit<ExecutionArgs, 'schema'> & {
-    jit: CompiledQuery;
-  }): ValueOrPromise<ExecutionResult> {
+  execute(
+    {
+      contextValue,
+      variableValues,
+      rootValue,
+    }: Omit<SubscriptionArgs, 'schema'>,
+    jit: CompiledQuery
+  ): ValueOrPromise<ExecutionResult> {
     return jit.query(rootValue, contextValue, variableValues);
   }
 
   // Reimplements graphql/subscription/subscribe but using jit
-  async subscribe({
-    contextValue,
-    variableValues,
-    rootValue,
-    jit,
-  }: Omit<SubscriptionArgs, 'schema'> & {
-    jit: CompiledQuery;
-  }): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
+  subscribe(
+    { contextValue, variableValues, rootValue }: Omit<ExecutionArgs, 'schema'>,
+    jit: CompiledQuery
+  ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
     return jit.subscribe!(rootValue, contextValue, variableValues);
   }
 }
