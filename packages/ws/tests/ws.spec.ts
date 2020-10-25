@@ -210,7 +210,7 @@ const sendStartMessage = (
   ws: WebSocket,
   id: OperationMessage['id'],
   payload: OperationMessage['payload'],
-  waitMs = 100
+  waitMs = 50
 ) => {
   return new Promise((resolve, reject) => {
     ws.send(
@@ -238,8 +238,9 @@ wsSuite.after.each(cleanupTest);
 // Compat-only
 wsSuite('replies with connection_ack', async () => {
   const { ws } = await startServer();
-  await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
-  await expectMessage(ws, { type: MessageTypes.GQL_CONNECTION_ACK });
+  await expectMessage(ws, { type: MessageTypes.GQL_CONNECTION_ACK }, () =>
+    sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT)
+  );
 });
 wsSuite('sends updates via subscription', async () => {
   const { ws, publish } = await startServer();
