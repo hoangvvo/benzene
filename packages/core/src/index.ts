@@ -11,3 +11,4 @@ export {
 export { isAsyncIterable } from './utils';
 export { runHttpQuery } from './http';
 export { BenzeneError, BenzeneHTTPError } from './error';
+export * as persistedQueryPresets from './persisted/index';
