@@ -32,45 +32,41 @@ interface GraphQLParams {
 }
 ```
 
-There are two options. You can either use the `@benzene/persisted` package, which bundles popular persisted query implementation or [create a custom one](#custom-implementation)
+There are two options. You can either use the built in presets  or [create a custom one](#custom-implementation)
 
-## Use @benzene/persisted
+## Built-in persisted queries presets
 
-[@benzene/persisted](https://www.npmjs.com/package/@benzene/persisted) package can be used to add popular persisted queries implementation including:
-
-- [Automatic Persisted Queries](https://www.apollographql.com/docs/apollo-server/performance/apq/)
-
-### Install
-
-```bash
-npm i @benzene/persisted
-```
-
-### Usage
-
-`@benzene/persisted` currently includes one module, `PersistedAutomatic`. More are expected to be added in the future.
+`@benzene/core` contains several persisted queries presets in the `persistedQueryPresets` object, which are reexported in other packages (`@benzene/server`, `@benzene/ws`, `@benzene/worker`).
 
 ```js
-import { GraphQL } from '@benzene/server';
-import { PersistedAutomatic } from '@benzene/persisted';
-
-const GQL = new GraphQL({
-  persisted: new PersistedAutomatic(options),
-});
+import { persistedQueryPresets } from '@benzene/server';
+// or
+import { persistedQueryPresets } from '@benzene/ws';
+// or
+import { persistedQueryPresets } from '@benzene/worker';
 ```
 
-#### Custom store
+### Automatic Persisted Queries
 
-`options.cache` can be used to get and save persisted queries in stores like Redis. The default uses a in-memory LRU cache that does not retain states between startup. It should be an object implement three methods: `get`, `set`, and `delete`. The keys will be prefixed with `apq:`.
+This implements Apollo's [Automatic Persisted Queries](https://www.apollographql.com/docs/apollo-server/performance/apq/).
 
 ```js
+persistedQueryPresets.automatic(options)
+```
+
+| options | description | default |
+|---------|-------------|---------|
+| sha256 | A function to hash the query using sha256 | (required) |
+| cache | An optional cache that implements `get`, `set`, and `delete` methods ([Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)-like) | `tiny-lru` |
+
+```js
+import { GraphQL, persistedQueryPresets } from '@benzene/server';
+import crypto from 'crypto';
+
+const sha256 = (query) => crypto.createHash('sha256').update(query).digest('hex');
+
 const GQL = new GraphQL({
-  persisted: new PersistedAutomatic({
-    cache: {
-      get: (hash) => redis.get(hash),
-      set: (hash, query) => redis.set(hash, query),
-    },
-  }),
+  persisted: persistedQueryPresets.automatic({ sha256 }),
 });
 ```
 

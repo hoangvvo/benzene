@@ -4,7 +4,6 @@ import {
   GraphQL,
   FormattedExecutionResult,
   TContext,
-  isAsyncIterable,
 } from '@benzene/core';
 import * as WebSocket from 'ws';
 import MessageTypes from './messageTypes';
@@ -96,10 +95,14 @@ export class SubscriptionConnection {
         // @ts-ignore: This is possibly ExecutionResult, but it should not
         // proceed after isAsyncIterable check anyway
         result = await this.gql.subscribe(execArg, cachedOrResult.jit);
-        if (!isAsyncIterable<ExecutionResult>(result))
+        if ('errors' in result)
           // Something prevents a subscription from being created properly
           // such as invalid query or variables. result = ExecutionResult
-          return this.sendMessage(MessageTypes.GQL_ERROR, data.id, result);
+          return this.sendMessage(
+            MessageTypes.GQL_ERROR,
+            data.id,
+            result as ExecutionResult
+          );
       } catch (error) {
         // This error is thrown from this.gql.subscribe
         return this.sendMessage(MessageTypes.GQL_ERROR, data.id, {

@@ -22,7 +22,8 @@ import {
   SubscriptionArgs,
   ExecutionResult,
 } from 'graphql';
-import { GraphQL, isAsyncIterable } from '../src';
+import { GraphQL } from '../src';
+import { isAsyncIterable } from '../src/utils';
 import { compileQuery, isCompiledQuery } from '@hoangvvo/graphql-jit';
 
 function checkDeepEqual(actual, expected) {

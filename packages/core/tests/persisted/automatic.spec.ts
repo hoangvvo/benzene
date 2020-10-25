@@ -1,18 +1,22 @@
 import { suite } from 'uvu';
 import assert from 'uvu/assert';
+import crypto from 'crypto';
+import lru from 'tiny-lru';
 import {
   GraphQL,
   runHttpQuery,
   FormattedExecutionResult,
   HttpQueryResponse,
-} from '@benzene/core';
-import { sha256 } from 'crypto-hash';
-import { PersistedAutomatic } from '../src';
-import { TestSchema } from '../../core/tests/schema.spec';
+  persistedQueryPresets,
+} from '../../src';
+import { TestSchema } from '../schema.spec';
+
+const sha256 = (query) =>
+  crypto.createHash('sha256').update(query).digest('hex');
 
 const GQL = new GraphQL({
   schema: TestSchema,
-  persisted: new PersistedAutomatic(),
+  persisted: persistedQueryPresets.automatic({ sha256 }),
 });
 
 async function httpTest(
@@ -58,7 +62,7 @@ async function httpTest(
 const suiteAuto = suite('PersistedAutomatic');
 
 suiteAuto('Bypass if isPersistedQuery returns false', async () => {
-  const persistedAuto = new PersistedAutomatic();
+  const persistedAuto = persistedQueryPresets.automatic({ sha256 });
   const GQL = new GraphQL({
     schema: TestSchema,
     persisted: persistedAuto,
@@ -152,7 +156,8 @@ suiteAuto(
 );
 
 suiteAuto('Saves query by hash sent from clients', async () => {
-  const auto = new PersistedAutomatic();
+  const cache = lru(1024);
+  const auto = persistedQueryPresets.automatic({ sha256, cache });
   const sha256Hash: string = await sha256('{test}');
   await httpTest(
     {
@@ -170,11 +175,11 @@ suiteAuto('Saves query by hash sent from clients', async () => {
     { body: { data: { test: 'Hello World' } } },
     new GraphQL({ schema: TestSchema, persisted: auto })
   );
-  assert.is(auto.cache.get(`apq:${sha256Hash}`), '{test}');
+  assert.is(cache.get(`apq:${sha256Hash}`), '{test}');
 });
 
 suiteAuto('Throws error if client provided hash256 is mismatched', async () => {
-  const auto = new PersistedAutomatic();
+  const auto = persistedQueryPresets.automatic({ sha256 });
   await httpTest(
     {
       method: 'POST',
@@ -197,9 +202,10 @@ suiteAuto('Throws error if client provided hash256 is mismatched', async () => {
 });
 
 suiteAuto('Returns query using stored hash256', async () => {
-  const auto = new PersistedAutomatic();
+  const cache = lru(1024);
   const sha256Hash: string = await sha256('{test}');
-  auto.cache.set(`apq:${sha256Hash}`, '{test}');
+  cache.set(`apq:${sha256Hash}`, '{test}');
+  const auto = persistedQueryPresets.automatic({ cache, sha256 });
 
   await httpTest(
     {
@@ -218,14 +224,19 @@ suiteAuto('Returns query using stored hash256', async () => {
   );
 });
 
-suiteAuto('Allows using custom cache', async () => {
-  const cache = {
-    get: async () => '{hello}',
-    set: () => null,
-    delete: () => true,
-  };
-  const auto = new PersistedAutomatic({ cache });
-  assert.is(auto.cache, cache);
+suiteAuto('Allows using custom cache', () => {
+  return new Promise((resolve) => {
+    const cache = {
+      get: async () => {
+        resolve();
+        return '{hello}';
+      },
+      set: () => null,
+      delete: () => true,
+    };
+    const auto = persistedQueryPresets.automatic({ cache, sha256 });
+    auto.getQuery({ extensions: { persistedQuery: { sha256: '' } } });
+  });
 });
 
 suiteAuto.run();
