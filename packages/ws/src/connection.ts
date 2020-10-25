@@ -38,16 +38,6 @@ export class SubscriptionConnection {
       });
     }
     switch (data.type) {
-      case MessageTypes.GQL_CONNECTION_INIT:
-        // Our modified protocol does not concern about this
-        // It is fine to not send connection_init
-        this.sendMessage(MessageTypes.GQL_CONNECTION_ACK);
-        break;
-      // This is also compatibility-only
-      // The client can simply closes using the JS API
-      case MessageTypes.GQL_CONNECTION_TERMINATE:
-        this.socket.close(1000);
-        break;
       case MessageTypes.GQL_START:
         this.handleGQLStart(
           data as OperationMessage & { id: string; payload: GraphQLParams }
@@ -55,6 +45,14 @@ export class SubscriptionConnection {
         break;
       case MessageTypes.GQL_STOP:
         this.handleGQLStop(data.id as string);
+        break;
+      // Backward compatibility layer
+      // https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md#differences-from-subscriptions-transport-ws
+      case MessageTypes.GQL_CONNECTION_INIT:
+        this.sendMessage(MessageTypes.GQL_CONNECTION_ACK);
+        break;
+      case MessageTypes.GQL_CONNECTION_TERMINATE:
+        this.socket.close(1000);
         break;
     }
   }
@@ -106,9 +104,6 @@ export class SubscriptionConnection {
         // https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md#subscription-error
         return this.sendMessage(MessageTypes.GQL_ERROR, data.id, result);
       }
-      // https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md#start-a-subscription
-      // An acknowledge of subscription start, DOES NOT happen in queries/mutations
-      this.sendMessage(MessageTypes.GQL_START_ACK, data.id);
       this.operations.set(data.id, result);
       if (this.listeners.onStart) {
         this.listeners.onStart.call(this, data.id, {

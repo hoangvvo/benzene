@@ -8,11 +8,21 @@ Each WebSocket connection must have the subprotocol of `graphql-ws`. Otherwise, 
 
 ## Differences from [`subscriptions-transport-ws`](https://github.com/apollographql/subscriptions-transport-ws)
 
-- There is no `connection_init` (or `connectionParams`) and `connection_ack`. [How about authentication?](#authentication_and_initialization)
-- There is no `connection_terminate`. The client calls [`WebSocket.close()`](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/close) to close the connection.
-- `type = "error"` messages' `payload` fields must **always** be in [GraphQL Response Format](https://spec.graphql.org/June2018/#sec-Response-Format). It must have an `errors` field but no `data` field.
+### `connection_init` and `connection_ack`
 
-?> For compatibility, if the client sends a `type = "connection_init" `, it will still receive `type = "connection_ack"`, and if the client sends a `type = "connection_terminate"`, the connection is still closed.
+In [`subscriptions-transport-ws`](https://github.com/apollographql/subscriptions-transport-ws), it is possible to send `connectionParams` via the `type = "connection_init"` message. This is not supported in `@benzene/ws`. The client **does not** have to send a `type = "connection_init"`.
+
+?> For backward compatibility, the `@benzene/ws` will send back `type = "connection_ack"` upon receiving `type = "connection_init"` from the client. It is just that `connectionParams` will never be considered.
+
+### `connection_terminate`
+
+There is no `connection_terminate`. The client calls [`WebSocket.close()`](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/close) to close the connection.
+
+?> For backward compatibility, the connection is closed as expected upon receiving `type = "connection_terminate"` from the client.
+
+### `connection_error` and `error`
+
+In `subscription-transport-ws`, there is an inconsistency in the payload of `type = "error"` and `type = "connection_error"` messages. This protocol requires it to **always** be in [GraphQL Response Format](https://spec.graphql.org/June2018/#sec-Response-Format) (a object with an `errors` field and no `data` field).
 
 ## Client-server communication
 
@@ -36,7 +46,6 @@ Some `type` must only be used in messages sent from client to server and some ot
 type MessageType =
   | 'connection_error' // Server -> Client
   | 'start' // Client -> Server
-  | 'start_ack' // Server -> Client
   | 'data' // Server -> Client
   | 'error' // Server -> Client
   | 'complete' // Server -> Client
@@ -51,9 +60,6 @@ type MessageType =
     |                                       |
     |         Register Subscription         |
     | -------- { type = 'start' } --------> |
-    |                                       |
-    |         Register Acknowledge          |
-    | <----- { type = 'start_ack' } ------- |
     |                                       | <-- GraphQL Mutation --
     |       Subscription Notification       |
     | <------- { type = 'data' } ---------- |
@@ -67,15 +73,14 @@ type MessageType =
 
 ### Initialization
 
-To intialize, the client must open a WebSocket connection with `graphql-ws` sub-protocol.
+To intialize, the client must open a WebSocket connection with `graphql-ws` sub-protocol. The WebSocket URL may include query params.
 
 ```js
 const socket = new WebSocket("ws://localhost:8080/graphql", "graphql-ws")
+// const socket = new WebSocket("ws://localhost:8080/graphql?accessToken=abc.xyz.123", "graphql-ws")
 ```
 
-To WebSocket URL may include query params.
-
-`connectionParams` and `connection_init` in [`subscriptions_transport_ws`](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md) are not supported. See [Authentication](https://hoangvvo.github.io/benzene/#/ws/authentication) for some authentication mechanisms in their places.
+While the context is resolved, incoming messages from the client is queued.
 
 ### Start a subscription
 
@@ -96,18 +101,7 @@ The client starts a subscription by sending a `type = "start"` message with the 
 
 An `id` must be included to differentiate between different subscriptions. It is the client's responsibility to make it unique.
 
-If the subscription is successfully, the server will send back a `type = "start_ack"` with the client-defined unique id:
-
-```json
-{
-  "id": "<unique_id>",
-  "type": "start_ack"
-}
-```
-
 If the subscription is not successful, the client will receive a `type = "error"` indicates why the subscription is unsuccessful. See [Subscription error](#subscription-error).
-
-The server **does not** send back a `type = "start_ack"` in queries/mutations, where a `type = "complete"` message is followed immediately instead. 
 
 ### Subscription Data
 
