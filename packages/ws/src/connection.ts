@@ -20,17 +20,17 @@ export class SubscriptionConnection {
     private gql: GraphQL,
     public socket: WebSocket,
     public context: TContext,
-    private options: Omit<HandlerConfig, 'context'>
+    private listeners: Pick<HandlerConfig, 'onStart' | 'onComplete'>
   ) {}
 
   init() {
     // Listen to events
-    this.socket.on('message', (data) => this.handleMessage(data.toString()));
-    this.socket.on('error', () => this.handleConnectionClose());
-    this.socket.on('close', () => this.handleConnectionClose());
+    this.socket.on('message', (data) => this.onMessage(data.toString()));
+    this.socket.on('error', () => this.socket.close());
+    this.socket.on('close', () => this.onClose());
   }
 
-  handleMessage(message: string) {
+  onMessage(message: string) {
     let data: OperationMessage;
     try {
       data = JSON.parse(message);
@@ -48,7 +48,7 @@ export class SubscriptionConnection {
       // This is also compatibility-only
       // The client can simply closes using the JS API
       case MessageTypes.GQL_CONNECTION_TERMINATE:
-        this.handleConnectionClose();
+        this.socket.close(1000);
         break;
       case MessageTypes.GQL_START:
         this.handleGQLStart(
@@ -91,8 +91,8 @@ export class SubscriptionConnection {
     };
 
     if (cachedOrResult.operation !== 'subscription') {
-      if (this.options.onStart) {
-        this.options.onStart.call(this, data.id, {
+      if (this.listeners.onStart) {
+        this.listeners.onStart.call(this, data.id, {
           document: cachedOrResult.document,
           contextValue: this.context,
           variableValues: variables,
@@ -112,8 +112,8 @@ export class SubscriptionConnection {
       // An acknowledge of subscription start, DOES NOT happen in queries/mutations
       this.sendMessage(MessageTypes.GQL_START_ACK, data.id);
       this.operations.set(data.id, result);
-      if (this.options.onStart) {
-        this.options.onStart.call(this, data.id, {
+      if (this.listeners.onStart) {
+        this.listeners.onStart.call(this, data.id, {
           document: cachedOrResult.document,
           contextValue: this.context,
           variableValues: variables,
@@ -125,7 +125,8 @@ export class SubscriptionConnection {
       }
     }
     // Complete
-    if (this.options.onComplete) this.options.onComplete.call(this, data.id);
+    if (this.listeners.onComplete)
+      this.listeners.onComplete.call(this, data.id);
     this.sendMessage(MessageTypes.GQL_COMPLETE, data.id);
   }
 
@@ -139,7 +140,7 @@ export class SubscriptionConnection {
     this.operations.delete(opId);
   }
 
-  handleConnectionClose() {
+  onClose() {
     // Unsubscribe from the whole socket
     // This makes sure each async iterators are returned
     for (const opId of this.operations.keys()) this.handleGQLStop(opId);

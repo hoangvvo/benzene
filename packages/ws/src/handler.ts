@@ -52,10 +52,10 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
       onStart: options.onStart,
       onComplete: options.onComplete,
     });
-    // Flush all queued unhandled message
+    // Flush all queued message
     for (let i = 0; i < unhandledQueue.length; i += 1) {
       // FIXME: Need test for this behavior
-      connection.handleMessage(unhandledQueue[i]);
+      connection.onMessage(unhandledQueue[i]);
     }
 
     connection.init();
