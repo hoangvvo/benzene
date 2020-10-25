@@ -1,5 +1,14 @@
 # @benzene/worker
 
+## 0.1.3
+
+### Patch Changes
+
+- 2743ced: Move @benzene/persisted package into core
+- Updated dependencies [2743ced]
+- Updated dependencies [bd8beb0]
+  - @benzene/core@0.2.1
+
 ## 0.1.2
 
 ### Patch Changes

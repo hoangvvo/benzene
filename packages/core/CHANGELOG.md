@@ -1,5 +1,12 @@
 # @benzene/core
 
+## 0.2.1
+
+### Patch Changes
+
+- 2743ced: Move @benzene/persisted package into core
+- bd8beb0: handle error in subscribe() and update hooks
+
 ## 0.2.0
 
 ### Minor Changes
