@@ -142,7 +142,7 @@ export class SubscriptionConnection {
   handleConnectionClose() {
     // Unsubscribe from the whole socket
     // This makes sure each async iterators are returned
-    Object.keys(this.operations).forEach((opId) => this.handleGQLStop(opId));
+    for (const opId of this.operations.keys()) this.handleGQLStop(opId);
     this.socket.close();
   }
 
