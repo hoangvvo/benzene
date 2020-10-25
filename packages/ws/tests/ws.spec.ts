@@ -131,6 +131,10 @@ async function startServer(
           type: Notification,
           subscribe: () => emitterAsyncIterator(ee, 'NOTIFICATION_ADDED'),
         },
+        badAdded: {
+          type: GraphQLString,
+          subscribe: () => 'nope',
+        },
       },
     }),
   });
@@ -242,6 +246,7 @@ wsSuite('replies with connection_ack', async () => {
     sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT)
   );
 });
+
 wsSuite('sends updates via subscription', async () => {
   const { ws, publish } = await startServer();
   await sendStartMessage(ws, '1', {
@@ -271,6 +276,7 @@ wsSuite('sends updates via subscription', async () => {
     publish
   );
 });
+
 wsSuite('rejects socket protocol other than graphql-ws', async () => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve) => {
@@ -282,6 +288,7 @@ wsSuite('rejects socket protocol other than graphql-ws', async () => {
     ws.on('close', resolve);
   });
 });
+
 wsSuite('errors on malformed message', async () => {
   // eslint-disable-next-line no-async-promise-executor
   const { ws } = await startServer();
@@ -291,6 +298,7 @@ wsSuite('errors on malformed message', async () => {
     payload: { errors: [{ message: 'Malformed message' }] },
   });
 });
+
 wsSuite('format errors using formatError', async () => {
   const { ws, publish } = await startServer(
     {},
@@ -329,6 +337,7 @@ wsSuite('format errors using formatError', async () => {
     publish
   );
 });
+
 wsSuite('errors on empty query', async function () {
   const { ws } = await startServer();
   await expectMessage(
@@ -343,6 +352,7 @@ wsSuite('errors on empty query', async function () {
       })
   );
 });
+
 wsSuite('resolves also queries and mutations', async function () {
   // We can also add a Query test just to be sure but Mutation one only should be sufficient
   const { ws } = await startServer();
@@ -359,6 +369,39 @@ wsSuite('resolves also queries and mutations', async function () {
     }),
   ]);
 });
+
+wsSuite('errors on gql.subscribe error', async () => {
+  const { ws } = await startServer();
+  await expectMessage(
+    ws,
+    {
+      id: '1',
+      type: MessageTypes.GQL_ERROR,
+      payload: {
+        errors: [
+          {
+            message:
+              'Subscription field must return Async Iterable. Received: "nope".',
+          },
+        ],
+      },
+    },
+    () =>
+      sendStartMessage(
+        ws,
+        '1',
+        {
+          query: `
+          subscription {
+            badAdded
+          }
+        `,
+        },
+        0
+      )
+  );
+});
+
 wsSuite('errors on syntax error', async () => {
   const { ws } = await startServer();
   await expectMessage(
@@ -392,6 +435,7 @@ wsSuite('errors on syntax error', async () => {
       )
   );
 });
+
 wsSuite('resolves options.context that is an object', async () => {
   const { ws, publish } = await startServer({
     context: { user: 'Alexa' },
@@ -421,6 +465,7 @@ wsSuite('resolves options.context that is an object', async () => {
     publish
   );
 });
+
 wsSuite('resolves options.context that is a function', async () => {
   const { ws, publish } = await startServer({
     context: async () => ({
@@ -452,6 +497,7 @@ wsSuite('resolves options.context that is a function', async () => {
     publish
   );
 });
+
 wsSuite('queue messages until context is resolved', async () => {
   const { ws, publish } = await startServer({
     context: () =>
@@ -486,6 +532,7 @@ wsSuite('queue messages until context is resolved', async () => {
     publish
   );
 });
+
 wsSuite('closes connection on error in context function', async () => {
   const context = async () => {
     throw new Error('You must be authenticated!');
@@ -516,6 +563,7 @@ wsSuite('closes connection on error in context function', async () => {
     );
   });
 });
+
 wsSuite('stops subscription upon MessageTypes.GQL_STOP', async () => {
   const { ws, publish } = await startServer();
   await sendStartMessage(ws, '1', {
@@ -543,6 +591,7 @@ wsSuite('stops subscription upon MessageTypes.GQL_STOP', async () => {
     });
   });
 });
+
 // compat-only
 wsSuite('closes connection on connection_terminate', async () => {
   const { ws } = await startServer();

@@ -91,11 +91,21 @@ export class SubscriptionConnection {
       const result = await this.gql.execute(execArg, cachedOrResult.jit);
       this.sendMessage(MessageTypes.GQL_DATA, data.id, result);
     } else {
-      const result = await this.gql.subscribe(execArg, cachedOrResult.jit);
-      if (!isAsyncIterable<ExecutionResult>(result)) {
-        // Something prevents a subscription from being created properly
-        // https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md#subscription-error
-        return this.sendMessage(MessageTypes.GQL_ERROR, data.id, result);
+      let result: AsyncIterableIterator<ExecutionResult>;
+      try {
+        // @ts-ignore: This is possibly ExecutionResult, but it should not
+        // proceed after isAsyncIterable check anyway
+        result = await this.gql.subscribe(execArg, cachedOrResult.jit);
+        if (!isAsyncIterable<ExecutionResult>(result))
+          // Something prevents a subscription from being created properly
+          // such as invalid query or variables. result = ExecutionResult
+          return this.sendMessage(MessageTypes.GQL_ERROR, data.id, result);
+      } catch (error) {
+        // This error is thrown from this.gql.subscribe
+        return this.sendMessage(MessageTypes.GQL_ERROR, data.id, {
+          // TODO: Need better tracing
+          errors: [new GraphQLError(error.message)],
+        });
       }
       this.operations.set(data.id, result);
       if (this.listeners.onStart)
