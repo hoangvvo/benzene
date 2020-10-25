@@ -111,17 +111,13 @@ const wsHandle = wsHandler(GQL, {
 
 ## Hooks
 
-!> This API is experimental and may be modified/removed in a future version. See [#9](https://github.com/hoangvvo/benzene/issues/9).
+!> This API is experimental and may be modified/removed in a future version. See [#9](https://github.com/hoangvvo/benzene/issues/9). 
+
+A hook is a function that is called during different phase of a subscription. Each hook is called with `this = SubscriptionConnection` (as long as it is not a [arrow function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions)). `SubscriptionConnection` represents WebSocket connection so it stays the same during the course of the connection.
 
 ### Subscription Start
 
 When a subscription **have started** (not before, so you cannot mutate the request), `options.onStart` will be called with a unique subscription `id` and an `execArg` object containing `document`, `contextValue`, `variableValues`, and `operationName`.
-
-The function is called with `this = SubscriptionConnection` (except [arrow function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions)). 
-
-The `SubscriptionConnection` class is internal and should not be used since its components can be changed without notice. (even though `SubscriptionConnection#socket` (`WebSocket`) is fairly stable). 
-
-> You can use the instance to share states. Be aware that it can lead to memory leaks if not careful.
 
 ```js
 const CONN_STATE = Symbol('connection#state')
@@ -129,30 +125,57 @@ const CONN_STATE = Symbol('connection#state')
 const wsHandle = wsHandler(GQL, {
   onStart(id, { document, contextValue, variableValues, operationName }) {
     // Do whatever you need
-    this[CONN_STATE] = this[CONN_STATE] || {};
-    if (operationName === `onRoomUpdated`) {
-      if (!contextValue.user?.id) return;
-      setUserCurrentRoom(contextValue.user.id, variableValues.roomId)
-      this[CONN_STATE][`roomPresence`] = { subId: id, roomId: variableValues.roomId };
-    }
   }
 });
 ```
 
 ### Subscription Complete
 
-When a subscription have completed/finished, `options.onComplete` will be called with tehe unique subscription `id`. Similarly, you have access to `SubscriptionConnection` via `this`.
+When a subscription have completed/finished, `options.onComplete` will be called with tehe unique subscription `id`.
 
 ```js
 const wsHandle = wsHandler(GQL, {
-  /* Continue the above */
   onComplete(id) {
-    const roomPresence = this[CONN_STATE][`roomPresence`];
-    if (roomPresence && id === roomPresence.subId) {
-      // User unsubscribe from onRoomUpdated, meaning he/she is leaving
-      this[CONN_STATE][`roomPresence`] = null;
-      setUserCurrentRoom(contextValue.user.id, null)
-    }
+    // Do whatever you need
   }
 });
+```
+
+### Example: Take advantage of `this` to store states
+
+Since `SubscriptionConnection` instance is the same throughout the connection, you **may** use it to store states. However, you must use [Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol) to avoid overwriting internal states.
+
+!> While you can set variables to `SubscriptionConnection` instance, be aware that it can lead to memory leaks if not careful.
+
+```js
+// Use symbol to avoid overwriting internal keys
+const $onComplete = Symbol('connection#onCompleted')
+const getOnCompletedObjectFromSC = (sc) => {
+  // Initialize an object that can be use to store onComplete listeners
+  if (!sc[$onComplete]) sc[$onComplete] = {};
+  return sc[$onComplete];
+}
+
+const wsHandle = wsHandler(GQL, {
+  context: () => {
+    return {};
+  },
+  // NOTE: must not be an arrow function
+  onStart(id, { document, contextValue, variableValues, operationName }) {
+    const onCompleted = getOnCompletedObjectFromSC(this);
+    if (operationName === `onRoomUpdated`) {
+      // Someone listens to onRoomUpdated means that they are in the room
+      if (contextValue.user.id) {
+        setRoomPresence(contextValue.user.id, variableValues.roomId);
+        // Set a function to be called on `onComplete`. This will unregister the user
+        // when they no longer subscribe to this `onRoomUpdated` operation.
+        onCompleted[id] = () => unsetRoomPresence(contextValue.user.id, variableValues.roomId);
+      }
+    }
+  },
+  onComplete(id) {
+    const onCompleted = getOnCompletedObjectFromSC(this);
+    if (typeof onCompleted[id] === "function") onCompleted[id]();
+  }
+}
 ```
