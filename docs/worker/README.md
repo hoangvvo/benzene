@@ -44,7 +44,7 @@ Fetch requests to `/graphql` will now be intercepted by the registered worker.
 
 It returns a Fetch event listener handler `addEventListener('fetch', fn)`.
 
-## Building Context :id=context
+## Building Context
 
 `options.context` in `fetchHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of a function, it accepts a single argument that is [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request).
 

@@ -15,7 +15,7 @@ import { Benzene } from '@benzene/worker';
 const GQL = new Benzene(options);
 ```
 
-## Benzene instance :id=graphql
+## Benzene instance
 
 The `Benzene` constructor requires a `options` argument, which accepts the following:
 
@@ -31,9 +31,9 @@ The `schema` will be used throughout its [API](#api) and binding packages. It is
 
 Options `formatError` also applies everywhere.
 
-## Benzene methods :id=method
+## Benzene methods
 
-### `Benzene#graphql({ source, contextValue, variableValues, operationName, rootValue })` :id=api-graphql
+### `Benzene#graphql({ source, contextValue, variableValues, operationName, rootValue })`
 
 Execute the GraphQL query with:
 
@@ -63,7 +63,7 @@ const { data, error } = await GQL.graphql({
 });
 ```
 
-## Error handling and formatting :id=error-handling
+## Error handling and formatting
 
 A GraphQL execution never throws error in resolvers. When they occur, errors are put inside the `errors` array in the response. Each error is, by default, formatted according to the rules described by the [Response Format Errors section](http://spec.graphql.org/draft/#sec-Errors.Error-result-format) of the spec.
 

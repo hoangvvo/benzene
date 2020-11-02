@@ -6,7 +6,7 @@ Benzene allows flexible persisted query implementation (not just limited to the 
 
 ## Config persisted queries
 
-Add `options.persisted` when create a [GraphQL instance](/core#graphql)
+Add `options.persisted` when create a [GraphQL instance](/core)
 
 ```js
 import { Benzene } from '@benzene/server';

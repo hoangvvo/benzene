@@ -63,7 +63,7 @@ Create a handler for incoming WebSocket connection (from `wss.on('connection')`)
 | onStart | (Experimental) A function to be called when a subscription (or query/execution) started (or executed). See [`Hooks`](#hooks). | `undefined` |
 | onComplete | (Experimental) A function to be called when a subscription (or query/execution) finished (or after their execution which is immediate). See [`Hooks`](#hooks). | `undefined` |
 
-## Building Context :id=context
+## Building Context
 
 `options.context` in `wsHandler` can be used to build a context for GraphQL execution layer or even *authentication* (even though we recommend [using this approach](https://github.com/websockets/ws#client-authentication) instead). 
 
