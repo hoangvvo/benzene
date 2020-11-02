@@ -5,7 +5,6 @@ import {
   runHttpQuery,
   FormattedExecutionResult,
   HttpQueryResponse,
-  BenzeneHTTPError,
 } from '../../src';
 import { TestSchema } from '../schema.spec';
 
@@ -151,7 +150,9 @@ suitePersisted(
       persisted: {
         isPersistedQuery: () => true,
         async getQuery() {
-          throw new BenzeneHTTPError(400, 'Bad Persisted Query');
+          const error = new Error('Bad Persisted Query');
+          (error as any).status = 400;
+          throw error;
         },
       },
     });

@@ -9,5 +9,4 @@ export {
   GraphQLPersisted,
 } from './types';
 export { runHttpQuery } from './http';
-export { BenzeneError, BenzeneHTTPError } from './error';
 export * as persistedQueryPresets from './persisted/index';
