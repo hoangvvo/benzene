@@ -11,10 +11,10 @@ npm i graphql @benzene/server
 ## Usage
 
 ```js
-const { GraphQL, httpHandler } = require('@benzene/server');
-const http = require('http');
+import { Benzene, httpHandler } from '@benzene/server';
+import http from 'http';
 
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 const gqlHandle = httpHandler(GQL, options);
 
 const server = http.createServer(gqlHandle);
@@ -31,9 +31,7 @@ You can use `gqlHandle` in other compatible frameworks (those that accepts the `
 
 The `httpHandler` function returns a `requestListener` function (`(req, res) => void`).
 
-`GQL` in an instance [Benzene GraphQL instance](/core/#graphql).
-
-?> For error formatting and more, learn about Benzene's `GraphQL` class in [Core](core/).
+`GQL` in an instance [Benzene instance](/core/).
 
 `options` is optional and accepts the following:
 

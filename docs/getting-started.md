@@ -86,27 +86,25 @@ const schema = makeExecutableSchema({
 export default schema;
 ```
 
-### Create a Benzene GraphQL instance and HTTP Server
+### Create a Benzene instance and HTTP Server
 
-With our schema, create a [Benzene GraphQL instance](core/) instance with it. Let's create `server.js`:
+With our schema, create a [Benzene instance](core/) instance with it. Let's create `server.js`:
 
 ```js
-import { GraphQL } from "@benzene/server";
+import { Benzene } from "@benzene/server";
 import schema from "./schema";
 
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 ```
-
-*Note that this `GraphQL` is not related to anything in the official [graphql-js](https://github.com/graphql/graphql-js)*
 
 We then hook that instance into `httpHandler` which creates a [request listener](https://nodejs.org/api/http.html#http_http_createserver_options_requestlistener) that can be used in [`http`](https://nodejs.org/api/http.html).
 
 ```js
 import http from "http";
-import { GraphQL, httpHandler } from "@benzene/server";
+import { Benzene, httpHandler } from "@benzene/server";
 import schema from "./schema";
 
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 
 // Note: options.path is often set if using with `http` only.
 // If you use other frameworks like Express, which has its
@@ -194,11 +192,11 @@ Let's edit `server.ts`
 ```js
 import http from "http";
 import * as WebSocket from "ws";
-import { GraphQL, httpHandler } from "@benzene/server";
+import { Benzene, httpHandler } from "@benzene/server";
 import { wsHandler } from "@benzene/ws";
 import schema from "./schema";
 
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 
 const gqlHandle = httpHandler(GQL, { path: "/graphql" });
 // Add wsHandle
@@ -211,4 +209,4 @@ const wss = new WebSocket.Server({ server });
 wss.on("connection", wsHandle);
 ```
 
-As you can see, we reuse the same `GQL` instance that is used inside `httpHandler`. We also create a `ws` server instance and respond to `connection` event using the handler created by `wsHandler`.
+As you can see, we reuse the same `Benzene` instance that is used inside `httpHandler`. We also create a `ws` server instance and respond to `connection` event using the handler created by `wsHandler`.

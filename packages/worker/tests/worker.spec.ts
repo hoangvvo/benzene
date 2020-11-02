@@ -2,7 +2,7 @@ import { suite } from 'uvu';
 import assert from 'uvu/assert';
 import * as fetch from 'node-fetch';
 import { HttpQueryResponse } from '@benzene/core/src';
-import { GraphQL, fetchHandler } from '../src';
+import { Benzene, fetchHandler } from '../src';
 import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
 import { HandlerConfig } from '../src/types';
 
@@ -47,7 +47,7 @@ async function testFetch(
   request: fetch.Request,
   expected: Partial<HttpQueryResponse> | null,
   options?: HandlerConfig,
-  GQLInstance = new GraphQL({ schema: TestSchema })
+  GQLInstance = new Benzene({ schema: TestSchema })
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const fetchEvent: FetchEvent = {
@@ -137,7 +137,7 @@ suiteFetch('Ignore requests of different to options.path', () => {
       throw new Error("DON'T CALL ME!!!");
     },
   };
-  fetchHandler(new GraphQL({ schema: TestSchema }), { path: '/api' })(
+  fetchHandler(new Benzene({ schema: TestSchema }), { path: '/api' })(
     badFetchEvent
   );
 });
@@ -151,7 +151,7 @@ suiteFetch('Respond to requests to options.path', (done) => {
         return maybeResponse;
       },
     };
-    fetchHandler(new GraphQL({ schema: TestSchema }), { path: '/api' })(
+    fetchHandler(new Benzene({ schema: TestSchema }), { path: '/api' })(
       correctFetchEvent
     );
   });

@@ -1,7 +1,7 @@
 import { suite } from 'uvu';
 import assert from 'uvu/assert';
 import {
-  GraphQL,
+  Benzene,
   runHttpQuery,
   FormattedExecutionResult,
   HttpQueryResponse,
@@ -18,7 +18,7 @@ const TestPersisted = {
   },
 };
 
-const GQL = new GraphQL({
+const GQL = new Benzene({
   schema: TestSchema,
   persisted: TestPersisted,
 });
@@ -67,7 +67,7 @@ const suitePersisted = suite('GraphQL#persisted');
 
 suitePersisted('Allows options.persisted to be set', () => {
   const persisted = {} as any;
-  const GQL = new GraphQL({
+  const GQL = new Benzene({
     schema: TestSchema,
     persisted,
   });
@@ -118,7 +118,7 @@ suitePersisted('Allows persisted#getQuery to returns undefined', async () => {
 });
 
 suitePersisted('Catches errors throw in persisted#getQuery', async () => {
-  const GQL = new GraphQL({
+  const GQL = new Benzene({
     schema: TestSchema,
     persisted: {
       isPersistedQuery: () => true,
@@ -146,7 +146,7 @@ suitePersisted('Catches errors throw in persisted#getQuery', async () => {
 suitePersisted(
   'Uses error.status of error thrown in persisted#getQuery',
   async () => {
-    const GQL = new GraphQL({
+    const GQL = new Benzene({
       schema: TestSchema,
       persisted: {
         isPersistedQuery: () => true,

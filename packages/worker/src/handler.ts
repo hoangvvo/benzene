@@ -1,7 +1,7 @@
-import { GraphQL, runHttpQuery, TContext } from '@benzene/core';
+import { Benzene, runHttpQuery, TContext } from '@benzene/core';
 import { HandlerConfig } from './types';
 
-export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
+export function createHandler(gql: Benzene, options: HandlerConfig = {}) {
   async function handleRequest(request: Request) {
     const queryParams: { [key: string]: string } = {};
 

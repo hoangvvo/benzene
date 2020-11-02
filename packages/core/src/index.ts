@@ -1,4 +1,4 @@
-export { GraphQL } from './core';
+export { Benzene } from './core';
 export {
   GraphQLParams,
   HttpQueryRequest,

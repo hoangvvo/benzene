@@ -1,4 +1,4 @@
-import { GraphQL, handleRequest } from '@benzene/worker';
+import { Benzene, handleRequest } from '@benzene/worker';
 import schema from 'pokemon-graphql-schema';
 
 addEventListener('install', function (event) {
@@ -9,7 +9,7 @@ addEventListener('activate', function (event) {
   event.waitUntil(self.clients.claim()); // Become available to all pages
 });
 
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 
 addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);

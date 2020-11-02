@@ -3,7 +3,7 @@ import assert from 'uvu/assert';
 import crypto from 'crypto';
 import lru from 'tiny-lru';
 import {
-  GraphQL,
+  Benzene,
   runHttpQuery,
   FormattedExecutionResult,
   HttpQueryResponse,
@@ -11,10 +11,10 @@ import {
 } from '../../src';
 import { TestSchema } from '../schema.spec';
 
-const sha256 = (query) =>
+const sha256 = (query: string) =>
   crypto.createHash('sha256').update(query).digest('hex');
 
-const GQL = new GraphQL({
+const GQL = new Benzene({
   schema: TestSchema,
   persisted: persistedQueryPresets.automatic({ sha256 }),
 });
@@ -63,7 +63,7 @@ const suiteAuto = suite('PersistedAutomatic');
 
 suiteAuto('Bypass if isPersistedQuery returns false', async () => {
   const persistedAuto = persistedQueryPresets.automatic({ sha256 });
-  const GQL = new GraphQL({
+  const GQL = new Benzene({
     schema: TestSchema,
     persisted: persistedAuto,
   });
@@ -173,7 +173,7 @@ suiteAuto('Saves query by hash sent from clients', async () => {
       },
     },
     { body: { data: { test: 'Hello World' } } },
-    new GraphQL({ schema: TestSchema, persisted: auto })
+    new Benzene({ schema: TestSchema, persisted: auto })
   );
   assert.is(cache.get(`apq:${sha256Hash}`), '{test}');
 });
@@ -197,7 +197,7 @@ suiteAuto('Throws error if client provided hash256 is mismatched', async () => {
       status: 400,
       body: { errors: [{ message: 'provided sha does not match query' }] },
     },
-    new GraphQL({ schema: TestSchema, persisted: auto })
+    new Benzene({ schema: TestSchema, persisted: auto })
   );
 });
 
@@ -220,7 +220,7 @@ suiteAuto('Returns query using stored hash256', async () => {
       },
     },
     { body: { data: { test: 'Hello World' } } },
-    new GraphQL({ schema: TestSchema, persisted: auto })
+    new Benzene({ schema: TestSchema, persisted: auto })
   );
 });
 

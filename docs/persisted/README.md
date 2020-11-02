@@ -9,9 +9,9 @@ Benzene allows flexible persisted query implementation (not just limited to the 
 Add `options.persisted` when create a [GraphQL instance](/core#graphql)
 
 ```js
-import { GraphQL } from '@benzene/server';
+import { Benzene } from '@benzene/server';
 
-const GQL = new GraphQL({
+const GQL = new Benzene({
   persisted: YourGraphQLPersistedInterface,
 });
 ```
@@ -36,7 +36,7 @@ There are two options. You can either use the built in presets  or [create a cus
 
 ## Built-in persisted queries presets
 
-`@benzene/core` contains several persisted queries presets in the `persistedQueryPresets` object, which are reexported in other packages (`@benzene/server`, `@benzene/ws`, `@benzene/worker`).
+`@benzene/core` contains several persisted queries presets in the `persistedQueryPresets` object, which are reexported in all packages (`@benzene/server`, `@benzene/ws`, `@benzene/worker`).
 
 ```js
 import { persistedQueryPresets } from '@benzene/server';
@@ -60,12 +60,12 @@ persistedQueryPresets.automatic(options)
 | cache | An optional cache that implements `get`, `set`, and `delete` methods ([Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map)-like) | `tiny-lru` |
 
 ```js
-import { GraphQL, persistedQueryPresets } from '@benzene/server';
+import { Benzene, persistedQueryPresets } from '@benzene/server';
 import crypto from 'crypto';
 
 const sha256 = (query) => crypto.createHash('sha256').update(query).digest('hex');
 
-const GQL = new GraphQL({
+const GQL = new Benzene({
   persisted: persistedQueryPresets.automatic({ sha256 }),
 });
 ```
@@ -79,7 +79,7 @@ A `GraphQLPersisted` is an object or instance that contains two methods:
 
 See [PersistedAutomatic](https://github.com/hoangvvo/benzene/blob/main/packages/persisted/src/automatic.ts), which implements [Apollo APQ](https://www.apollographql.com/docs/apollo-server/performance/apq/).
 
-The sections below also explore a custom persisted queries implementation. Note that this implementation is just an example and not used in any GraphQL client.
+The sections below also explore a custom persisted queries implementation. Note that this implementation is just an example and is not actually used in any GraphQL client.
 
 ### Send a hash instead of full queries
 
@@ -117,7 +117,7 @@ const queryMap = {
     }`,
 };
 
-const GQL = new GraphQL({
+const GQL = new Benzene({
   persisted: {
     isPersistedQuery: (params) => params.extensions?.isPersisted === true,
     getQuery: (params) => queryMap[params.extensions.hash],
@@ -158,14 +158,14 @@ The client can opt-out of persisted query by not including `isPersisted` in `ext
 
 The nature of GraphQL allows the client to send any GraphQL query it wants. This can be bad because a malicious actor may send a complex query to DDOS the server. 
 
-Beside using tools like GraphQL cost or depth calculator, a workaround is to reject any arbitrary `query` and instead only allow known persisted queries.
+Beside using tools like cost or depth calculator, a workaround is to reject any arbitrary `query` and instead only allow known persisted queries.
 
 ```js
 const queryMap = {
   '<hash>': '<query>'
 }
 
-const GQL = new GraphQL({
+const GQL = new Benzene({
   persisted: {
     isPersistedQuery: (params) => true,
     getQuery: (params) => {

@@ -3,7 +3,7 @@ import { suite } from 'uvu';
 import assert from 'uvu/assert';
 import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
 import {
-  GraphQL,
+  Benzene,
   HttpQueryResponse,
   runHttpQuery,
   FormattedExecutionResult,
@@ -42,7 +42,7 @@ const TestSchema = new GraphQLSchema({
   }),
 });
 
-const GQL = new GraphQL({ schema: TestSchema });
+const GQL = new Benzene({ schema: TestSchema });
 
 function stringifyURLParams(urlParams?: { [param: string]: string }): string {
   return new URLSearchParams(urlParams).toString();
@@ -291,7 +291,7 @@ suiteGet('Allows passing in a context', async () => {
         },
       },
     },
-    new GraphQL({ schema })
+    new Benzene({ schema })
   );
 });
 
@@ -485,7 +485,7 @@ suitePost('allows for pre-parsed POST bodies', () => {
       stringifyBody: false,
     },
     { body: { data: { test: 'test' } } },
-    new GraphQL({ schema })
+    new Benzene({ schema })
   );
 });
 // allows for pre-parsed POST bodies
@@ -543,7 +543,7 @@ suiteError('allows for custom error formatting to sanitize', () => {
         ],
       },
     },
-    new GraphQL({
+    new Benzene({
       schema: TestSchema,
       formatError(error) {
         return { message: 'Custom error format: ' + error.message };
@@ -573,7 +573,7 @@ suiteError('allows for custom error formatting to elaborate', async () => {
         ],
       },
     },
-    new GraphQL({
+    new Benzene({
       schema: TestSchema,
       formatError(error) {
         return {

@@ -1,5 +1,5 @@
 const express = require('express');
-const { GraphQL, httpHandler } = require('@benzene/server');
+const { Benzene, httpHandler } = require('@benzene/server');
 const expressPlayground = require('graphql-playground-middleware-express')
   .default;
 const schema = require('pokemon-graphql-schema');
@@ -7,7 +7,7 @@ const schema = require('pokemon-graphql-schema');
 // Polyfill fetch
 global.fetch = require('node-fetch');
 
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 
 const app = express();
 

@@ -22,7 +22,7 @@ import {
   SubscriptionArgs,
   ExecutionResult,
 } from 'graphql';
-import { GraphQL } from '../src';
+import { Benzene } from '../src';
 import { isAsyncIterable } from '../src/utils';
 import { compileQuery, isCompiledQuery } from '@hoangvvo/graphql-jit';
 
@@ -111,7 +111,7 @@ async function subscribe(
   args: SubscriptionArgs
 ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
   // Will be change in the next version
-  const GQL = new GraphQL({
+  const GQL = new Benzene({
     schema: args.schema,
   });
 

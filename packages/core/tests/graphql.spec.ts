@@ -7,10 +7,10 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
-import { GraphQL } from '../src';
+import { Benzene } from '../src';
 import { TestSchema } from './schema.spec';
 
-const GQL = new GraphQL({ schema: TestSchema });
+const GQL = new Benzene({ schema: TestSchema });
 
 const suiteGraphql = suite('GraphQL#graphql');
 
@@ -125,7 +125,7 @@ suiteGraphql('Allows passing in a context', () => {
         test: 'testValue',
       },
     },
-    new GraphQL({ schema })
+    new Benzene({ schema })
   );
 });
 
@@ -145,7 +145,7 @@ suiteGraphql('allows passing in a rootValue', () => {
   return testGraphql(
     { source: 'query { test }', rootValue },
     { data: { test: 'testValue' } },
-    new GraphQL({ schema })
+    new Benzene({ schema })
   );
 });
 

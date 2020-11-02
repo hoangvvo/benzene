@@ -25,7 +25,7 @@ import {
   GraphQLPersisted,
 } from './types';
 
-export class GraphQL {
+export class Benzene {
   private lru: Lru<QueryCache>;
   public schema: GraphQLSchema;
   protected options: Config;

@@ -5,21 +5,19 @@
 The main export is `GraphQL`, which can be used to create a Benzene "GraphQL" instance. This is re-exported from each binding package and can be shared across them.
 
 ```js
-const { GraphQL } = require('@benzene/server');
+import { Benzene } from '@benzene/server';
 // or
-const { GraphQL } = require('@benzene/ws');
+import { GraphQL } from '@benzene/ws';
 // or
-const { GraphQL } = require('@benzene/worker');
+import { GraphQL } from '@benzene/worker';
 
 // Create the instance
-const GQL = new GraphQL(options);
+const GQL = new Benzene(options);
 ```
 
-!> Despite the name, `GraphQL` from `@benzene/core` is **not related** to anything in the official [graphql-js](https://github.com/graphql/graphql-js).
+## Benzene instance :id=graphql
 
-## GraphQL instance :id=graphql
-
-The `GraphQL` constructor requires a `options` argument, which accepts the following:
+The `Benzene` constructor requires a `options` argument, which accepts the following:
 
 | options | description | default |
 |---------|-------------|---------|
@@ -33,9 +31,9 @@ The `schema` will be used throughout its [API](#api) and binding packages. It is
 
 Options `formatError` also applies everywhere.
 
-## GraphQL methods :id=method
+## Benzene methods :id=method
 
-### `GraphQL#graphql({ source, contextValue, variableValues, operationName, rootValue })` :id=api-graphql
+### `Benzene#graphql({ source, contextValue, variableValues, operationName, rootValue })` :id=api-graphql
 
 Execute the GraphQL query with:
 
@@ -72,7 +70,7 @@ A GraphQL execution never throws error in resolvers. When they occur, errors are
 `options.formatError` can be defined to replace the default error formatter for purposes such as avoiding exposing exploitable environment states. You can also log errors in `formatError` for debugging purposes.
 
 ```js
-const GQL = new GraphQL({
+const GQL = new Benzene({
   formatError: (err) => {
     // Don't give the specific errors to the client.
     if (err.message.startsWith('FatalErrorThatMayExposeEnvironment: ')) {

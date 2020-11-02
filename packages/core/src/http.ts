@@ -1,4 +1,4 @@
-import { GraphQL } from './core';
+import { Benzene } from './core';
 import { HttpQueryRequest, HttpQueryResponse, GraphQLParams } from './types';
 import flatstr from 'flatstr';
 import { ExecutionResult, GraphQLError } from 'graphql';
@@ -58,7 +58,7 @@ function getGraphQLParams({
 }
 
 function createResponse(
-  gql: GraphQL,
+  gql: Benzene,
   code: number,
   obj: ExecutionResult
 ): HttpQueryResponse {
@@ -70,7 +70,7 @@ function createResponse(
 }
 
 export async function runHttpQuery(
-  gql: GraphQL,
+  gql: Benzene,
   request: HttpQueryRequest
 ): Promise<HttpQueryResponse> {
   let body: Record<string, any> | null;

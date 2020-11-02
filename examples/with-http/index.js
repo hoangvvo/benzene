@@ -1,10 +1,10 @@
 const http = require('http');
-const { GraphQL, httpHandler } = require('@benzene/server');
+const { Benzene, httpHandler } = require('@benzene/server');
 const schema = require('pokemon-graphql-schema');
 
 global.fetch = require('node-fetch');
 
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 
 const server = http.createServer(httpHandler(GQL, { path: '/graphql' }));
 

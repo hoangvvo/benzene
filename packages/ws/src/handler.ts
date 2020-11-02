@@ -1,11 +1,11 @@
-import { GraphQL, TContext } from '@benzene/core';
+import { Benzene, TContext } from '@benzene/core';
 import { IncomingMessage } from 'http';
 import * as WebSocket from 'ws';
 import { SubscriptionConnection } from './connection';
 import MessageTypes, { GRAPHQL_WS } from './messageTypes';
 import { HandlerConfig } from './types';
 
-export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
+export function createHandler(gql: Benzene, options: HandlerConfig = {}) {
   return async function connection(
     socket: WebSocket,
     request: IncomingMessage
