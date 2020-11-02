@@ -6,7 +6,7 @@ export {
   FormattedExecutionResult,
   ValueOrPromise,
   TContext,
-  GraphQLPersisted,
+  BenzenePersisted,
 } from './types';
 export { runHttpQuery } from './http';
 export * as persistedQueryPresets from './persisted/index';

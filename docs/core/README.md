@@ -7,9 +7,9 @@ The main export is `GraphQL`, which can be used to create a Benzene "GraphQL" in
 ```js
 import { Benzene } from '@benzene/server';
 // or
-import { GraphQL } from '@benzene/ws';
+import { Benzene } from '@benzene/ws';
 // or
-import { GraphQL } from '@benzene/worker';
+import { Benzene } from '@benzene/worker';
 
 // Create the instance
 const GQL = new Benzene(options);

@@ -1,13 +1,13 @@
 import { GraphQLError } from 'graphql';
 import lru from 'tiny-lru';
-import { GraphQLPersisted, KeyValueStore, ValueOrPromise } from '../types';
+import { BenzenePersisted, KeyValueStore, ValueOrPromise } from '../types';
 
 const APQ_CACHE_PREFIX = 'apq:';
 
 export default function persistedAutomatic(options: {
   cache?: KeyValueStore;
   sha256: (query: string) => ValueOrPromise<string>;
-}): GraphQLPersisted {
+}): BenzenePersisted {
   const cache = options.cache || lru(1024);
   return {
     isPersistedQuery(params) {

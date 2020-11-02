@@ -12,14 +12,14 @@ Add `options.persisted` when create a [GraphQL instance](/core#graphql)
 import { Benzene } from '@benzene/server';
 
 const GQL = new Benzene({
-  persisted: YourGraphQLPersistedInterface,
+  persisted: YourPersistedInterface,
 });
 ```
 
-`options.persisted` accepts a `GraphQLPersisted` interface:
+`options.persisted` accepts a `BenzenePersisted` interface:
 
 ```ts
-interface GraphQLPersisted {
+interface BenzenePersisted {
   isPersistedQuery: (params: GraphQLParams) => boolean;
   getQuery: (params: GraphQLParams) => ValueOrPromise<string | undefined>;
 }
@@ -72,7 +72,7 @@ const GQL = new Benzene({
 
 ## Custom implementation
 
-A `GraphQLPersisted` is an object or instance that contains two methods:
+A `BenzenePersisted` is an object or instance that contains two methods:
 
 - `isPersistedQuery` that takes `GraphQLParams`, where `GraphQLParams` is an object containing `query`, `variables`, `operationName`, and `extensions`, and returns a boolean determining if the query is a persisted query.
 - `getQuery` that takes the same `GraphQLParams` object and returns the `query` string or `undefined`. It can also throw an error to return a response early, with status code set to `error.status`.

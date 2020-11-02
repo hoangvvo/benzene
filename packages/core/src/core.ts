@@ -22,14 +22,14 @@ import {
   QueryCache,
   FormattedExecutionResult,
   ValueOrPromise,
-  GraphQLPersisted,
+  BenzenePersisted,
 } from './types';
 
 export class Benzene {
   private lru: Lru<QueryCache>;
   public schema: GraphQLSchema;
   protected options: Config;
-  persisted?: GraphQLPersisted;
+  persisted?: BenzenePersisted;
 
   constructor(options: Config) {
     // validate options
