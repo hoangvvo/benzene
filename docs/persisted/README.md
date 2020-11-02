@@ -173,7 +173,7 @@ const GQL = new Benzene({
       if (query) return query;
       // Throw an error otherwise
       const err = new Error('Only known persisted query allowed');
-      err.status = 400;
+      error.status = 400;
       throw err;
     },
   },

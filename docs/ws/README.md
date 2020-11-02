@@ -24,7 +24,7 @@ npm i ws
 
 Create a [WebSocket.Server](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocketserver) instance and uses `wsHandler` to handle its `connection` event.
 
-When being called with a [Benzene GraphQL instance](/core/) instance, `wsHandler` returns a `connection` listener handler function (`(socket, request) => void`).
+When being called with a [Benzene instance](/core/) instance, `wsHandler` returns a `connection` listener handler function (`(socket, request) => void`).
 
 ```js
 import * as WebSocket from 'ws';

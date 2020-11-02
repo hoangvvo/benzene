@@ -95,8 +95,8 @@ export async function runHttpQuery(
   if (gql.persisted?.isPersistedQuery(params)) {
     try {
       params.query = await gql.persisted.getQuery(params);
-    } catch (err) {
-      return createResponse(gql, err.status || 500, { errors: [err] });
+    } catch (error) {
+      return createResponse(gql, error.status || 500, { errors: [error] });
     }
   }
 
