@@ -1,4 +1,4 @@
-export { Benzene } from './core';
+export { default as Benzene } from './core';
 export {
   GraphQLParams,
   HttpQueryRequest,

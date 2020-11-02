@@ -7,7 +7,7 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql';
-import { Benzene } from '../src';
+import Benzene from '../src/core';
 import { TestSchema } from './schema.spec';
 
 const GQL = new Benzene({ schema: TestSchema });

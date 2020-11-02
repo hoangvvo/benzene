@@ -1,4 +1,4 @@
-import { Benzene } from './core';
+import Benzene from './core';
 import { HttpQueryRequest, HttpQueryResponse, GraphQLParams } from './types';
 import flatstr from 'flatstr';
 import { ExecutionResult, GraphQLError } from 'graphql';

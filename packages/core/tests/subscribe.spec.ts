@@ -22,7 +22,7 @@ import {
   SubscriptionArgs,
   ExecutionResult,
 } from 'graphql';
-import { Benzene } from '../src';
+import Benzene from '../src/core';
 import { isAsyncIterable } from '../src/utils';
 import { compileQuery, isCompiledQuery } from '@hoangvvo/graphql-jit';
 

@@ -25,7 +25,7 @@ import {
   BenzenePersisted,
 } from './types';
 
-export class Benzene {
+export default class Benzene {
   private lru: Lru<QueryCache>;
   public schema: GraphQLSchema;
   protected options: Config;
