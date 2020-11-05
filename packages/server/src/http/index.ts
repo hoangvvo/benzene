@@ -1,1 +1,1 @@
-export { createHandler } from './handler';
+export { httpHandler } from './handler';

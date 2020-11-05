@@ -3,15 +3,18 @@ import { parse as parseQS } from 'querystring';
 import { readBody } from './readBody';
 import { HandlerConfig } from './types';
 import { IncomingMessage, ServerResponse } from 'http';
+import { GraphQLError } from 'graphql';
 
-export function createHandler(gql: Benzene, options: HandlerConfig = {}) {
+export function httpHandler(gql: Benzene, options: HandlerConfig = {}) {
   function sendResponse(res: ServerResponse, result: HTTPResponse) {
-    res.writeHead(result.status, result.headers).end(result.body);
+    res
+      .writeHead(result.status, result.headers)
+      .end(JSON.stringify(result.payload));
   }
   function sendErrorResponse(res: ServerResponse, error: any) {
     sendResponse(res, {
       status: error.status || 500,
-      body: JSON.stringify(gql.formatExecutionResult({ errors: [error] })),
+      payload: gql.formatExecutionResult({ errors: [error] }),
       headers: { 'content-type': 'application/json' },
     });
   }
@@ -25,7 +28,11 @@ export function createHandler(gql: Benzene, options: HandlerConfig = {}) {
       (req.path || (idx !== -1 ? req.url!.substring(0, idx) : req.url)) !==
         options.path
     )
-      return sendResponse(res, { status: 404, body: 'not found', headers: {} });
+      return sendResponse(res, {
+        status: 404,
+        payload: { errors: [new GraphQLError('not found')] },
+        headers: {},
+      });
     readBody(req, async (body) => {
       let context;
       if (options.context)

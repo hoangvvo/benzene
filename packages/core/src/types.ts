@@ -32,7 +32,7 @@ export interface HTTPRequest {
 
 export interface HTTPResponse {
   status: number;
-  body: string;
+  payload: FormattedExecutionResult;
   headers: Record<string, string>;
 }
 

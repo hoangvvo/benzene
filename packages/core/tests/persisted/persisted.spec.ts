@@ -1,11 +1,7 @@
 import { suite } from 'uvu';
 import assert from 'uvu/assert';
-import {
-  Benzene,
-  runHttpQuery,
-  FormattedExecutionResult,
-  HTTPResponse,
-} from '../../src';
+import { Benzene } from '../../src';
+import { httpTest as oHttpTest } from '../http.spec';
 import { TestSchema } from '../schema.spec';
 
 const TestPersisted = {
@@ -22,46 +18,8 @@ const GQL = new Benzene({
   persisted: TestPersisted,
 });
 
-async function httpTest(
-  httpParams: {
-    method: string;
-    body?: string | any;
-    queryParams?: { [key: string]: string };
-    context?: any;
-    headers?: Record<string, string>;
-    stringifyBody?: boolean;
-  },
-  expected: Partial<Omit<HTTPResponse, 'body'>> & {
-    body?: FormattedExecutionResult | string;
-  },
-  GQLInstance = GQL
-) {
-  expected.body =
-    (typeof expected.body === 'object'
-      ? JSON.stringify(expected.body)
-      : expected.body) || '';
-  expected.status = expected.status || 200;
-  expected.headers = expected.headers || { 'content-type': 'application/json' };
-
-  assert.equal(
-    await runHttpQuery(GQLInstance, {
-      body:
-        typeof httpParams.body === 'object' &&
-        httpParams.stringifyBody !== false
-          ? JSON.stringify(httpParams.body)
-          : httpParams.body,
-      queryParams: httpParams.queryParams || null,
-      headers: httpParams.headers || {
-        'content-type':
-          typeof httpParams.body === 'object' ? 'application/json' : '',
-      },
-      context: httpParams.context,
-      httpMethod: httpParams.method,
-    }),
-    expected
-  );
-}
-
+const httpTest = (httpParams, expected, GQLInstance = GQL) =>
+  oHttpTest(httpParams, expected, GQLInstance);
 const suitePersisted = suite('GraphQL#persisted');
 
 suitePersisted('Allows options.persisted to be set', () => {
@@ -79,7 +37,7 @@ suitePersisted('Gets query using persisted#getQuery', async () => {
       method: 'POST',
       body: { extensions: { persisted: true, query: '{test}' } },
     },
-    { body: { data: { test: 'Hello World' } } }
+    { payload: { data: { test: 'Hello World' } } }
   );
 });
 
@@ -93,8 +51,14 @@ suitePersisted(
       },
       {
         status: 400,
-        body: {
-          errors: [{ message: 'Must provide query string.' }],
+        payload: {
+          errors: [
+            {
+              message: 'Must provide query string.',
+              locations: undefined,
+              path: undefined,
+            },
+          ],
         },
       }
     );
@@ -109,8 +73,14 @@ suitePersisted('Allows persisted#getQuery to returns undefined', async () => {
     },
     {
       status: 400,
-      body: {
-        errors: [{ message: 'Must provide query string.' }],
+      payload: {
+        errors: [
+          {
+            message: 'Must provide query string.',
+            locations: undefined,
+            path: undefined,
+          },
+        ],
       },
     }
   );
@@ -134,8 +104,8 @@ suitePersisted('Catches errors throw in persisted#getQuery', async () => {
     },
     {
       status: 500,
-      body: {
-        errors: [{ message: 'Throws' }],
+      payload: {
+        errors: [{ message: 'Throws', locations: undefined, path: undefined }],
       },
     },
     GQL
@@ -164,8 +134,14 @@ suitePersisted(
       },
       {
         status: 400,
-        body: {
-          errors: [{ message: 'Bad Persisted Query' }],
+        payload: {
+          errors: [
+            {
+              message: 'Bad Persisted Query',
+              locations: undefined,
+              path: undefined,
+            },
+          ],
         },
       },
       GQL

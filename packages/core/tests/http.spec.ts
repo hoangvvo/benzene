@@ -2,12 +2,7 @@
 import { suite } from 'uvu';
 import assert from 'uvu/assert';
 import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
-import {
-  Benzene,
-  HTTPResponse,
-  runHttpQuery,
-  FormattedExecutionResult,
-} from '../src';
+import { Benzene, HTTPResponse, runHttpQuery } from '../src';
 
 const QueryRootType = new GraphQLObjectType({
   name: 'QueryRoot',
@@ -48,7 +43,7 @@ function stringifyURLParams(urlParams?: { [param: string]: string }): string {
   return new URLSearchParams(urlParams).toString();
 }
 
-async function httpTest(
+export async function httpTest(
   httpParams: {
     method: string;
     body?: string | any;
@@ -57,15 +52,9 @@ async function httpTest(
     headers?: Record<string, string>;
     stringifyBody?: boolean;
   },
-  expected: Partial<Omit<HTTPResponse, 'body'>> & {
-    body?: FormattedExecutionResult | string;
-  },
+  expected: Partial<HTTPResponse>,
   GQLInstance = GQL
 ) {
-  expected.body =
-    (typeof expected.body === 'object'
-      ? JSON.stringify(expected.body)
-      : expected.body) || '';
   expected.status = expected.status || 200;
   expected.headers = expected.headers || { 'content-type': 'application/json' };
 
@@ -94,7 +83,7 @@ suiteGet('allows GET with query param', () => {
   return httpTest(
     { method: 'GET', queryParams: { query: '{test}' } },
     {
-      body: { data: { test: 'Hello World' } },
+      payload: { data: { test: 'Hello World' } },
     }
   );
 });
@@ -108,7 +97,7 @@ suiteGet('allows GET with variable values', () => {
         variables: JSON.stringify({ who: 'Dolly' }),
       },
     },
-    { body: { data: { test: 'Hello Dolly' } } }
+    { payload: { data: { test: 'Hello Dolly' } } }
   );
 });
 
@@ -129,7 +118,7 @@ suiteGet('allows GET with operation name', () => {
       },
     },
     {
-      body: {
+      payload: {
         data: {
           test: 'Hello World',
           shared: 'Hello Everyone',
@@ -148,15 +137,17 @@ suiteGet('Reports validation errors', () => {
       },
     },
     {
-      body: {
+      payload: {
         errors: [
           {
             message: 'Cannot query field "unknownOne" on type "QueryRoot".',
             locations: [{ line: 1, column: 9 }],
+            path: undefined,
           },
           {
             message: 'Cannot query field "unknownTwo" on type "QueryRoot".',
             locations: [{ line: 1, column: 21 }],
+            path: undefined,
           },
         ],
       },
@@ -178,11 +169,13 @@ suiteGet('Errors when missing operation name', () => {
     },
     {
       status: 400,
-      body: {
+      payload: {
         errors: [
           {
             message:
               'Must provide operation name if query contains multiple operations.',
+            locations: undefined,
+            path: undefined,
           },
         ],
       },
@@ -200,11 +193,13 @@ suiteGet('Errors when sending a mutation via GET', () => {
     },
     {
       status: 405,
-      body: {
+      payload: {
         errors: [
           {
             message:
               'Can only perform a mutation operation from a POST request.',
+            locations: undefined,
+            path: undefined,
           },
         ],
       },
@@ -226,11 +221,13 @@ suiteGet('Errors when selecting a mutation within a GET', () => {
     },
     {
       status: 405,
-      body: {
+      payload: {
         errors: [
           {
             message:
               'Can only perform a mutation operation from a POST request.',
+            locations: undefined,
+            path: undefined,
           },
         ],
       },
@@ -251,7 +248,7 @@ suiteGet('Allows a mutation to exist within a GET', () => {
       },
     },
     {
-      body: {
+      payload: {
         data: {
           test: 'Hello World',
         },
@@ -285,7 +282,7 @@ suiteGet('Allows passing in a context', async () => {
       context: 'testValue',
     },
     {
-      body: {
+      payload: {
         data: {
           test: 'testValue',
         },
@@ -302,7 +299,7 @@ const suitePost = suite('POST functionality');
 suitePost('allows POST with JSON encoding', async () => {
   return httpTest(
     { method: 'POST', body: { query: '{test}' } },
-    { body: { data: { test: 'Hello World' } } }
+    { payload: { data: { test: 'Hello World' } } }
   );
 });
 
@@ -315,7 +312,7 @@ suitePost('alows POST with JSON encoding with additional directives', () => {
         'content-type': 'application/json; charset=UTF-8',
       },
     },
-    { body: { data: { test: 'Hello World' } } }
+    { payload: { data: { test: 'Hello World' } } }
   );
 });
 
@@ -325,7 +322,7 @@ suitePost('Allows sending a mutation via POST', async () => {
       method: 'POST',
       body: { query: 'mutation TestMutation { writeTest { test } }' },
     },
-    { body: { data: { writeTest: { test: 'Hello World' } } } }
+    { payload: { data: { writeTest: { test: 'Hello World' } } } }
   );
 });
 
@@ -336,7 +333,7 @@ suitePost('Allows POST with url encoding', async () => {
       body: stringifyURLParams({ query: '{test}' }),
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
     },
-    { body: { data: { test: 'Hello World' } } }
+    { payload: { data: { test: 'Hello World' } } }
   );
 });
 
@@ -352,7 +349,7 @@ suitePost('supports POST JSON query with JSON variables', async () => {
       },
     },
     {
-      body: { data: { test: 'Hello Dolly' } },
+      payload: { data: { test: 'Hello Dolly' } },
     }
   );
 });
@@ -369,7 +366,7 @@ suitePost('supports POST JSON query with GET variable values', () => {
       body: { query: 'query helloWho($who: String){ test(who: $who) }' },
     },
     {
-      body: { data: { test: 'Hello Dolly' } },
+      payload: { data: { test: 'Hello Dolly' } },
     }
   );
 });
@@ -386,7 +383,7 @@ suitePost('supports POST url encoded query with GET variable values', () => {
       }),
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
     },
-    { body: { data: { test: 'Hello Dolly' } } }
+    { payload: { data: { test: 'Hello Dolly' } } }
   );
 });
 
@@ -402,7 +399,7 @@ suitePost('supports POST raw text query with GET variable values', () => {
       }),
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
     },
-    { body: { data: { test: 'Hello Dolly' } } }
+    { payload: { data: { test: 'Hello Dolly' } } }
   );
 });
 
@@ -423,7 +420,7 @@ suitePost('allows POST with operation name', async () => {
       },
     },
     {
-      body: {
+      payload: {
         data: {
           test: 'Hello World',
           shared: 'Hello Everyone',
@@ -451,7 +448,7 @@ suitePost('allows POST with GET operation name', async () => {
       headers: { 'content-type': 'application/graphql' },
     },
     {
-      body: {
+      payload: {
         data: {
           test: 'Hello World',
           shared: 'Hello Everyone',
@@ -484,7 +481,7 @@ suitePost('allows for pre-parsed POST bodies', () => {
       body: { query: 'query { test }' },
       stringifyBody: false,
     },
-    { body: { data: { test: 'test' } } },
+    { payload: { data: { test: 'test' } } },
     new Benzene({ schema })
   );
 });
@@ -509,7 +506,7 @@ suiteError('handles field errors caught by GraphQL', async () => {
     },
     {
       status: 200,
-      body: {
+      payload: {
         data: { thrower: null },
         errors: [
           {
@@ -534,7 +531,7 @@ suiteError('allows for custom error formatting to sanitize', () => {
       },
     },
     {
-      body: {
+      payload: {
         data: { thrower: null },
         errors: [
           {
@@ -561,7 +558,7 @@ suiteError('allows for custom error formatting to elaborate', async () => {
       },
     },
     {
-      body: {
+      payload: {
         data: { thrower: null },
         errors: [
           {
@@ -596,11 +593,12 @@ suiteError('handles syntax errors caught by GraphQL', async () => {
     },
     {
       status: 400,
-      body: {
+      payload: {
         errors: [
           {
             message: 'Syntax Error: Unexpected Name "syntax_error".',
             locations: [{ line: 1, column: 1 }],
+            path: undefined,
           },
         ],
       },
@@ -613,8 +611,14 @@ suiteError('handles errors caused by a lack of query', async () => {
     { method: 'GET' },
     {
       status: 400,
-      body: {
-        errors: [{ message: 'Must provide query string.' }],
+      payload: {
+        errors: [
+          {
+            message: 'Must provide query string.',
+            locations: undefined,
+            path: undefined,
+          },
+        ],
       },
     }
   );
@@ -630,8 +634,14 @@ suiteError('handles incomplete JSON bodies', async () => {
     },
     {
       status: 400,
-      body: {
-        errors: [{ message: 'POST body sent invalid JSON.' }],
+      payload: {
+        errors: [
+          {
+            message: 'POST body sent invalid JSON.',
+            locations: undefined,
+            path: undefined,
+          },
+        ],
       },
     }
   );
@@ -649,8 +659,14 @@ suiteError('handles plain POST text', async () => {
     },
     {
       status: 400,
-      body: {
-        errors: [{ message: 'Must provide query string.' }],
+      payload: {
+        errors: [
+          {
+            message: 'Must provide query string.',
+            locations: undefined,
+            path: undefined,
+          },
+        ],
       },
     }
   );
@@ -674,12 +690,13 @@ suiteError('handles invalid variables', async () => {
     },
     {
       status: 200, // graphql-express uses 500
-      body: {
+      payload: {
         errors: [
           {
             message:
               'Variable "$who" got invalid value ["John", "Jane"]; Expected type String; String cannot represent a non string value: ["John", "Jane"]',
             locations: [{ line: 1, column: 16 }],
+            path: undefined,
           },
         ],
       },
@@ -692,8 +709,14 @@ suiteError('handles unsupported HTTP methods', async () => {
     { method: 'PUT', queryParams: { query: '{test}' } },
     {
       status: 405,
-      body: {
-        errors: [{ message: 'GraphQL only supports GET and POST requests.' }],
+      payload: {
+        errors: [
+          {
+            message: 'GraphQL only supports GET and POST requests.',
+            locations: undefined,
+            path: undefined,
+          },
+        ],
       },
     }
   );

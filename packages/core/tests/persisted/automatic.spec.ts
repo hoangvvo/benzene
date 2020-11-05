@@ -2,13 +2,8 @@ import { suite } from 'uvu';
 import assert from 'uvu/assert';
 import crypto from 'crypto';
 import lru from 'tiny-lru';
-import {
-  Benzene,
-  runHttpQuery,
-  FormattedExecutionResult,
-  HTTPResponse,
-  persistedQueryPresets,
-} from '../../src';
+import { Benzene, persistedQueryPresets } from '../../src';
+import { httpTest as oHttpTest } from '../http.spec';
 import { TestSchema } from '../schema.spec';
 
 const sha256 = (query: string) =>
@@ -19,45 +14,8 @@ const GQL = new Benzene({
   persisted: persistedQueryPresets.automatic({ sha256 }),
 });
 
-async function httpTest(
-  httpParams: {
-    method: string;
-    body?: string | any;
-    queryParams?: { [key: string]: string };
-    context?: any;
-    headers?: Record<string, string>;
-    stringifyBody?: boolean;
-  },
-  expected: Partial<Omit<HTTPResponse, 'body'>> & {
-    body?: FormattedExecutionResult | string;
-  },
-  GQLInstance = GQL
-) {
-  expected.body =
-    (typeof expected.body === 'object'
-      ? JSON.stringify(expected.body)
-      : expected.body) || '';
-  expected.status = expected.status || 200;
-  expected.headers = expected.headers || { 'content-type': 'application/json' };
-
-  assert.equal(
-    await runHttpQuery(GQLInstance, {
-      body:
-        typeof httpParams.body === 'object' &&
-        httpParams.stringifyBody !== false
-          ? JSON.stringify(httpParams.body)
-          : httpParams.body,
-      queryParams: httpParams.queryParams || null,
-      headers: httpParams.headers || {
-        'content-type':
-          typeof httpParams.body === 'object' ? 'application/json' : '',
-      },
-      context: httpParams.context,
-      httpMethod: httpParams.method,
-    }),
-    expected
-  );
-}
+const httpTest = (httpParams, expected, GQLInstance = GQL) =>
+  oHttpTest(httpParams, expected, GQLInstance);
 
 const suiteAuto = suite('PersistedAutomatic');
 
@@ -80,7 +38,7 @@ suiteAuto('Bypass if isPersistedQuery returns false', async () => {
         query: '{test}',
       },
     },
-    { body: { data: { test: 'Hello World' } } },
+    { payload: { data: { test: 'Hello World' } } },
     GQL
   );
 
@@ -94,8 +52,14 @@ suiteAuto('Bypass if isPersistedQuery returns false', async () => {
     },
     {
       status: 400,
-      body: {
-        errors: [{ message: 'Must provide query string.' }],
+      payload: {
+        errors: [
+          {
+            message: 'Must provide query string.',
+            locations: undefined,
+            path: undefined,
+          },
+        ],
       },
     },
     GQL
@@ -116,8 +80,14 @@ suiteAuto('Bypass if isPersistedQuery returns false', async () => {
     },
     {
       status: 400,
-      body: {
-        errors: [{ message: 'Must provide query string.' }],
+      payload: {
+        errors: [
+          {
+            message: 'Must provide query string.',
+            locations: undefined,
+            path: undefined,
+          },
+        ],
       },
     },
     GQL
@@ -141,11 +111,13 @@ suiteAuto(
       },
       {
         status: 200,
-        body: {
+        payload: {
           errors: [
             {
               message: 'PersistedQueryNotFound',
               extensions: { code: 'PERSISTED_QUERY_NOT_FOUND' },
+              locations: undefined,
+              path: undefined,
             },
           ],
         },
@@ -172,7 +144,7 @@ suiteAuto('Saves query by hash sent from clients', async () => {
         },
       },
     },
-    { body: { data: { test: 'Hello World' } } },
+    { payload: { data: { test: 'Hello World' } } },
     new Benzene({ schema: TestSchema, persisted: auto })
   );
   assert.is(cache.get(`apq:${sha256Hash}`), '{test}');
@@ -195,7 +167,15 @@ suiteAuto('Throws error if client provided hash256 is mismatched', async () => {
     },
     {
       status: 400,
-      body: { errors: [{ message: 'provided sha does not match query' }] },
+      payload: {
+        errors: [
+          {
+            message: 'provided sha does not match query',
+            locations: undefined,
+            path: undefined,
+          },
+        ],
+      },
     },
     new Benzene({ schema: TestSchema, persisted: auto })
   );
@@ -219,7 +199,7 @@ suiteAuto('Returns query using stored hash256', async () => {
         },
       },
     },
-    { body: { data: { test: 'Hello World' } } },
+    { payload: { data: { test: 'Hello World' } } },
     new Benzene({ schema: TestSchema, persisted: auto })
   );
 });
