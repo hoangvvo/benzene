@@ -27,7 +27,7 @@ export function createHandler(gql: Benzene, options: HandlerConfig = {}) {
         );
       }
 
-    const { status, body, headers } = await runHttpQuery(gql, {
+    const result = await runHttpQuery(gql, {
       httpMethod: request.method,
       body: request.method === 'POST' ? await request.text() : null,
       queryParams,
@@ -37,7 +37,10 @@ export function createHandler(gql: Benzene, options: HandlerConfig = {}) {
       },
     });
 
-    return new Response(body, { status, headers });
+    return new Response(JSON.stringify(result.payload), {
+      status: result.status,
+      headers: result.headers,
+    });
   }
 
   return function handler(event: FetchEvent) {

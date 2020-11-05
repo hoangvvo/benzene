@@ -1,6 +1,5 @@
 import Benzene from './core';
-import { HttpQueryRequest, HttpQueryResponse, GraphQLParams } from './types';
-import flatstr from 'flatstr';
+import { HTTPRequest, HTTPResponse, GraphQLParams } from './types';
 import { ExecutionResult, GraphQLError } from 'graphql';
 
 function parseBodyByContentType(
@@ -61,9 +60,9 @@ function createResponse(
   gql: Benzene,
   code: number,
   obj: ExecutionResult
-): HttpQueryResponse {
+): HTTPResponse {
   return {
-    body: flatstr(JSON.stringify(gql.formatExecutionResult(obj))),
+    payload: gql.formatExecutionResult(obj),
     status: code,
     headers: { 'content-type': 'application/json' },
   };
@@ -71,8 +70,8 @@ function createResponse(
 
 export async function runHttpQuery(
   gql: Benzene,
-  request: HttpQueryRequest
-): Promise<HttpQueryResponse> {
+  request: HTTPRequest
+): Promise<HTTPResponse> {
   let body: Record<string, any> | null;
   try {
     body =

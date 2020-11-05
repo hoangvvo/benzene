@@ -1,7 +1,7 @@
 import { suite } from 'uvu';
 import assert from 'uvu/assert';
 import * as fetch from 'node-fetch';
-import { HttpQueryResponse } from '@benzene/core/src';
+import { HTTPResponse } from '@benzene/core/src';
 import { Benzene, fetchHandler } from '../src';
 import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
 import { HandlerConfig } from '../src/types';
@@ -45,7 +45,7 @@ const TestSchema = new GraphQLSchema({
 
 async function testFetch(
   request: fetch.Request,
-  expected: Partial<HttpQueryResponse> | null,
+  expected: Partial<HTTPResponse> | null,
   options?: HandlerConfig,
   GQLInstance = new Benzene({ schema: TestSchema })
 ): Promise<void> {
@@ -55,7 +55,7 @@ async function testFetch(
       request: new fetch.Request(request),
       respondWith: async (maybeResponse) => {
         const response = await maybeResponse;
-        assert.equal(expected.body, await response.text());
+        assert.equal(expected.payload, await response.json());
         assert.equal(expected.status || 200, response.status);
         // TODO: Add headers
         resolve();
@@ -75,7 +75,7 @@ const suiteFetch = suite('fetchHandler');
 
 suiteFetch('handles GET request', () => {
   return testFetch(new fetch.Request('http://localhost/graphql?query={test}'), {
-    body: JSON.stringify({ data: { test: 'Hello World' } }),
+    payload: { data: { test: 'Hello World' } },
   });
 });
 
@@ -86,14 +86,14 @@ suiteFetch('handles POST request', () => {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ query: '{test}' }),
     }),
-    { body: JSON.stringify({ data: { test: 'Hello World' } }) }
+    { payload: { data: { test: 'Hello World' } } }
   );
 });
 
 suiteFetch('resolves options.context that is an object', async () => {
   await testFetch(
     new fetch.Request('/graphql?query={testCtx}'),
-    { body: `{"data":{"testCtx":"Hello Jane"}}` },
+    { payload: { data: { testCtx: 'Hello Jane' } } },
     { context: { who: 'Jane' } }
   );
 });
@@ -105,7 +105,7 @@ suiteFetch('resolves options.context that is a function', async () => {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ query: '{testCtx}' }),
     }),
-    { body: `{"data":{"testCtx":"Hello John"}}` },
+    { payload: { data: { testCtx: 'Hello John' } } },
     { context: async () => ({ who: 'John' }) }
   );
 });
@@ -118,7 +118,7 @@ suiteFetch('catches error thrown in context function', async () => {
       body: JSON.stringify({ query: '{testCtx}' }),
     }),
     {
-      body: `{"errors":[{"message":"Context creation failed: uh oh"}]}`,
+      payload: { errors: [{ message: 'Context creation failed: uh oh' }] },
       status: 500,
     },
     {
