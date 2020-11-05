@@ -1,5 +1,5 @@
 const express = require('express');
-const { GraphQL, httpHandler } = require('@benzene/server');
+const { Benzene, httpHandler } = require('@benzene/server');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const expressPlayground = require('graphql-playground-middleware-express')
   .default;
@@ -68,7 +68,7 @@ var schema = makeExecutableSchema({
   resolvers,
 });
 
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 
 const app = express();
 

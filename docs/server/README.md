@@ -11,10 +11,10 @@ npm i graphql @benzene/server
 ## Usage
 
 ```js
-const { GraphQL, httpHandler } = require('@benzene/server');
-const http = require('http');
+import { Benzene, httpHandler } from '@benzene/server';
+import http from 'http';
 
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 const gqlHandle = httpHandler(GQL, options);
 
 const server = http.createServer(gqlHandle);
@@ -31,9 +31,7 @@ You can use `gqlHandle` in other compatible frameworks (those that accepts the `
 
 The `httpHandler` function returns a `requestListener` function (`(req, res) => void`).
 
-`GQL` in an instance [Benzene GraphQL instance](/core/#graphql).
-
-?> For error formatting and more, learn about Benzene's `GraphQL` class in [Core](core/).
+`GQL` in an instance [Benzene instance](/core/).
 
 `options` is optional and accepts the following:
 
@@ -42,7 +40,7 @@ The `httpHandler` function returns a `requestListener` function (`(req, res) => 
 | context | An object or function called to creates a context shared across resolvers per request. The function accepts [IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) as the only argument. | `{}` |
 | path | Specify a path for the GraphQL endpoint, and `@benzene/server` will respond with `404` elsewhere. You **should not** set this when using with frameworks with built-in routers (such as `express`). | `undefined` (run on all paths) |
 
-## Building Context :id=context
+## Building Context
 
 `options.context` in `httpHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of function, it accepts `req` (`http.IncomingMessage`). Depends on the framework, you may receive an extended `IncomingMessage` that has extra properties. For example, in `express`, `req` will also contain properties like `req.body` or `req.query`.
 

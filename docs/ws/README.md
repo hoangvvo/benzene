@@ -24,13 +24,13 @@ npm i ws
 
 Create a [WebSocket.Server](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocketserver) instance and uses `wsHandler` to handle its `connection` event.
 
-When being called with a [Benzene GraphQL instance](/core/) instance, `wsHandler` returns a `connection` listener handler function (`(socket, request) => void`).
+When being called with a [Benzene instance](/core/) instance, `wsHandler` returns a `connection` listener handler function (`(socket, request) => void`).
 
 ```js
-const WebSocket = require('ws');
-const { GraphQL, wsHandler } = require('@benzene/ws');
-// Benzene GraphQL instance
-const GQL = new GraphQL({ schema });
+import * as WebSocket from 'ws';
+import { Benzene, wsHandler } from '@benzene/ws';
+// Benzene instance
+const GQL = new Benzene({ schema });
 
 // Craete WebSocket.Server from `ws`.
 // Refer to https://github.com/websockets/ws#usage-examples for more info.
@@ -43,29 +43,7 @@ wss.on('connection', wsHandler(GQL, options));
 
 ?> `ws` tip: If you do not have a `server`, define `port` instead to let `ws` create one internally.
 
-### With existed GraphQL instance
-
-If you use `@benzene/ws` with `@benzene/server`, chances are you already have an existing `GraphQL` instance that can be reused.
-
-```js
-const http = require('http');
-const WebSocket = require('ws');
-const { GraphQL, httpHandler } = require('@benzene/server');
-const { wsHandler } = require('@benzene/ws');
-
-// @benzene/server section
-// This will be reused inside wsHandler
-const GQL = new GraphQL({ schema });
-// This is the created server, will be used in WebSocket.Server
-const server = http.createServer(httpHandler(GQL));
-server.listen(3000, () => {
-  console.log(`🚀  Server ready at http://localhost:3000/graphql`);
-});
-
-// Added @benzene/ws section
-const wss = new WebSocket.Server({ path: '/graphql', server });
-wss.on('connection', wsHandler(GQL, options));
-```
+?> If you use `@benzene/ws` with `@benzene/server`, you might already have had a `Benzene` instance that can be reused.
 
 ## API
 
@@ -73,7 +51,7 @@ wss.on('connection', wsHandler(GQL, options));
 
 Create a handler for incoming WebSocket connection (from `wss.on('connection')`) and execute GraphQL based on the [modified GraphQL over WebSocket Protocol](https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md).
 
-`GQL` is a [Benzene GraphQL instance](/core/) instance.
+`GQL` is a [Benzene instance](/core/) instance.
 
 ?> For error formatting and more, learn about Benzene's `GraphQL` class in [Core](core/).
 
@@ -85,7 +63,7 @@ Create a handler for incoming WebSocket connection (from `wss.on('connection')`)
 | onStart | (Experimental) A function to be called when a subscription (or query/execution) started (or executed). See [`Hooks`](#hooks). | `undefined` |
 | onComplete | (Experimental) A function to be called when a subscription (or query/execution) finished (or after their execution which is immediate). See [`Hooks`](#hooks). | `undefined` |
 
-## Building Context :id=context
+## Building Context
 
 `options.context` in `wsHandler` can be used to build a context for GraphQL execution layer or even *authentication* (even though we recommend [using this approach](https://github.com/websockets/ws#client-authentication) instead). 
 

@@ -17,10 +17,10 @@ npm i @benzene/worker graphql
 This assumes basic understanding of Service Workers. If not, you can learn how to register the service worker [here](https://developers.google.com/web/fundamentals/primers/service-workers/registration).
 
 ```js
-import { GraphQL, fetchHandler } from '@benzene/worker';
+import { Benzene, fetchHandler } from '@benzene/worker';
 
 // Creating a GraphQL instance
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 
 const gqlHandle = fetchHandler(GQL, { path: '/graphql' });
 
@@ -29,15 +29,11 @@ addEventListener('fetch', gqlHandle);
 
 Fetch requests to `/graphql` will now be intercepted by the registered worker.
 
-!> **Note:** In browser: while `@benzene/worker` is not so large in size ([~20kb Minified + Gzipped](http://bundlephobia.com/result?p=@benzene/worker)), it is recommended to lazy-load it and implement [Offline/Progressive Web Apps](https://web.dev/progressive-web-apps/).
-
 ## API
 
 ### `fetchHandler(GQL, options)`
 
-`GQL` is an instance of [`GraphQL`](/core/)
-
-?> For error formatting and more, learn about Benzene's `GraphQL` class in [Core](core/).
+`GQL` is an instance of [`Benzene`](/core/)
 
 `options` is optional and accepts the following:
 
@@ -48,7 +44,7 @@ Fetch requests to `/graphql` will now be intercepted by the registered worker.
 
 It returns a Fetch event listener handler `addEventListener('fetch', fn)`.
 
-## Building Context :id=context
+## Building Context
 
 `options.context` in `fetchHandler` can be used to build a context for GraphQL execution layer. It can either be an object or a function. In the case of a function, it accepts a single argument that is [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request).
 

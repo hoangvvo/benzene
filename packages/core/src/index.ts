@@ -1,4 +1,4 @@
-export { GraphQL } from './core';
+export { default as Benzene } from './core';
 export {
   GraphQLParams,
   HttpQueryRequest,
@@ -6,8 +6,7 @@ export {
   FormattedExecutionResult,
   ValueOrPromise,
   TContext,
-  GraphQLPersisted,
+  BenzenePersisted,
 } from './types';
 export { runHttpQuery } from './http';
-export { BenzeneError, BenzeneHTTPError } from './error';
 export * as persistedQueryPresets from './persisted/index';

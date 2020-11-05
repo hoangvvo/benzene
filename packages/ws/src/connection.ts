@@ -1,7 +1,7 @@
 import { ExecutionResult, GraphQLError } from 'graphql';
 import {
   GraphQLParams,
-  GraphQL,
+  Benzene,
   FormattedExecutionResult,
   TContext,
 } from '@benzene/core';
@@ -16,7 +16,7 @@ export class SubscriptionConnection {
   > = new Map();
 
   constructor(
-    private gql: GraphQL,
+    private gql: Benzene,
     public socket: WebSocket,
     private context: TContext,
     private listeners: Pick<HandlerConfig, 'onStart' | 'onComplete'>

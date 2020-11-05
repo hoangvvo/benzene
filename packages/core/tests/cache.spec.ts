@@ -1,14 +1,14 @@
 import { suite } from 'uvu';
 import assert from 'uvu/assert';
 import { Lru } from 'tiny-lru';
-import { GraphQL } from '../src';
+import Benzene from '../src/core';
 import { TestSchema } from './schema.spec';
 import { QueryCache } from '../src/types';
 
 const suiteCache = suite('GraphQL#cache');
 
 suiteCache('saves compiled query to cache', async () => {
-  const GQL = new GraphQL({
+  const GQL = new Benzene({
     schema: TestSchema,
   });
   const lru: Lru<QueryCache> = (GQL as any).lru;
@@ -16,7 +16,7 @@ suiteCache('saves compiled query to cache', async () => {
   assert.ok(lru.has('{ test }'));
 });
 suiteCache('uses compiled query from cache', async () => {
-  const GQL = new GraphQL({
+  const GQL = new Benzene({
     schema: TestSchema,
   });
   const lru: Lru<QueryCache> = (GQL as any).lru;
@@ -33,7 +33,7 @@ suiteCache('uses compiled query from cache', async () => {
   assert.equal(result, { data: { test: 'Goodbye' } });
 });
 suiteCache('does not cache bad query', async () => {
-  const GQL = new GraphQL({
+  const GQL = new Benzene({
     schema: TestSchema,
   });
   const lru: Lru<QueryCache> = (GQL as any).lru;

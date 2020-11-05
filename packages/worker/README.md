@@ -9,9 +9,9 @@
 
 ```js
 // sw.js or Cloudflare Workers, with bundler
-import { GraphQL, fetchHandler } from '@benzene/worker';
+import { Benzene, fetchHandler } from '@benzene/worker';
 
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 
 self.addEventListener('fetch', fetchHandler(GQL, { path: '/graphql' }));
 ```

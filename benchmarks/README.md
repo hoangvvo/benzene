@@ -43,7 +43,7 @@ Node: `v14.12.0`
 | Library | Request/sec | Latency |
 | --- | --- | --- |
 | benzene-server | 13592.2223 | 0.0073 secs |
-| fastify-gql | 12277.0624 | 0.0081 secs |
+| mercurius | 12277.0624 | 0.0081 secs |
 | apollo-server-fastify | 3264.9005 | 0.0306 secs |
 | apollo-server | 2032.8558 | 0.0490 secs |
 | express-graphql | 1618.0362 | 0.0615 secs |

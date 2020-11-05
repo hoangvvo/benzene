@@ -1,10 +1,10 @@
-import { GraphQL, HttpQueryResponse, runHttpQuery } from '@benzene/core';
+import { Benzene, HttpQueryResponse, runHttpQuery } from '@benzene/core';
 import { parse as parseQS } from 'querystring';
 import { readBody } from './readBody';
 import { HandlerConfig } from './types';
 import { IncomingMessage, ServerResponse } from 'http';
 
-export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
+export function createHandler(gql: Benzene, options: HandlerConfig = {}) {
   function sendResponse(res: ServerResponse, result: HttpQueryResponse) {
     res.writeHead(result.status, result.headers).end(result.body);
   }

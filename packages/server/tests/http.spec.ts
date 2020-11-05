@@ -5,7 +5,7 @@ import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
 import request from 'supertest';
 import { Config } from '@benzene/core/src/types';
 import { createServer } from 'http';
-import { GraphQL, httpHandler } from '../src';
+import { Benzene, httpHandler } from '../src';
 import { HandlerConfig } from '../src/http/types';
 import { readBody } from '../src/http/readBody';
 
@@ -42,7 +42,7 @@ const TestSchema = new GraphQLSchema({
 });
 
 function createGQLServer(options: Config, handlerOpts?: HandlerConfig) {
-  const gql = new GraphQL(options);
+  const gql = new Benzene(options);
   return createServer(httpHandler(gql, handlerOpts));
 }
 
@@ -55,7 +55,7 @@ suiteHttp('handles GET request', async () => {
     .expect(JSON.stringify({ data: { test: 'Hello World' } }));
 });
 suiteHttp('allows for pre-parsed query strings', async () => {
-  const gql = new GraphQL({ schema: TestSchema });
+  const gql = new Benzene({ schema: TestSchema });
   const server = createServer((req, res) => {
     (req as any).query = { query: '{test}' };
     httpHandler(gql)(req, res);
@@ -137,7 +137,7 @@ suiteHttp('skips body parsing if no content-type presented', (done) => {
 });
 suiteHttp('respond 404 by checking against req.url', async () => {
   const server = createServer(
-    httpHandler(new GraphQL({ schema: TestSchema }), { path: '/api' })
+    httpHandler(new Benzene({ schema: TestSchema }), { path: '/api' })
   );
   await request(server).post('/api').send({ query: '{test}' }).expect(200);
   await request(server).get('/api?query={test}').expect(200);
@@ -148,7 +148,7 @@ suiteHttp(
   async () => {
     const server = createServer((req, res) => {
       (req as any).path = req.url.substring(0, req.url.indexOf('?'));
-      httpHandler(new GraphQL({ schema: TestSchema }), { path: '/api' })(
+      httpHandler(new Benzene({ schema: TestSchema }), { path: '/api' })(
         req,
         res
       );

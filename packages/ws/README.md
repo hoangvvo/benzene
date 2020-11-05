@@ -9,9 +9,9 @@
 
 ```js
 const WebSocket = require('ws');
-const { GraphQL, wsHandler } = require('@benzene/ws');
+const { Benzene, wsHandler } = require('@benzene/ws');
 
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 
 const wss = new WebSocket.Server({ path: '/graphql', port: 3000 });
 wss.on('connection', wsHandler(GQL, options));

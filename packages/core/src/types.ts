@@ -11,7 +11,7 @@ export type TContext = { [key: string]: any };
 export interface Config {
   schema: GraphQLSchema;
   formatError?: (error: GraphQLError) => GraphQLFormattedError;
-  persisted?: GraphQLPersisted;
+  persisted?: BenzenePersisted;
 }
 
 export interface GraphQLParams {
@@ -52,7 +52,7 @@ export interface FormattedExecutionResult<
   extensions?: TExtensions;
 }
 
-export abstract class GraphQLPersisted {
+export abstract class BenzenePersisted {
   abstract isPersistedQuery: (params: GraphQLParams) => boolean;
   abstract getQuery: (
     params: GraphQLParams

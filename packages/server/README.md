@@ -8,10 +8,10 @@
 > Fast and simple GraphQL Server for Node.js
 
 ```js
-const { GraphQL, httpHandler } = require('@benzene/server');
+const { Benzene, httpHandler } = require('@benzene/server');
 const { createServer } = require('http');
 
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 
 createServer(httpHandler(GQL, options)).listen(3000);
 

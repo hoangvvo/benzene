@@ -1,11 +1,11 @@
 const http = require('http');
 const WebSocket = require('ws');
 const fs = require('fs');
-const { GraphQL, httpHandler } = require('@benzene/server');
+const { Benzene, httpHandler } = require('@benzene/server');
 const { wsHandler } = require('@benzene/ws');
 const schema = require('./schema');
 
-const GQL = new GraphQL({ schema });
+const GQL = new Benzene({ schema });
 
 const server = http.createServer(httpHandler(GQL, { path: '/graphql' }));
 

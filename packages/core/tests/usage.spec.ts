@@ -1,19 +1,19 @@
 import { suite } from 'uvu';
 import assert from 'uvu/assert';
 import { GraphQLSchema } from 'graphql';
-import { GraphQL } from '../src';
+import Benzene from '../src/core';
 
 const suiteUsage = suite('GraphQL constructor');
 
 suiteUsage('throws if initializing instance with no option', () => {
   assert.throws(() => {
     // @ts-expect-error
-    new GraphQL();
+    new Benzene();
   });
 });
 suiteUsage('throws if schema is invalid', () => {
   assert.throws(() => {
-    new GraphQL({
+    new Benzene({
       schema: new GraphQLSchema({ directives: [null] }),
     });
   });

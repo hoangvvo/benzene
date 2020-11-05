@@ -1,7 +1,7 @@
-import { GraphQL, runHttpQuery, TContext } from '@benzene/core';
+import { Benzene, runHttpQuery, TContext } from '@benzene/core';
 import { HandlerConfig } from './types';
 
-export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
+export function createHandler(gql: Benzene, options: HandlerConfig = {}) {
   async function handleRequest(request: Request) {
     const queryParams: { [key: string]: string } = {};
 
@@ -16,12 +16,12 @@ export function createHandler(gql: GraphQL, options: HandlerConfig = {}) {
           typeof options.context === 'function'
             ? await options.context(request)
             : options.context;
-      } catch (err) {
-        err.message = `Context creation failed: ${err.message}`;
+      } catch (error) {
+        error.message = `Context creation failed: ${error.message}`;
         return new Response(
-          JSON.stringify(gql.formatExecutionResult({ errors: [err] })),
+          JSON.stringify(gql.formatExecutionResult({ errors: [error] })),
           {
-            status: err.status || 500,
+            status: error.status || 500,
             headers: { 'content-type': 'application/json' },
           }
         );

@@ -1,7 +1,7 @@
 import { suite } from 'uvu';
 import assert from 'uvu/assert';
 import WebSocket from 'ws';
-import { GraphQL, FormattedExecutionResult } from '@benzene/core';
+import { Benzene, FormattedExecutionResult } from '@benzene/core';
 import { Config as GraphQLConfig } from '@benzene/core/src/types';
 import { createServer, Server } from 'http';
 import {
@@ -139,7 +139,7 @@ async function startServer(
     }),
   });
 
-  const gql = new GraphQL({ schema, ...options });
+  const gql = new Benzene({ schema, ...options });
   // @ts-ignore
   const server = createServer();
   const wss = new WebSocket.Server({ server });
