@@ -1,7 +1,7 @@
 import { suite } from 'uvu';
 import assert from 'uvu/assert';
 import * as fetch from 'node-fetch';
-import { HttpQueryResponse } from '@benzene/core/src';
+import { HTTPResponse } from '@benzene/core/src';
 import { Benzene, fetchHandler } from '../src';
 import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
 import { HandlerConfig } from '../src/types';
@@ -45,7 +45,7 @@ const TestSchema = new GraphQLSchema({
 
 async function testFetch(
   request: fetch.Request,
-  expected: Partial<HttpQueryResponse> | null,
+  expected: Partial<HTTPResponse> | null,
   options?: HandlerConfig,
   GQLInstance = new Benzene({ schema: TestSchema })
 ): Promise<void> {

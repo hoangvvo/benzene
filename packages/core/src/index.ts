@@ -1,8 +1,8 @@
 export { default as Benzene } from './core';
 export {
   GraphQLParams,
-  HttpQueryRequest,
-  HttpQueryResponse,
+  HTTPRequest,
+  HTTPResponse,
   FormattedExecutionResult,
   ValueOrPromise,
   TContext,

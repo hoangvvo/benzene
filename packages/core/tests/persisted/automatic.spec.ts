@@ -6,7 +6,7 @@ import {
   Benzene,
   runHttpQuery,
   FormattedExecutionResult,
-  HttpQueryResponse,
+  HTTPResponse,
   persistedQueryPresets,
 } from '../../src';
 import { TestSchema } from '../schema.spec';
@@ -28,7 +28,7 @@ async function httpTest(
     headers?: Record<string, string>;
     stringifyBody?: boolean;
   },
-  expected: Partial<Omit<HttpQueryResponse, 'body'>> & {
+  expected: Partial<Omit<HTTPResponse, 'body'>> & {
     body?: FormattedExecutionResult | string;
   },
   GQLInstance = GQL

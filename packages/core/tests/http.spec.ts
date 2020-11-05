@@ -4,7 +4,7 @@ import assert from 'uvu/assert';
 import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
 import {
   Benzene,
-  HttpQueryResponse,
+  HTTPResponse,
   runHttpQuery,
   FormattedExecutionResult,
 } from '../src';
@@ -57,7 +57,7 @@ async function httpTest(
     headers?: Record<string, string>;
     stringifyBody?: boolean;
   },
-  expected: Partial<Omit<HttpQueryResponse, 'body'>> & {
+  expected: Partial<Omit<HTTPResponse, 'body'>> & {
     body?: FormattedExecutionResult | string;
   },
   GQLInstance = GQL

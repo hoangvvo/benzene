@@ -22,7 +22,7 @@ export interface GraphQLParams {
   extensions?: Record<string, any> | null;
 }
 
-export interface HttpQueryRequest {
+export interface HTTPRequest {
   context: TContext;
   httpMethod: string;
   queryParams: Record<string, string> | null;
@@ -30,7 +30,7 @@ export interface HttpQueryRequest {
   headers: Record<string, string | null>;
 }
 
-export interface HttpQueryResponse {
+export interface HTTPResponse {
   status: number;
   body: string;
   headers: Record<string, string>;
