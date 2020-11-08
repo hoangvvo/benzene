@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "lib": ["es2020"],
-    "module": "ESNext",
     "target": "ESnext",
     "strict": true,
     "declaration": true,
