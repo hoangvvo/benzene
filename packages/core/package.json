@@ -20,6 +20,7 @@
   "files": [
     "dist"
   ],
+  "sideEffects": false,
   "scripts": {
     "build": "microbundle --strict --globals @benzene/core=benzeneCore",
     "clean": "npx rimraf dist",
