@@ -20,10 +20,13 @@
   "homepage": "https://hoangvvo.github.io/benzene/",
   "license": "MIT",
   "main": "dist/index.js",
+  "module": "dist/index.module.js",
+  "unpkg": "dist/index.umd.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
-    "build": "tsc",
+    "build": "microbundle --strict --target node --no-sourcemap --no-compress -f es,cjs",
+    "clean": "npx rimraf dist",
     "test": "uvu -r ts-node/register/transpile-only"
   },
   "dependencies": {

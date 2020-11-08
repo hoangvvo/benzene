@@ -1,8 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "lib": ["webworker", "ES2017"],
-    "target": "ES2017",
+    "lib": ["webworker", "ES2020"],
     "rootDir": "src",
     "outDir": "dist",
     "baseUrl": "./",
