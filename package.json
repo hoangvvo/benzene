@@ -5,6 +5,7 @@
   ],
   "scripts": {
     "build": "yarn workspaces run build",
+    "clean": "yarn workspaces run clean",
     "lint": "eslint packages/*/src/**/*.{js,ts}",
     "test": "nyc uvu -r ts-node/register/transpile-only packages tests",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov"
@@ -28,6 +29,7 @@
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
     "graphql": "^15.3.0",
+    "microbundle": "^0.12.4",
     "node-fetch": "^2.6.0",
     "nyc": "^15.1.0",
     "prettier": "^2.0.5",

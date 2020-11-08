@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "lib": ["es2020"],
-    "module": "commonjs",
-    "target": "es2019",
+    "target": "ESnext",
     "strict": true,
     "declaration": true,
     "skipLibCheck": true,

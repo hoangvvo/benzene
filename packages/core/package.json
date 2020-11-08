@@ -12,13 +12,18 @@
     "url": "https://github.com/hoangvvo/benzene/issues"
   },
   "homepage": "https://hoangvvo.github.io/benzene/",
+  "source": "src/index.ts",
   "main": "dist/index.js",
+  "module": "dist/index.module.js",
+  "unpkg": "dist/index.umd.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
+  "sideEffects": false,
   "scripts": {
-    "build": "tsc",
+    "build": "microbundle --strict --globals @benzene/core=benzeneCore",
+    "clean": "npx rimraf dist",
     "test": "uvu -r ts-node/register/transpile-only"
   },
   "license": "MIT",
