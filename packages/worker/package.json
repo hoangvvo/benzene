@@ -8,7 +8,7 @@
   "types": "dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
-    "build": "microbundle --strict",
+    "build": "microbundle --strict --globals @benzene/core=benzeneCore",
     "clean": "npx rimraf dist",
     "test": "uvu -r ts-node/register/transpile-only"
   },

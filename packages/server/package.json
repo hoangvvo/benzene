@@ -25,7 +25,7 @@
   "types": "dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
-    "build": "microbundle --strict --target node --no-sourcemap --no-compress -f es,cjs",
+    "build": "microbundle --strict --globals @benzene/core=benzeneCore --target node --no-sourcemap --no-compress",
     "clean": "npx rimraf dist",
     "test": "uvu -r ts-node/register/transpile-only"
   },
