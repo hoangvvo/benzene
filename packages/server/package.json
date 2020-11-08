@@ -1,6 +1,6 @@
 {
   "name": "@benzene/server",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Fast and simple GraphQL Server for Node.js",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -31,7 +31,7 @@
     "test": "uvu -r ts-node/register/transpile-only"
   },
   "dependencies": {
-    "@benzene/core": "^0.2.1"
+    "@benzene/core": "^0.3.0"
   },
   "peerDependencies": {
     "graphql": "^14.0.0 || ^15.0.0"

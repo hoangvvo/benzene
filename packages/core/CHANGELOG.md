@@ -1,5 +1,13 @@
 # @benzene/core
 
+## 0.3.0
+
+### Minor Changes
+
+- becbc04: Use microbundle
+- aa80cdd: (breaking) Rename Benzene classes
+- 51d9c32: Return object payload for runHttpQuery
+
 ## 0.2.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@benzene/core",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Fast and minimal JavaScript GraphQL Server and Executor",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "repository": {
@@ -17,9 +17,7 @@
   "module": "dist/index.module.js",
   "unpkg": "dist/index.umd.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "sideEffects": false,
   "scripts": {
     "build": "microbundle --strict --globals @benzene/core=benzeneCore",

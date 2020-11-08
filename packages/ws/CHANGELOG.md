@@ -1,5 +1,19 @@
 # @benzene/ws
 
+## 0.3.0
+
+### Minor Changes
+
+- becbc04: Use microbundle
+- aa80cdd: (breaking) Rename Benzene classes
+
+### Patch Changes
+
+- Updated dependencies [becbc04]
+- Updated dependencies [aa80cdd]
+- Updated dependencies [51d9c32]
+  - @benzene/core@0.3.0
+
 ## 0.2.1
 
 ### Patch Changes
