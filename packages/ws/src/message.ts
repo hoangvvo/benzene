@@ -34,7 +34,7 @@ export interface NextMessage {
 }
 
 export interface ErrorMessage {
-  id?: string;
+  id: string;
   type: MessageType.Error;
   payload: readonly GraphQLFormattedError[];
 }

@@ -97,7 +97,7 @@ export function makeHandler(gql: Benzene, options: HandlerOptions = {}) {
       id: string,
       payload: SubscribeMessage['payload']
     ) => {
-      if (!payload.query) {
+      if (!payload?.query) {
         return sendErr(id, [new GraphQLError('Must provide query string.')]);
       }
       const cachedOrResult = gql.getCachedGQL(
@@ -149,6 +149,7 @@ export function makeHandler(gql: Benzene, options: HandlerOptions = {}) {
       try {
         message = JSON.parse(String(event.data));
       } catch (err) {
+        console.log(err);
         return socket.close(4400, 'Invalid message received');
       }
 
