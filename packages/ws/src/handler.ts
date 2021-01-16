@@ -9,13 +9,20 @@ import {
   NextMessage,
   SubscribeMessage,
 } from './message';
-import { WebSocketCompatible } from './webSocket';
 import { GRAPHQL_TRANSPORT_WS_PROTOCOL } from './protocol';
 
 function isAsyncIterable<T = unknown>(
   val: unknown
 ): val is AsyncIterableIterator<T> {
   return typeof Object(val)[Symbol.asyncIterator] === 'function';
+}
+
+interface WebSocketCompatible {
+  protocol: string;
+  send(data: string): void;
+  close(code?: number | undefined, data?: string | undefined): void;
+  onclose: (event: CloseEvent) => void;
+  onmessage: (event: MessageEvent) => void;
 }
 
 interface ConnectionContext {
@@ -97,6 +104,9 @@ export function makeHandler(gql: Benzene, options: HandlerOptions = {}) {
       id: string,
       payload: SubscribeMessage['payload']
     ) => {
+      if (ctx.subscriptions.has(id)) {
+        return socket.close(4409, `Subscriber for ${id} already exists`);
+      }
       if (!payload?.query) {
         return sendErr(id, [new GraphQLError('Must provide query string.')]);
       }
@@ -149,7 +159,6 @@ export function makeHandler(gql: Benzene, options: HandlerOptions = {}) {
       try {
         message = JSON.parse(String(event.data));
       } catch (err) {
-        console.log(err);
         return socket.close(4400, 'Invalid message received');
       }
 
@@ -159,8 +168,9 @@ export function makeHandler(gql: Benzene, options: HandlerOptions = {}) {
             return socket.close(4429, 'Too many initialisation requests');
           }
           connectionInitReceived = true;
-          init(message.payload);
-          acknowledged = true;
+          init(message.payload).then(() => {
+            acknowledged = true;
+          });
           break;
         }
 
