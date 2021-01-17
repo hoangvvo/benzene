@@ -541,7 +541,7 @@ wsSuite('format errors using formatError', async () => {
   });
 });
 
-wsSuite('sends updates via subscription', async () => {
+wsSuite('resolves subscriptions and send updates', async () => {
   const utils = await startServer();
 
   await utils.doAck();
@@ -612,6 +612,42 @@ wsSuite(
   }
 );
 
+wsSuite('creates GraphQL context using options.contextFn', async () => {
+  const utils = await startServer({
+    contextFn: async () => ({ user: 'Alexa' }),
+  });
+
+  await utils.doAck();
+
+  utils.send({
+    id: '1',
+    payload: {
+      query: `
+          subscription {
+            notificationAdded {
+              user
+            }
+          }
+          `,
+    },
+    type: MessageType.Subscribe,
+  });
+
+  await wait(50);
+
+  utils.waitForMessage((message) => {
+    assert.equal(message, {
+      id: '1',
+      payload: {
+        notificationAdded: {
+          user: 'Alexa',
+        },
+      },
+      type: MessageType.Next,
+    });
+  });
+});
+
 wsSuite('returns errors on subscribe() error', async () => {
   const utils = await startServer();
 
@@ -675,3 +711,5 @@ wsSuite('stops subscription upon MessageType.GQL_STOP', async () => {
 });
 
 wsSuite.run();
+
+// TODO: Add test to test on close event cleanup
