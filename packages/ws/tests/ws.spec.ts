@@ -1,9 +1,9 @@
 import { suite } from 'uvu';
 import assert from 'uvu/assert';
 import WebSocket from 'ws';
-import { Benzene, FormattedExecutionResult } from '@benzene/core';
+import { Benzene } from '@benzene/core';
 import { Config as GraphQLConfig } from '@benzene/core/src/types';
-import { createServer, Server } from 'http';
+import { createServer, IncomingMessage, Server } from 'http';
 import {
   GraphQLError,
   GraphQLSchema,
@@ -11,16 +11,20 @@ import {
   GraphQLString,
 } from 'graphql';
 import { EventEmitter } from 'events';
-import { SubscriptionConnection } from '../src/connection';
 import { AddressInfo } from 'net';
-import { wsHandler } from '../src';
-import MessageTypes from '../src/messageTypes';
-import { HandlerConfig, OperationMessage } from '../src/types';
+import { HandlerOptions, makeHandler } from '../src/handler';
+import {
+  MessageType,
+  CompleteMessage,
+  ConnectionAckMessage,
+  ConnectionInitMessage,
+  ErrorMessage,
+  NextMessage,
+  SubscribeMessage,
+} from '../src/message';
+import { GRAPHQL_TRANSPORT_WS_PROTOCOL } from '../src/protocol';
 
-const wait = (ms: number) =>
-  new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function emitterAsyncIterator(
   eventEmitter: EventEmitter,
@@ -69,14 +73,14 @@ function emitterAsyncIterator(
       emptyQueue();
       return Promise.resolve({ value: undefined, done: true });
     },
-    throw(error: any) {
+    throw(error) {
       emptyQueue();
       return Promise.reject(error);
     },
     [Symbol.asyncIterator]() {
       return this;
     },
-  } as any;
+  };
 }
 
 const Notification = new GraphQLObjectType({
@@ -102,19 +106,10 @@ const Notification = new GraphQLObjectType({
   },
 });
 
-let serverInit: { ws: WebSocket; server: Server; publish: () => void };
+let serverInit: { ws: WebSocket; server: Server };
 
-async function startServer(
-  handlerConfig?: Partial<HandlerConfig>,
-  options?: Partial<GraphQLConfig>,
-  wsOptions?: {
-    protocols?: string;
-    init?: (socket: WebSocket) => void;
-  }
-) {
-  const ee = new EventEmitter();
-
-  const schema = new GraphQLSchema({
+const createSchema = (ee: EventEmitter) =>
+  new GraphQLSchema({
     query: new GraphQLObjectType({
       name: 'Query',
       fields: {
@@ -139,168 +134,364 @@ async function startServer(
     }),
   });
 
-  const gql = new Benzene({ schema, ...options });
-  // @ts-ignore
+async function startServer(
+  handlerOptions?: Partial<HandlerOptions<any, any>>,
+  options?: Partial<GraphQLConfig>,
+  wsOptions?: { protocols?: string }
+) {
+  const ee = new EventEmitter();
+
+  const gql = new Benzene({ schema: createSchema(ee), ...options });
+
   const server = createServer();
   const wss = new WebSocket.Server({ server });
-  await new Promise((resolve) => server.listen(0, resolve));
+  await new Promise<void>((resolve) => server.listen(0, resolve));
   const port = (server.address() as AddressInfo).port;
   // We cross test different packages
-  // @ts-ignore
-  wss.on('connection', wsHandler(gql, handlerConfig));
+  wss.on('connection', makeHandler(gql, handlerOptions));
 
-  const ws = new WebSocket(
-    `ws://localhost:${port}`,
-    wsOptions?.protocols || 'graphql-ws'
-  );
+  // Inspired by https://github.com/enisdenjo/graphql-ws/tree/master/src/tests/utils/tclient.ts#L28
+  return new Promise<{
+    ws: WebSocket;
+    waitForMessage: (
+      test?: (
+        message:
+          | ConnectionAckMessage
+          | NextMessage
+          | ErrorMessage
+          | CompleteMessage
+      ) => void,
+      expire?: number
+    ) => Promise<void>;
+    waitForClose: (
+      test?: (code: number, reason: string) => void,
+      expire?: number
+    ) => Promise<void>;
+    send: (
+      message: ConnectionInitMessage | SubscribeMessage | CompleteMessage
+    ) => Promise<void>;
+    doAck: () => Promise<void>;
+    publish: (message?: string) => void;
+  }>((resolve) => {
+    let closeEvent: WebSocket.CloseEvent;
+    const queue: WebSocket.MessageEvent[] = [];
 
-  // This is for early event register.
-  wsOptions?.init?.(ws);
+    const ws = new WebSocket(
+      `ws://localhost:${port}`,
+      wsOptions?.protocols || GRAPHQL_TRANSPORT_WS_PROTOCOL
+    );
 
-  await new Promise((resolve) => (ws as WebSocket).on('open', resolve));
+    serverInit = { ws, server };
 
-  return (serverInit = {
-    server,
-    ws,
-    publish: (message = 'Hello World') => {
-      ee.emit('NOTIFICATION_ADDED', {
-        notificationAdded: { message },
+    ws.onclose = (event) => (closeEvent = event);
+    ws.onmessage = (message) => queue.push(message);
+
+    ws.once('open', () => {
+      resolve({
+        ws,
+        send(message) {
+          return new Promise((resolve, reject) => {
+            ws.send(JSON.stringify(message), (err) =>
+              err ? reject(err) : resolve()
+            );
+          });
+        },
+        async doAck() {
+          this.send({
+            type: MessageType.ConnectionInit,
+          });
+          return this.waitForMessage((message) => {
+            assert.equal(message.type, MessageType.ConnectionAck);
+          });
+        },
+        publish(message = 'Hello World') {
+          ee.emit('NOTIFICATION_ADDED', {
+            notificationAdded: { message },
+          });
+        },
+        async waitForMessage(test, expire) {
+          return new Promise((resolve, reject) => {
+            const done = () => {
+              const next = queue.shift()!;
+              try {
+                test?.(JSON.parse(String(next.data)));
+              } catch (e) {
+                reject(e);
+              }
+              resolve();
+            };
+            if (queue.length > 0) {
+              return done();
+            }
+            ws.once('message', done);
+            if (expire) {
+              setTimeout(() => {
+                ws.removeListener('message', done); // expired
+                resolve();
+              }, expire);
+            }
+          });
+        },
+        async waitForClose(test, expire) {
+          return new Promise((resolve, reject) => {
+            if (closeEvent) {
+              test?.(closeEvent.code, closeEvent.reason);
+              return resolve();
+            }
+            ws.onclose = (event) => {
+              closeEvent = event;
+              try {
+                test?.(closeEvent.code, closeEvent.reason);
+              } catch (e) {
+                reject(e);
+              }
+              resolve();
+            };
+            if (expire) {
+              setTimeout(() => {
+                ws.onclose = null; // expired
+                resolve();
+              }, expire);
+            }
+          });
+        },
       });
-    },
+    });
   });
 }
 
-const expectMessage = (
-  ws: WebSocket,
-  message: OperationMessage & { payload?: FormattedExecutionResult },
-  preFn?: () => any
-) => {
-  return new Promise((resolve, reject) => {
-    const fn = (chunk: WebSocket.Data) => {
-      const json: OperationMessage = JSON.parse(chunk.toString());
-      if (!(json.type === message.type)) return;
-      try {
-        assert.equal(json, message);
-      } catch (e) {
-        reject(e);
-      }
-      ws.off('message', fn);
-      resolve();
-    };
-    ws.on('message', fn);
-    preFn?.();
-  });
-};
-
-const sendMessage = (
-  ws: WebSocket,
-  type: OperationMessage['type'],
-  id?: OperationMessage['id'],
-  payload?: OperationMessage['payload']
-) => {
-  return new Promise((resolve, reject) => {
-    ws.send(
-      JSON.stringify({
-        type,
-        id,
-        payload,
-      }),
-      (err) => (err ? reject(err) : resolve())
-    );
-  });
-};
-
-const sendStartMessage = (
-  ws: WebSocket,
-  id: OperationMessage['id'],
-  payload: OperationMessage['payload'],
-  waitMs = 50
-) => {
-  return new Promise((resolve, reject) => {
-    ws.send(
-      JSON.stringify({
-        type: MessageTypes.GQL_START,
-        id,
-        payload,
-      }),
-      (err) =>
-        err ? reject(err) : waitMs ? wait(waitMs).then(resolve) : resolve()
-    );
-  });
-};
-
 const cleanupTest = () => {
-  const { server, ws } = serverInit;
-  ws.close();
-  server.close();
+  serverInit.ws.close();
+  serverInit.server.close();
 };
 
-const wsSuite = suite('wsHandler');
+const wsSuite = suite('makeHandler');
 
 wsSuite.after.each(cleanupTest);
 
-// Compat-only
-wsSuite('replies with connection_ack', async () => {
-  const { ws } = await startServer();
-  await expectMessage(ws, { type: MessageTypes.GQL_CONNECTION_ACK }, () =>
-    sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT)
-  );
-});
-
-wsSuite('sends updates via subscription', async () => {
-  const { ws, publish } = await startServer();
-  await sendStartMessage(ws, '1', {
-    query: `
-        subscription {
-          notificationAdded {
-            message
-            dummy
-          }
-        }
-      `,
-  });
-  await expectMessage(
-    ws,
-    {
-      type: MessageTypes.GQL_DATA,
-      id: '1',
-      payload: {
-        data: {
-          notificationAdded: {
-            message: 'Hello World',
-            dummy: 'Hello World',
-          },
-        },
-      },
-    },
-    publish
-  );
-});
-
-wsSuite('rejects socket protocol other than graphql-ws', async () => {
-  // eslint-disable-next-line no-async-promise-executor
-  return new Promise(async (resolve) => {
-    const { ws } = await startServer(
+wsSuite(
+  'closes connection if use protocol other than graphql-transport-ws',
+  async () => {
+    const utils = await startServer(
       {},
       {},
       { protocols: 'graphql-subscriptions' }
     );
-    ws.on('close', resolve);
+
+    await utils.waitForClose((code) => {
+      assert.equal(code, 1002);
+    });
+  }
+);
+
+wsSuite('closes connection if message is invalid', async () => {
+  const utils = await startServer();
+
+  utils.ws.send("'");
+
+  await utils.waitForClose((code, message) => {
+    assert.equal(code, 4400);
+    assert.equal(message, 'Invalid message received');
   });
 });
 
-wsSuite('errors on malformed message', async () => {
-  // eslint-disable-next-line no-async-promise-executor
-  const { ws } = await startServer();
-  ws.send(`{"type":"connection_init","payload":`);
-  await expectMessage(ws, {
-    type: MessageTypes.GQL_ERROR,
-    payload: { errors: [{ message: 'Malformed message' }] },
+wsSuite('replies with connection_ack', async () => {
+  const utils = await startServer();
+
+  utils.send({ type: MessageType.ConnectionInit });
+
+  await utils.waitForMessage((message) => {
+    assert.equal(message.type, MessageType.ConnectionAck);
+  });
+});
+
+wsSuite('replies with connection_ack if onConnect() == true', async () => {
+  const utils = await startServer({
+    onConnect: () => true,
+  });
+
+  utils.send({ type: MessageType.ConnectionInit });
+
+  await utils.waitForMessage((message) => {
+    assert.equal(message.type, MessageType.ConnectionAck);
+  });
+});
+
+wsSuite(
+  'replies with connection_ack and payload if onConnect() == object',
+  async () => {
+    const utils = await startServer({
+      onConnect: () => ({ test: 1 }),
+    });
+
+    utils.send({ type: MessageType.ConnectionInit });
+
+    await utils.waitForMessage((message) => {
+      assert.equal(message.type, MessageType.ConnectionAck);
+      assert.equal((message as ConnectionAckMessage).payload, { test: 1 });
+    });
+  }
+);
+
+wsSuite('closes connection if onConnect() == false', async () => {
+  const utils = await startServer({
+    onConnect: async () => false,
+  });
+
+  utils.send({ type: MessageType.ConnectionInit });
+
+  await utils.waitForClose((code, reason) => {
+    assert.equal(code, 4403);
+    assert.equal(reason, 'Forbidden');
+  });
+});
+
+wsSuite('receive connectionParams in onConnect', async () => {
+  const utils = await startServer({
+    onConnect: async (ctx, connectionParams) => connectionParams,
+  });
+
+  utils.send({ type: MessageType.ConnectionInit, payload: { test: 'ok' } });
+
+  await utils.waitForMessage((message) => {
+    assert.equal(message.type, MessageType.ConnectionAck);
+    assert.equal((message as ConnectionAckMessage).payload, { test: 'ok' });
+  });
+});
+
+wsSuite('receive connection context and extra', async () => {
+  const utils = await startServer({
+    // see startServer - makeHandler(socket, request) request is extra
+    onConnect: async (ctx) => ctx.extra instanceof IncomingMessage,
+  });
+
+  utils.send({ type: MessageType.ConnectionInit, payload: { test: 'ok' } });
+
+  await utils.waitForMessage((message) => {
+    assert.equal(message.type, MessageType.ConnectionAck);
+  });
+});
+
+wsSuite('closes connection if onConnect() throws', async () => {
+  const utils = await startServer({
+    onConnect: async () => {
+      throw new Error('bad');
+    },
+  });
+
+  utils.send({ type: MessageType.ConnectionInit });
+
+  await utils.waitForClose((code, reason) => {
+    assert.equal(code, 4403);
+    assert.equal(reason, 'bad');
+  });
+});
+
+wsSuite('closes connection if too many initialisation requests', async () => {
+  const utils = await startServer();
+
+  utils.send({ type: MessageType.ConnectionInit });
+  utils.send({ type: MessageType.ConnectionInit });
+
+  await utils.waitForClose((code, reason) => {
+    assert.equal(code, 4429);
+    assert.equal(reason, 'Too many initialisation requests');
+  });
+});
+
+wsSuite('closes connection if subscribe before initialized', async () => {
+  const utils = await startServer();
+
+  utils.send({ type: MessageType.Subscribe, id: '1', payload: {} });
+
+  await utils.waitForClose((code, reason) => {
+    assert.equal(code, 4401);
+    assert.equal(reason, 'Unauthorized');
+  });
+});
+
+wsSuite('closes connection if subscriber id is already existed', async () => {
+  const utils = await startServer();
+
+  await utils.doAck();
+
+  const query = `subscription { notificationAdded { message } }`;
+
+  await utils.send({
+    type: MessageType.Subscribe,
+    payload: { query },
+    id: '1',
+  });
+
+  await wait(50);
+
+  utils.send({
+    type: MessageType.Subscribe,
+    payload: { query },
+    id: '1',
+  });
+
+  await utils.waitForClose((code, reason) => {
+    assert.equal(code, 4409);
+    assert.equal(reason, 'Subscriber for 1 already exists');
+  });
+});
+
+wsSuite('returns errors if no payload', async () => {
+  const utils = await startServer();
+
+  await utils.doAck();
+
+  utils.send({
+    type: MessageType.Subscribe,
+    payload: undefined,
+    id: '1',
+  });
+
+  await utils.waitForMessage((message) => {
+    assert.equal(message, {
+      id: '1',
+      type: MessageType.Error,
+      payload: [{ message: 'Must provide query string.' }],
+    });
+  });
+});
+
+wsSuite('returns errors on syntax error', async () => {
+  const utils = await startServer();
+
+  await utils.doAck();
+
+  utils.send({
+    id: '1',
+    payload: {
+      query: `
+      subscription {
+        NNotificationAdded {
+          message
+        }
+      }
+    `,
+    },
+    type: MessageType.Subscribe,
+  });
+
+  await utils.waitForMessage((message) => {
+    assert.equal(message, {
+      id: '1',
+      type: MessageType.Error,
+      payload: [
+        {
+          message: `Cannot query field "NNotificationAdded" on type "Subscription". Did you mean "notificationAdded"?`,
+          locations: [{ line: 3, column: 9 }],
+        },
+      ],
+    });
   });
 });
 
 wsSuite('format errors using formatError', async () => {
-  const { ws, publish } = await startServer(
+  const utils = await startServer(
     {},
     {
       formatError: () => {
@@ -308,21 +499,34 @@ wsSuite('format errors using formatError', async () => {
       },
     }
   );
-  await sendStartMessage(ws, '1', {
-    query: `
-        subscription {
-          notificationAdded {
-            message
-            DO_NOT_USE_THIS_FIELD
-          }
-        }
-      `,
+
+  await utils.doAck();
+
+  await utils.send({
+    id: '1',
+    payload: {
+      query: `
+            subscription {
+              notificationAdded {
+                message
+                DO_NOT_USE_THIS_FIELD
+              }
+            }
+          `,
+    },
+    type: MessageType.Subscribe,
   });
-  await expectMessage(
-    ws,
-    {
+
+  await wait(50);
+
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  utils.publish();
+
+  await utils.waitForMessage((message) => {
+    assert.equal(message, {
       id: '1',
-      type: MessageTypes.GQL_DATA,
+      type: MessageType.Next,
       payload: {
         data: {
           notificationAdded: {
@@ -333,126 +537,108 @@ wsSuite('format errors using formatError', async () => {
         // Override "I told you so" error
         errors: [{ message: 'Internal server error' }],
       },
-    },
-    publish
-  );
-});
-
-wsSuite('errors on empty query', async function () {
-  const { ws } = await startServer();
-  await expectMessage(
-    ws,
-    {
-      type: MessageTypes.GQL_ERROR,
-      payload: { errors: [{ message: 'Must provide query string.' }] },
-    },
-    () =>
-      sendStartMessage(ws, '1', {
-        query: null,
-      })
-  );
-});
-
-wsSuite('resolves also queries and mutations', async function () {
-  // We can also add a Query test just to be sure but Mutation one only should be sufficient
-  const { ws } = await startServer();
-  await sendStartMessage(ws, '1', { query: `query { test }` }, 0);
-  await Promise.all([
-    expectMessage(ws, {
-      type: MessageTypes.GQL_DATA,
-      id: '1',
-      payload: { data: { test: 'test' } },
-    }),
-    expectMessage(ws, {
-      id: '1',
-      type: MessageTypes.GQL_COMPLETE,
-    }),
-  ]);
-});
-
-wsSuite('errors on gql.subscribe error', async () => {
-  const { ws } = await startServer();
-  await expectMessage(
-    ws,
-    {
-      id: '1',
-      type: MessageTypes.GQL_ERROR,
-      payload: {
-        errors: [
-          {
-            message:
-              'Subscription field must return Async Iterable. Received: "nope".',
-          },
-        ],
-      },
-    },
-    () =>
-      sendStartMessage(
-        ws,
-        '1',
-        {
-          query: `
-          subscription {
-            badAdded
-          }
-        `,
-        },
-        0
-      )
-  );
-});
-
-wsSuite('errors on syntax error', async () => {
-  const { ws } = await startServer();
-  await expectMessage(
-    ws,
-    {
-      id: '1',
-      type: MessageTypes.GQL_ERROR,
-      payload: {
-        errors: [
-          {
-            message: `Cannot query field "NNotificationAdded" on type "Subscription". Did you mean "notificationAdded"?`,
-            locations: [{ line: 3, column: 13 }],
-          },
-        ],
-      },
-    },
-    () =>
-      sendStartMessage(
-        ws,
-        '1',
-        {
-          query: `
-          subscription {
-            NNotificationAdded {
-              message
-            }
-          }
-        `,
-        },
-        0
-      )
-  );
-});
-
-wsSuite('resolves options.context that is an object', async () => {
-  const { ws, publish } = await startServer({
-    context: { user: 'Alexa' },
+    });
   });
-  await sendStartMessage(ws, '1', {
-    query: `
+});
+
+wsSuite('resolves subscriptions and send updates', async () => {
+  const utils = await startServer();
+
+  await utils.doAck();
+
+  await utils.send({
+    id: '1',
+    payload: {
+      query: `
+        subscription {
+          notificationAdded {
+            message
+            dummy
+          }
+        }
+      `,
+    },
+    type: MessageType.Subscribe,
+  });
+
+  await wait(50);
+
+  utils.publish();
+
+  await utils.waitForMessage((message) => {
+    assert.equal(message, {
+      type: MessageType.Next,
+      id: '1',
+      payload: {
+        data: {
+          notificationAdded: {
+            message: 'Hello World',
+            dummy: 'Hello World',
+          },
+        },
+      },
+    });
+  });
+});
+
+wsSuite(
+  'resolves queries and mutations (single result operation)',
+  async () => {
+    // We can also add a Query test just to be sure but Mutation one only should be sufficient
+    const utils = await startServer();
+
+    await utils.doAck();
+
+    utils.send({
+      id: '1',
+      payload: { query: `query { test }` },
+      type: MessageType.Subscribe,
+    });
+
+    await utils.waitForMessage((message) => {
+      assert.equal(message, {
+        type: MessageType.Next,
+        id: '1',
+        payload: { data: { test: 'test' } },
+      });
+    });
+
+    await utils.waitForMessage((message) => {
+      assert.equal(message, {
+        id: '1',
+        type: MessageType.Complete,
+      });
+    });
+  }
+);
+
+wsSuite('creates GraphQL context using options.contextFn', async () => {
+  const utils = await startServer({
+    contextFn: async () => ({ user: 'Alexa' }),
+  });
+
+  await utils.doAck();
+
+  await utils.send({
+    id: '1',
+    payload: {
+      query: `
           subscription {
             notificationAdded {
               user
             }
           }
-        `,
+          `,
+    },
+    type: MessageType.Subscribe,
   });
-  await expectMessage(
-    ws,
-    {
-      type: MessageTypes.GQL_DATA,
+
+  await wait(50);
+
+  utils.publish();
+
+  await utils.waitForMessage((message) => {
+    assert.equal(message, {
       id: '1',
       payload: {
         data: {
@@ -461,241 +647,73 @@ wsSuite('resolves options.context that is an object', async () => {
           },
         },
       },
-    },
-    publish
-  );
-});
-
-wsSuite('resolves options.context that is a function', async () => {
-  const { ws, publish } = await startServer({
-    context: async () => ({
-      user: 'Alice',
-    }),
-  });
-  await sendStartMessage(ws, '1', {
-    query: `
-          subscription {
-            notificationAdded {
-              user
-            }
-          }
-        `,
-  });
-  await expectMessage(
-    ws,
-    {
-      type: MessageTypes.GQL_DATA,
-      id: '1',
-      payload: {
-        data: {
-          notificationAdded: {
-            user: 'Alice',
-          },
-        },
-      },
-    },
-    publish
-  );
-});
-
-wsSuite('queue messages until context is resolved', async () => {
-  const { ws, publish } = await startServer({
-    context: () =>
-      new Promise((resolve) => {
-        // Reasonable time for messages to start to queue
-        // FIXME: We still need to be sure though.
-        setTimeout(() => resolve({ user: 'Alice' }), 50);
-      }),
-  });
-  await sendStartMessage(ws, '1', {
-    query: `
-        subscription {
-          notificationAdded {
-            user
-          }
-        }
-      `,
-  });
-  await expectMessage(
-    ws,
-    {
-      type: MessageTypes.GQL_DATA,
-      id: '1',
-      payload: {
-        data: {
-          notificationAdded: {
-            user: 'Alice',
-          },
-        },
-      },
-    },
-    publish
-  );
-});
-
-wsSuite('closes connection on error in context function', async () => {
-  const context = async () => {
-    throw new Error('You must be authenticated!');
-  };
-  // eslint-disable-next-line no-async-promise-executor
-  await new Promise(async (done) => {
-    await startServer(
-      { context },
-      {},
-      {
-        init: (socket) => {
-          Promise.all([
-            new Promise((resolve) => socket.on('close', resolve)),
-            expectMessage(socket, {
-              type: MessageTypes.GQL_CONNECTION_ERROR,
-              payload: {
-                errors: [
-                  {
-                    message:
-                      'Context creation failed: You must be authenticated!',
-                  },
-                ],
-              },
-            }),
-          ]).then(done);
-        },
-      }
-    );
-  });
-});
-
-wsSuite('stops subscription upon MessageTypes.GQL_STOP', async () => {
-  const { ws, publish } = await startServer();
-  await sendStartMessage(ws, '1', {
-    query: `
-        subscription {
-          notificationAdded {
-            message
-          }
-        }
-      `,
-  });
-  await sendMessage(ws, MessageTypes.GQL_STOP, '1');
-  await expectMessage(ws, { type: MessageTypes.GQL_COMPLETE, id: '1' });
-  await new Promise((resolve, reject) => {
-    publish();
-    // Wait a bit to see if there is an anouncement
-    const timer = setTimeout(() => {
-      resolve();
-    }, 20);
-    ws.on('message', (chunk) => {
-      if (JSON.parse(chunk.toString()).type === MessageTypes.GQL_DATA) {
-        clearTimeout(timer);
-        reject();
-      }
+      type: MessageType.Next,
     });
   });
 });
 
-// compat-only
-wsSuite('closes connection on connection_terminate', async () => {
-  const { ws } = await startServer();
-  await sendMessage(ws, MessageTypes.GQL_CONNECTION_INIT);
-  await expectMessage(ws, { type: MessageTypes.GQL_CONNECTION_ACK });
-  await new Promise((resolve) => {
-    ws.on('close', resolve);
-    sendMessage(ws, MessageTypes.GQL_CONNECTION_TERMINATE);
+wsSuite('returns errors on subscribe() error', async () => {
+  const utils = await startServer();
+
+  await utils.doAck();
+
+  utils.send({
+    id: '1',
+    payload: {
+      query: `
+      subscription {
+        badAdded
+      }
+    `,
+    },
+    type: MessageType.Subscribe,
   });
+
+  await utils.waitForMessage((message) => {
+    assert.equal(message, {
+      id: '1',
+      type: MessageType.Error,
+      payload: [
+        {
+          message:
+            'Subscription field must return Async Iterable. Received: "nope".',
+        },
+      ],
+    });
+  });
+});
+
+wsSuite('stops subscription upon MessageType.GQL_STOP', async () => {
+  const utils = await startServer();
+
+  await utils.doAck();
+
+  await utils.send({
+    id: '1',
+    payload: {
+      query: `
+          subscription {
+            notificationAdded {
+              message
+            }
+          }
+        `,
+    },
+    type: MessageType.Subscribe,
+  });
+
+  await utils.send({
+    id: '1',
+    type: MessageType.Complete,
+  });
+
+  utils.publish();
+
+  await utils.waitForMessage(() => {
+    assert.unreachable('Should have been unsubscribed');
+  }, 100);
 });
 
 wsSuite.run();
 
-const connSuite = suite('SubscriptionConnection');
-
-connSuite.after.each(cleanupTest);
-
-connSuite('call onStart on subscription start', async () => {
-  // eslint-disable-next-line no-async-promise-executor
-  return new Promise(async (resolve) => {
-    const { ws } = await startServer({
-      context: { test: 'test' },
-      onStart(id, execArg) {
-        assert.instance(this, SubscriptionConnection);
-        assert.is(id, '1');
-        assert.is(execArg.document.kind, 'Document');
-        assert.is(execArg.contextValue.test, 'test');
-        resolve();
-      },
-    });
-    await sendStartMessage(ws, '1', {
-      query: `
-          subscription {
-            notificationAdded {
-              user
-            }
-          }
-        `,
-    });
-  });
-});
-
-connSuite('call onStart on execution', async () => {
-  // eslint-disable-next-line no-async-promise-executor
-  return new Promise(async (resolve) => {
-    const { ws } = await startServer({
-      onStart(id, execArg) {
-        assert.instance(this, SubscriptionConnection);
-        assert.is(id, '1');
-        assert.is(execArg.document.kind, 'Document');
-        resolve();
-      },
-    });
-    await sendStartMessage(ws, '1', {
-      query: `query { test }`,
-    });
-  });
-});
-
-connSuite('call onComplete on subscription stop', async () => {
-  // eslint-disable-next-line no-async-promise-executor
-  return new Promise(async (resolve) => {
-    const { ws } = await startServer({
-      onComplete(id) {
-        assert.instance(this, SubscriptionConnection);
-        assert.is(id, '1');
-        resolve();
-      },
-    });
-    await sendStartMessage(ws, '1', {
-      query: `
-          subscription {
-            notificationAdded {
-              user
-            }
-          }
-        `,
-    });
-    await sendMessage(ws, MessageTypes.GQL_STOP, '1');
-  });
-});
-
-connSuite('return all subscription operations on disconnection', async () => {
-  let operations: Map<string, any>;
-  const { ws } = await startServer({
-    onStart() {
-      // @ts-ignore
-      operations = operations || this.operations;
-    },
-  });
-  await sendStartMessage(ws, '1', {
-    query: `
-        subscription {
-          notificationAdded {
-            user
-          }
-        }
-      `,
-  });
-  assert.equal(operations!.size, 1);
-  ws.close();
-  // Wait a bit for ws to close
-  await new Promise((resolve) => setTimeout(resolve, 20));
-  assert.equal(operations!.size, 0);
-});
-
-connSuite.run();
+// TODO: Add test to test on close event cleanup

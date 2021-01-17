@@ -1,4 +1,12 @@
 export * from '@benzene/core';
-export { createHandler as wsHandler } from './handler';
-export { SubscriptionConnection } from './connection';
-export { default as MessageTypes, GRAPHQL_WS } from './messageTypes';
+export { makeHandler } from './handler';
+export {
+  MessageType,
+  CompleteMessage,
+  ConnectionAckMessage,
+  ConnectionInitMessage,
+  ErrorMessage,
+  NextMessage,
+  SubscribeMessage,
+} from './message';
+export { GRAPHQL_TRANSPORT_WS_PROTOCOL } from './protocol';

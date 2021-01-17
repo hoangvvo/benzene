@@ -2,7 +2,7 @@ const http = require('http');
 const WebSocket = require('ws');
 const fs = require('fs');
 const { Benzene, httpHandler } = require('@benzene/server');
-const { wsHandler } = require('@benzene/ws');
+const { makeHandler } = require('@benzene/ws');
 const schema = require('./schema');
 
 const GQL = new Benzene({ schema });
@@ -13,8 +13,8 @@ const wss = new WebSocket.Server({ path: '/graphql', server });
 
 wss.on(
   'connection',
-  wsHandler(GQL, {
-    context: (socket, request) => {
+  makeHandler(GQL, {
+    context: (ctx) => {
       // Return a context to be used in resolvers
       return {};
     },

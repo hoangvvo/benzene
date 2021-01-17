@@ -9,12 +9,10 @@
 
 ```js
 const WebSocket = require('ws');
-const { Benzene, wsHandler } = require('@benzene/ws');
+const { Benzene, makeHandler } = require('@benzene/ws');
 
 const GQL = new Benzene({ schema });
 
 const wss = new WebSocket.Server({ path: '/graphql', port: 3000 });
-wss.on('connection', wsHandler(GQL, options));
+wss.on('connection', makeHandler(GQL, options));
 ```
-
-Documentation is available at [hoangvvo.github.io/benzene/#/ws](https://hoangvvo.github.io/benzene/#/ws/)
