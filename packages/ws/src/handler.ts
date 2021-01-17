@@ -2,11 +2,8 @@ import { Benzene, ValueOrPromise } from '@benzene/core';
 import { ExecutionResult, GraphQLError } from 'graphql';
 import {
   CompleteMessage,
-  ConnectionAckMessage,
   ConnectionInitMessage,
-  ErrorMessage,
   MessageType,
-  NextMessage,
   SubscribeMessage,
 } from './message';
 import { GRAPHQL_TRANSPORT_WS_PROTOCOL } from './protocol';
@@ -25,10 +22,6 @@ interface WebSocketCompatible {
   onmessage: (event: MessageEvent) => void;
 }
 
-interface ConnectionContext {
-  subscriptions: Map<string, AsyncIterableIterator<ExecutionResult>>;
-}
-
 export interface HandlerOptions {
   onConnect?: (
     ctx: ConnectionContext,
@@ -36,8 +29,146 @@ export interface HandlerOptions {
   ) => ValueOrPromise<Record<string, unknown> | boolean | void>;
 }
 
-export function makeHandler(gql: Benzene, options: HandlerOptions = {}) {
-  return function handle(socket: WebSocketCompatible) {
+interface ConnectionContext<TExtra = unknown> {
+  subscriptions: Map<string, AsyncIterableIterator<ExecutionResult>>;
+  extra: TExtra;
+  acknowledged: boolean;
+  connectionInitReceived: boolean;
+}
+
+export function makeHandler(GQL: Benzene, options: HandlerOptions = {}) {
+  const sendRes = (
+    socket: WebSocketCompatible,
+    id: string,
+    payload: ExecutionResult
+  ) =>
+    socket.send(
+      JSON.stringify({
+        id,
+        payload: GQL.formatExecutionResult(payload),
+        type: MessageType.Next,
+      })
+    );
+
+  const sendErr = (
+    socket: WebSocketCompatible,
+    id: string,
+    errors: GraphQLError[]
+  ) =>
+    socket.send(
+      JSON.stringify({
+        id,
+        payload: GQL.formatExecutionResult({ errors }).errors!,
+        type: MessageType.Error,
+      })
+    );
+
+  const stopSub = async (ctx: ConnectionContext, subId: string) => {
+    const removingSub = ctx.subscriptions.get(subId);
+    if (!removingSub) return;
+    await removingSub.return?.();
+    ctx.subscriptions.delete(subId);
+  };
+
+  const init = async (
+    ctx: ConnectionContext,
+    socket: WebSocketCompatible,
+    message: ConnectionInitMessage
+  ) => {
+    if (ctx.connectionInitReceived) {
+      return socket.close(4429, 'Too many initialisation requests');
+    }
+    ctx.connectionInitReceived = true;
+    let permittedOrPayload;
+    if (options.onConnect) {
+      try {
+        permittedOrPayload = await options.onConnect(ctx, message.payload);
+      } catch (e) {
+        return socket.close(4403, e.message);
+      }
+    }
+    if (permittedOrPayload === false) return socket.close(4403, 'Forbidden');
+    ctx.acknowledged = true;
+    socket.send(
+      JSON.stringify({
+        type: MessageType.ConnectionAck,
+        payload:
+          typeof permittedOrPayload === 'object'
+            ? permittedOrPayload
+            : undefined,
+      })
+    );
+  };
+
+  const subscribe = async (
+    ctx: ConnectionContext,
+    socket: WebSocketCompatible,
+    message: SubscribeMessage
+  ) => {
+    if (!ctx.acknowledged) {
+      return socket.close(4401, 'Unauthorized');
+    }
+    if (ctx.subscriptions.has(message.id)) {
+      return socket.close(4409, `Subscriber for ${message.id} already exists`);
+    }
+    if (!message.payload?.query) {
+      return sendErr(socket, message.id, [
+        new GraphQLError('Must provide query string.'),
+      ]);
+    }
+    const cachedOrResult = GQL.getCachedGQL(
+      message.payload.query,
+      message.payload.operationName
+    );
+    if (!('document' in cachedOrResult)) {
+      return sendErr(
+        socket,
+        message.id,
+        cachedOrResult.errors as GraphQLError[]
+      );
+    }
+    const execArg = {
+      document: cachedOrResult.document,
+      contextValue: {},
+      variableValues: message.payload.variables,
+      operationName: message.payload.operationName,
+    };
+    if (cachedOrResult.operation !== 'subscription') {
+      sendRes(
+        socket,
+        message.id,
+        await GQL.execute(execArg, cachedOrResult.jit)
+      );
+    } else {
+      try {
+        const result = await GQL.subscribe(execArg, cachedOrResult.jit);
+        if (!isAsyncIterable(result)) {
+          // If it is not an async iterator, it must be an
+          // execution result with errors
+          return sendErr(socket, message.id, result.errors as GraphQLError[]);
+        }
+        ctx.subscriptions.set(message.id, result);
+        for await (const value of result) {
+          sendRes(socket, message.id, value);
+        }
+      } catch (error) {
+        return sendErr(socket, message.id, [error]);
+      } finally {
+        stopSub(ctx, message.id);
+      }
+    }
+
+    socket.send(JSON.stringify({ type: MessageType.Complete, id: message.id }));
+  };
+
+  const cleanup = (ctx: ConnectionContext) => {
+    for (const subId of ctx.subscriptions.keys()) stopSub(ctx, subId);
+  };
+
+  return function wsHandle<TExtra = unknown>(
+    socket: WebSocketCompatible,
+    extra: TExtra
+  ) {
     if (
       socket.protocol === undefined ||
       socket.protocol.indexOf(GRAPHQL_TRANSPORT_WS_PROTOCOL) === -1
@@ -45,113 +176,14 @@ export function makeHandler(gql: Benzene, options: HandlerOptions = {}) {
       // 1002: protocol error. We only support graphql_ws for now
       return socket.close(1002);
 
-    let acknowledged = false;
-    let connectionInitReceived = false;
-
-    const ctx: ConnectionContext = {
+    const ctx: ConnectionContext<TExtra> = {
       subscriptions: new Map(),
+      extra,
+      acknowledged: false,
+      connectionInitReceived: false,
     };
 
-    const send = (
-      message:
-        | ConnectionAckMessage
-        | NextMessage
-        | ErrorMessage
-        | CompleteMessage
-    ) => socket.send(JSON.stringify(message));
-
-    const sendRes = (id: string, payload: ExecutionResult) =>
-      send({
-        id,
-        payload: gql.formatExecutionResult(payload),
-        type: MessageType.Next,
-      });
-
-    const sendErr = (id: string, errors: GraphQLError[]) =>
-      send({
-        id,
-        payload: gql.formatExecutionResult({ errors }).errors!,
-        type: MessageType.Error,
-      });
-
-    const stopSub = async (subId: string) => {
-      const removingSub = ctx.subscriptions.get(subId);
-      if (!removingSub) return;
-      await removingSub.return?.();
-      ctx.subscriptions.delete(subId);
-    };
-
-    const init = async (payload: ConnectionInitMessage['payload']) => {
-      let permittedOrPayload;
-      if (options.onConnect) {
-        try {
-          permittedOrPayload = await options.onConnect(ctx, payload);
-        } catch (e) {
-          return socket.close(4403, e.message);
-        }
-      }
-      if (permittedOrPayload === false) return socket.close(4403, 'Forbidden');
-      send({
-        type: MessageType.ConnectionAck,
-        payload:
-          typeof permittedOrPayload === 'object'
-            ? permittedOrPayload
-            : undefined,
-      });
-    };
-
-    const subscribe = async (
-      id: string,
-      payload: SubscribeMessage['payload']
-    ) => {
-      if (ctx.subscriptions.has(id)) {
-        return socket.close(4409, `Subscriber for ${id} already exists`);
-      }
-      if (!payload?.query) {
-        return sendErr(id, [new GraphQLError('Must provide query string.')]);
-      }
-      const cachedOrResult = gql.getCachedGQL(
-        payload.query,
-        payload.operationName
-      );
-      if (!('document' in cachedOrResult)) {
-        return sendErr(id, cachedOrResult.errors as GraphQLError[]);
-      }
-      const execArg = {
-        document: cachedOrResult.document,
-        contextValue: {},
-        variableValues: payload.variables,
-        operationName: payload.operationName,
-      };
-      if (cachedOrResult.operation !== 'subscription') {
-        sendRes(id, await gql.execute(execArg, cachedOrResult.jit));
-      } else {
-        try {
-          const result = await gql.subscribe(execArg, cachedOrResult.jit);
-          if (!isAsyncIterable(result)) {
-            // If it is not an async iterator, it must be an
-            // execution result with errors
-            return sendErr(id, result.errors as GraphQLError[]);
-          }
-          ctx.subscriptions.set(id, result);
-          for await (const value of result) {
-            sendRes(id, value);
-          }
-        } catch (error) {
-          return sendErr(id, [error]);
-        } finally {
-          stopSub(id);
-        }
-      }
-
-      send({ type: MessageType.Complete, id });
-    };
-
-    const cleanup = () => {
-      for (const subId of ctx.subscriptions.keys()) stopSub(subId);
-    };
-
-    socket.onclose = cleanup;
+    socket.onclose = () => cleanup(ctx);
 
     socket.onmessage = (event) => {
       let message: ConnectionInitMessage | SubscribeMessage | CompleteMessage;
@@ -164,26 +196,17 @@ export function makeHandler(gql: Benzene, options: HandlerOptions = {}) {
 
       switch (message.type) {
         case MessageType.ConnectionInit: {
-          if (connectionInitReceived) {
-            return socket.close(4429, 'Too many initialisation requests');
-          }
-          connectionInitReceived = true;
-          init(message.payload).then(() => {
-            acknowledged = true;
-          });
+          init(ctx, socket, message);
           break;
         }
 
         case MessageType.Subscribe: {
-          if (!acknowledged) {
-            return socket.close(4401, 'Unauthorized');
-          }
-          subscribe(message.id, message.payload);
+          subscribe(ctx, socket, message);
           break;
         }
 
         case MessageType.Complete:
-          stopSub(message.id);
+          stopSub(ctx, message.id);
           break;
       }
     };

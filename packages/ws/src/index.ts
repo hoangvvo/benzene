@@ -1,5 +1,5 @@
 export * from '@benzene/core';
-export { makeHandler as wsHandler, HandlerOptions } from './handler';
+export { makeHandler } from './handler';
 export {
   MessageType,
   CompleteMessage,
