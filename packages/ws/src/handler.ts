@@ -8,39 +8,91 @@ import {
 } from './message';
 import { GRAPHQL_TRANSPORT_WS_PROTOCOL } from './protocol';
 
+/**
+ * Return true if the argument is async iterable
+ * @param val The object to be checked
+ * @returns Whether the value is async iterable
+ */
 function isAsyncIterable<T = unknown>(
   val: unknown
 ): val is AsyncIterableIterator<T> {
   return typeof Object(val)[Symbol.asyncIterator] === 'function';
 }
 
+/**
+ * A minimum compatible WebSocket instance
+ */
 interface WebSocket {
+  /**
+   * The subprotocol of the WebSocket. It must be
+   * supported by the protocol used by @benzene/ws
+   */
   protocol: string;
+  /**
+   * Enqueues the specified data to be transmitted to the client over the WebSocket connection
+   * @param data The data to send to the client
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/send}
+   */
   send(data: string): void;
-  close(code?: number | undefined, data?: string | undefined): void;
+  /**
+   * Closes the WebSocket connection or connection attempt, if any
+   * @param code A numeric value indicating the status code explaining why the connection is being closed
+   * @param reason A human-readable string explaining why the connection is closing.
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/close}
+   */
+  close(code?: number | undefined, reason?: string | undefined): void;
+  /**
+   * An EventHandler that is called when the WebSocket connection's readyState changes to CLOSED
+   * @param event A CloseEvent is sent to clients using WebSockets when the connection is closed
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/onclose}
+   */
   onclose: (event: CloseEvent) => void;
+  /**
+   * An EventHandler that is called when a message is received from the client
+   * @param event Represents a message received by a target object.
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/onmessage}
+   */
   onmessage: (event: MessageEvent) => void;
 }
+
+/**
+ * An object that stores information about a WebSocket connection
+ */
 interface ConnectionContext<TExtra> {
+  // A map of all GraphQL subscriptions' async iterators
   subscriptions: Map<string, AsyncIterableIterator<ExecutionResult>>;
   extra: TExtra;
+  // Whether the connection has been acknowledged
   acknowledged: boolean;
+  // Whether the server has received connection init request from the client
   connectionInitReceived: boolean;
 }
 
 export interface HandlerOptions<TContext, TExtra> {
+  /**
+   * A function to be called when a new WebSocket connection is established
+   * @param ctx The ConnectionContext
+   * @param connectionParams A optional payload sent from the client in its ConnectionInit message
+   */
   onConnect?: (
     ctx: ConnectionContext<TExtra>,
     connectionParams: ConnectionInitMessage['payload']
   ) => ValueOrPromise<Record<string, unknown> | boolean | void>;
-  context?:
-    | TContext
-    | ((ctx: ConnectionContext<TExtra>) => ValueOrPromise<TContext>);
+  /**
+   * A function to create an object used by all the resolvers of a specific GraphQL execution
+   * @param ctx The ConnectionContext
+   */
+  contextFn?: (ctx: ConnectionContext<TExtra>) => ValueOrPromise<TContext>;
 }
 
+/**
+ * Create a handler to handle incoming WebSocket
+ * @param GQL A Benzene instance
+ * @param options Handler options
+ */
 export function makeHandler<TContext = unknown, TExtra = unknown>(
   GQL: Benzene,
-  options: HandlerOptions<TContext, TExtra> = {}
+  options: HandlerOptions<TContext, TExtra>
 ) {
   const sendRes = (socket: WebSocket, id: string, payload: ExecutionResult) =>
     socket.send(
@@ -126,11 +178,9 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
     }
     const execArg = {
       document: cachedOrResult.document,
-      contextValue:
-        typeof options.context === 'function'
-          ? // @ts-ignore
-            await options.context(ctx)
-          : options.context,
+      contextValue: options.contextFn
+        ? await options.contextFn(ctx)
+        : undefined,
       variableValues: message.payload.variables,
       operationName: message.payload.operationName,
     };
@@ -168,7 +218,12 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
     for (const subId of ctx.subscriptions.keys()) stopSub(ctx, subId);
   };
 
-  return function wsHandle(socket: WebSocket, extra: TExtra) {
+  /**
+   * A function that handles incoming WebSocket connection
+   * @param socket The WebSocket connection {@link https://developer.mozilla.org/en-US/docs/Web/API/WebSocket}
+   * @param extra An extra field to store anything that needs to persist throughout connection, accessible in callbacks
+   */
+  return function wsHandler(socket: WebSocket, extra: TExtra) {
     if (
       socket.protocol === undefined ||
       socket.protocol.indexOf(GRAPHQL_TRANSPORT_WS_PROTOCOL) === -1
