@@ -13,12 +13,6 @@
   "prettier": {
     "singleQuote": true
   },
-  "nyc": {
-    "include": [
-      "packages/*/src/**/*"
-    ],
-    "all": true
-  },
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
