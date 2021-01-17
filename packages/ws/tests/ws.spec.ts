@@ -24,6 +24,8 @@ import {
 } from '../src/message';
 import { GRAPHQL_TRANSPORT_WS_PROTOCOL } from '../src/protocol';
 
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 function emitterAsyncIterator(
   eventEmitter: EventEmitter,
   eventName: string
@@ -71,14 +73,14 @@ function emitterAsyncIterator(
       emptyQueue();
       return Promise.resolve({ value: undefined, done: true });
     },
-    throw(error: any) {
+    throw(error) {
       emptyQueue();
       return Promise.reject(error);
     },
     [Symbol.asyncIterator]() {
       return this;
     },
-  } as any;
+  };
 }
 
 const Notification = new GraphQLObjectType({
@@ -133,7 +135,7 @@ const createSchema = (ee: EventEmitter) =>
   });
 
 async function startServer(
-  handlerConfig?: Partial<HandlerOptions<any, any>>,
+  handlerOptions?: Partial<HandlerOptions<any, any>>,
   options?: Partial<GraphQLConfig>,
   wsOptions?: { protocols?: string }
 ) {
@@ -146,15 +148,7 @@ async function startServer(
   await new Promise<void>((resolve) => server.listen(0, resolve));
   const port = (server.address() as AddressInfo).port;
   // We cross test different packages
-  wss.on('connection', makeHandler(gql, handlerConfig));
-
-  const ws = new WebSocket(
-    `ws://localhost:${port}`,
-    wsOptions?.protocols || GRAPHQL_TRANSPORT_WS_PROTOCOL
-  );
-
-  const datas: WebSocket.Data[] = [];
-  let close: { code: number; reason: string };
+  wss.on('connection', makeHandler(gql, handlerOptions));
 
   // Inspired by https://github.com/enisdenjo/graphql-ws/tree/master/src/tests/utils/tclient.ts#L28
   return new Promise<{
@@ -179,55 +173,22 @@ async function startServer(
     doAck: () => Promise<void>;
     publish: (message?: string) => void;
   }>((resolve) => {
-    ws.on('message', datas.push);
-    ws.on('close', (code, reason) => (close = { code, reason }));
+    let closeEvent: WebSocket.CloseEvent;
+    const queue: WebSocket.MessageEvent[] = [];
+
+    const ws = new WebSocket(
+      `ws://localhost:${port}`,
+      wsOptions?.protocols || GRAPHQL_TRANSPORT_WS_PROTOCOL
+    );
+
+    serverInit = { ws, server };
+
+    ws.onclose = (event) => (closeEvent = event);
+    ws.onmessage = (message) => queue.push(message);
+
     ws.once('open', () => {
       resolve({
         ws,
-        async waitForMessage(test, expire) {
-          return new Promise((resolve, reject) => {
-            const done = () => {
-              const next = datas.shift()!;
-              try {
-                test?.(JSON.parse(String(next)));
-              } catch (e) {
-                return reject(e);
-              }
-              resolve();
-            };
-            if (datas.length > 0) {
-              return done();
-            }
-            ws.once('message', done);
-            if (expire) {
-              setTimeout(() => {
-                ws.off('message', done); // expired
-                resolve();
-              }, expire);
-            }
-          });
-        },
-        async waitForClose(test, expire) {
-          return new Promise((resolve, reject) => {
-            const done = () => {
-              try {
-                test?.(close!.code, close!.reason);
-              } catch (e) {
-                return reject(e);
-              }
-              return resolve();
-            };
-            if (close) return done();
-            ws.once('close', done);
-            if (expire) {
-              setTimeout(() => {
-                // @ts-expect-error: its ok
-                ws.off('close', done) = null; // expired
-                resolve();
-              }, expire);
-            }
-          });
-        },
         send(message) {
           return new Promise((resolve, reject) => {
             ws.send(JSON.stringify(message), (err) =>
@@ -236,22 +197,62 @@ async function startServer(
           });
         },
         async doAck() {
-          return new Promise((resolve, reject) => {
-            ws.once('message', (data) => {
-              if (JSON.parse(String(data)).type === MessageType.ConnectionAck)
-                resolve();
-              else reject(`Unexpected message ${String(data)}`);
-            });
-            ws.send(
-              JSON.stringify({
-                type: MessageType.ConnectionAck,
-              })
-            );
+          this.send({
+            type: MessageType.ConnectionInit,
+          });
+          return this.waitForMessage((message) => {
+            assert.equal(message.type, MessageType.ConnectionAck);
           });
         },
-        publish(message) {
+        publish(message = 'Hello World') {
           ee.emit('NOTIFICATION_ADDED', {
             notificationAdded: { message },
+          });
+        },
+        async waitForMessage(test, expire) {
+          return new Promise((resolve, reject) => {
+            const done = () => {
+              const next = queue.shift()!;
+              try {
+                test?.(JSON.parse(String(next.data)));
+              } catch (e) {
+                reject(e);
+              }
+              resolve();
+            };
+            if (queue.length > 0) {
+              return done();
+            }
+            ws.once('message', done);
+            if (expire) {
+              setTimeout(() => {
+                ws.removeListener('message', done); // expired
+                resolve();
+              }, expire);
+            }
+          });
+        },
+        async waitForClose(test, expire) {
+          return new Promise((resolve, reject) => {
+            if (closeEvent) {
+              test?.(closeEvent.code, closeEvent.reason);
+              return resolve();
+            }
+            ws.onclose = (event) => {
+              closeEvent = event;
+              try {
+                test?.(closeEvent.code, closeEvent.reason);
+              } catch (e) {
+                reject(e);
+              }
+              resolve();
+            };
+            if (expire) {
+              setTimeout(() => {
+                ws.onclose = null; // expired
+                resolve();
+              }, expire);
+            }
           });
         },
       });
@@ -414,15 +415,19 @@ wsSuite('closes connection if subscriber id is already existed', async () => {
 
   await utils.doAck();
 
-  await utils.send({
-    type: MessageType.Subscribe,
-    payload: undefined,
-    id: '1',
-  });
+  const query = `subscription { notificationAdded { message } }`;
 
   await utils.send({
     type: MessageType.Subscribe,
-    payload: undefined,
+    payload: { query },
+    id: '1',
+  });
+
+  await wait(50);
+
+  utils.send({
+    type: MessageType.Subscribe,
+    payload: { query },
     id: '1',
   });
 
@@ -478,7 +483,7 @@ wsSuite('returns errors on syntax error', async () => {
       payload: [
         {
           message: `Cannot query field "NNotificationAdded" on type "Subscription". Did you mean "notificationAdded"?`,
-          locations: [{ line: 3, column: 13 }],
+          locations: [{ line: 3, column: 9 }],
         },
       ],
     });
@@ -497,7 +502,7 @@ wsSuite('format errors using formatError', async () => {
 
   await utils.doAck();
 
-  utils.send({
+  await utils.send({
     id: '1',
     payload: {
       query: `
@@ -511,6 +516,12 @@ wsSuite('format errors using formatError', async () => {
     },
     type: MessageType.Subscribe,
   });
+
+  await wait(50);
+
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  utils.publish();
 
   await utils.waitForMessage((message) => {
     assert.equal(message, {
@@ -550,6 +561,8 @@ wsSuite('sends updates via subscription', async () => {
     type: MessageType.Subscribe,
   });
 
+  await wait(50);
+
   utils.publish();
 
   await utils.waitForMessage((message) => {
@@ -576,7 +589,7 @@ wsSuite(
 
     await utils.doAck();
 
-    await utils.send({
+    utils.send({
       id: '1',
       payload: { query: `query { test }` },
       type: MessageType.Subscribe,
@@ -599,7 +612,7 @@ wsSuite(
   }
 );
 
-wsSuite('returns errors on gql.subscribe error', async () => {
+wsSuite('returns errors on subscribe() error', async () => {
   const utils = await startServer();
 
   await utils.doAck();

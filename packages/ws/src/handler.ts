@@ -92,7 +92,7 @@ export interface HandlerOptions<TContext, TExtra> {
  */
 export function makeHandler<TContext = unknown, TExtra = unknown>(
   GQL: Benzene,
-  options: HandlerOptions<TContext, TExtra>
+  options: HandlerOptions<TContext, TExtra> = {}
 ) {
   const sendRes = (socket: WebSocket, id: string, payload: ExecutionResult) =>
     socket.send(
@@ -186,31 +186,32 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
     };
 
     if (cachedOrResult.operation !== 'subscription') {
-      return sendRes(
+      sendRes(
         socket,
         message.id,
         await GQL.execute(execArg, cachedOrResult.jit)
       );
-    }
+    } else {
+      try {
+        const result = await GQL.subscribe(execArg, cachedOrResult.jit);
 
-    try {
-      const result = await GQL.subscribe(execArg, cachedOrResult.jit);
+        if (!isAsyncIterable(result)) {
+          // If it is not an async iterator, it must be an
+          // execution result with errors
+          return sendErr(socket, message.id, result.errors as GraphQLError[]);
+        }
 
-      if (!isAsyncIterable(result)) {
-        // If it is not an async iterator, it must be an
-        // execution result with errors
-        return sendErr(socket, message.id, result.errors as GraphQLError[]);
+        ctx.subscriptions.set(message.id, result);
+
+        for await (const value of result) {
+          sendRes(socket, message.id, value);
+        }
+      } catch (error) {
+        return sendErr(socket, message.id, [error]);
+      } finally {
+        stopSub(ctx, message.id);
       }
-      ctx.subscriptions.set(message.id, result);
-      for await (const value of result) {
-        sendRes(socket, message.id, value);
-      }
-    } catch (error) {
-      return sendErr(socket, message.id, [error]);
-    } finally {
-      stopSub(ctx, message.id);
     }
-
     socket.send(JSON.stringify({ type: MessageType.Complete, id: message.id }));
   };
 
