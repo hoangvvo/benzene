@@ -53,7 +53,3 @@ const gqlHandle = httpHandler(GQL, {
   },
 });
 ```
-
-## Authentication
-
-`benzene` recommends seperating authentication from GraphQL layer. You can use packages like [`passport`](https://github.com/jaredhanson/passport), which sets the user to `req.user` that can later be accessed inside the `context` function.

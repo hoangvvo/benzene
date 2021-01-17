@@ -133,7 +133,7 @@ const createSchema = (ee: EventEmitter) =>
   });
 
 async function startServer(
-  handlerConfig?: Partial<HandlerOptions>,
+  handlerConfig?: Partial<HandlerOptions<any, any>>,
   options?: Partial<GraphQLConfig>,
   wsOptions?: { protocols?: string }
 ) {
@@ -360,7 +360,7 @@ wsSuite('receive connectionParams in onConnect', async () => {
 
 wsSuite('receive connection context and extra', async () => {
   const utils = await startServer({
-    // see startServer - wsHandler(socket, request) request is extra
+    // see startServer - makeHandler(socket, request) request is extra
     onConnect: async (ctx) => ctx.extra instanceof IncomingMessage,
   });
 

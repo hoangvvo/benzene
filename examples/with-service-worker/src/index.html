@@ -74,7 +74,7 @@
     </p>
     <textarea id="codeHowWork">const GQL = new Benzene({ schema });
         
-addEventListener('fetch', wsHandler(GQL, { path: '/graphql' }))</textarea>
+addEventListener('fetch', makeHandler(GQL, { path: '/graphql' }))</textarea>
     <p>
       For requests to <a href="/graphql">/graphql</a>, we
       <code>responseWith</code> the (promise) result from

@@ -193,14 +193,14 @@ Let's edit `server.ts`
 import http from "http";
 import * as WebSocket from "ws";
 import { Benzene, httpHandler } from "@benzene/server";
-import { wsHandler } from "@benzene/ws";
+import { makeHandler } from "@benzene/ws";
 import schema from "./schema";
 
 const GQL = new Benzene({ schema });
 
 const gqlHandle = httpHandler(GQL, { path: "/graphql" });
 // Add wsHandle
-const wsHandle = wsHandler(GQL);
+const wsHandle = makeHandler(GQL);
 
 const server = http.createServer(gqlHandle);
 server.listen(3000);
@@ -209,4 +209,4 @@ const wss = new WebSocket.Server({ server });
 wss.on("connection", wsHandle);
 ```
 
-As you can see, we reuse the same `Benzene` instance that is used inside `httpHandler`. We also create a `ws` server instance and respond to `connection` event using the handler created by `wsHandler`.
+As you can see, we reuse the same `Benzene` instance that is used inside `httpHandler`. We also create a `ws` server instance and respond to `connection` event using the handler created by `makeHandler`.
