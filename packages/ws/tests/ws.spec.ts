@@ -619,7 +619,7 @@ wsSuite('creates GraphQL context using options.contextFn', async () => {
 
   await utils.doAck();
 
-  utils.send({
+  await utils.send({
     id: '1',
     payload: {
       query: `
@@ -635,12 +635,16 @@ wsSuite('creates GraphQL context using options.contextFn', async () => {
 
   await wait(50);
 
-  utils.waitForMessage((message) => {
+  utils.publish();
+
+  await utils.waitForMessage((message) => {
     assert.equal(message, {
       id: '1',
       payload: {
-        notificationAdded: {
-          user: 'Alexa',
+        data: {
+          notificationAdded: {
+            user: 'Alexa',
+          },
         },
       },
       type: MessageType.Next,
