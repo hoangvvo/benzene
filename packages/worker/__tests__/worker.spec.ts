@@ -1,9 +1,9 @@
-import { suite } from 'uvu';
-import assert from 'uvu/assert';
-import * as fetch from 'node-fetch';
-import { HTTPResponse } from '@benzene/core/src';
+import { suite } from '../../core/__tests__/uvu';
+import assert from '../../core/__tests__/uvu/assert';
+import * as fetch from './node-fetch';
+import { HTTPResponse } from './@benzene/core/src';
 import { Benzene, fetchHandler } from '../src';
-import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLSchema } from '../../core/__tests__/graphql';
 import { HandlerConfig } from '../src/types';
 
 interface FetchEvent {

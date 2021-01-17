@@ -1,7 +1,7 @@
 // Adapted from https://github.com/graphql/express-graphql/blob/master/src/__tests__/http-test.ts
-import { suite } from 'uvu';
-import assert from 'uvu/assert';
-import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
+import { suite } from './uvu';
+import assert from './uvu/assert';
+import { GraphQLObjectType, GraphQLString, GraphQLSchema } from './graphql';
 import { Benzene, HTTPResponse, runHttpQuery } from '../src';
 
 const QueryRootType = new GraphQLObjectType({

@@ -30,7 +30,7 @@
   "scripts": {
     "build": "microbundle --strict --globals @benzene/core=benzeneCore --target node --no-sourcemap --no-compress",
     "clean": "npx rimraf dist",
-    "test": "uvu -r ts-node/register/transpile-only"
+    "test": "jest"
   },
   "dependencies": {
     "@benzene/core": "^0.3.0"

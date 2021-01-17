@@ -1,15 +1,15 @@
-import { suite } from 'uvu';
-import assert from 'uvu/assert';
-import WebSocket from 'ws';
-import { Benzene } from '@benzene/core';
-import { Config as GraphQLConfig } from '@benzene/core/src/types';
+import { suite } from '../../core/__tests__/uvu';
+import assert from '../../core/__tests__/uvu/assert';
+import WebSocket from './ws';
+import { Benzene } from './@benzene/core';
+import { Config as GraphQLConfig } from '../../server/__tests__/@benzene/core/src/types';
 import { createServer, IncomingMessage, Server } from 'http';
 import {
   GraphQLError,
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLString,
-} from 'graphql';
+} from '../../core/__tests__/graphql';
 import { EventEmitter } from 'events';
 import { AddressInfo } from 'net';
 import { HandlerOptions, makeHandler } from '../src/handler';

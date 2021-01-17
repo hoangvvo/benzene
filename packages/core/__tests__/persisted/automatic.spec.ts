@@ -1,5 +1,3 @@
-import { suite } from 'uvu';
-import assert from 'uvu/assert';
 import crypto from 'crypto';
 import lru from 'tiny-lru';
 import { Benzene, persistedQueryPresets } from '../../src';

@@ -1,5 +1,5 @@
-import { GraphQLError } from 'graphql';
-import lru from 'tiny-lru';
+import { GraphQLError } from '../../__tests__/graphql';
+import lru from '../../__tests__/tiny-lru';
 import { BenzenePersisted, KeyValueStore, ValueOrPromise } from '../types';
 
 const APQ_CACHE_PREFIX = 'apq:';

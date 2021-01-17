@@ -1,6 +1,6 @@
-import { suite } from 'uvu';
-import assert from 'uvu/assert';
-import { GraphQLSchema } from 'graphql';
+import { suite } from './uvu';
+import assert from './uvu/assert';
+import { GraphQLSchema } from './graphql';
 import Benzene from '../src/core';
 
 const suiteUsage = suite('GraphQL constructor');

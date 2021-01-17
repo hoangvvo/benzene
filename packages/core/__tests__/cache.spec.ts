@@ -1,6 +1,6 @@
-import { suite } from 'uvu';
-import assert from 'uvu/assert';
-import { Lru } from 'tiny-lru';
+import { suite } from './uvu';
+import assert from './uvu/assert';
+import { Lru } from './tiny-lru';
 import Benzene from '../src/core';
 import { TestSchema } from './schema.spec';
 import { QueryCache } from '../src/types';

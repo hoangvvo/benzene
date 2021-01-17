@@ -1,5 +1,5 @@
-import { Benzene, ValueOrPromise } from '@benzene/core';
-import { ExecutionResult, GraphQLError } from 'graphql';
+import { Benzene, ValueOrPromise } from '../__tests__/@benzene/core';
+import { ExecutionResult, GraphQLError } from '../../core/__tests__/graphql';
 import {
   CompleteMessage,
   ConnectionInitMessage,

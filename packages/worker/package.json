@@ -11,7 +11,7 @@
   "scripts": {
     "build": "microbundle --strict --globals @benzene/core=benzeneCore",
     "clean": "npx rimraf dist",
-    "test": "uvu -r ts-node/register/transpile-only"
+    "test": "jest"
   },
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [

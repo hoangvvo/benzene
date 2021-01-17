@@ -6,9 +6,12 @@
     "outDir": "dist",
     "baseUrl": "./",
     "paths": {
-      "@benzene/core": ["../core"]
+      "@benzene/core": [
+        "../core"
+      ]
     },
-    "moduleResolution": "Node"
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

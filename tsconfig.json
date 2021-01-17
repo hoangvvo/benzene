@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "lib": ["es2020"],
+    "lib": [
+      "es2020"
+    ],
     "target": "ESnext",
     "strict": true,
     "declaration": true,
@@ -9,7 +11,13 @@
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "moduleResolution": "Node"
   },
-  "include": ["packages"],
-  "exclude": ["node_modules", "packages/*/dist"]
+  "include": [
+    "packages"
+  ],
+  "exclude": [
+    "node_modules",
+    "packages/*/dist"
+  ]
 }

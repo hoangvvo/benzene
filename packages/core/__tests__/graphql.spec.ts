@@ -1,12 +1,12 @@
-import { suite } from 'uvu';
-import assert from 'uvu/assert';
+import { suite } from './uvu';
+import assert from './uvu/assert';
 import {
   GraphQLArgs,
   FormattedExecutionResult,
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLString,
-} from 'graphql';
+} from './graphql';
 import Benzene from '../src/core';
 import { TestSchema } from './schema.spec';
 

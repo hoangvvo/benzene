@@ -1,5 +1,5 @@
-import { GraphQLParams } from '@benzene/core';
-import { FormattedExecutionResult, GraphQLFormattedError } from 'graphql';
+import { GraphQLParams } from '../__tests__/@benzene/core';
+import { FormattedExecutionResult, GraphQLFormattedError } from '../../core/__tests__/graphql';
 
 export enum MessageType {
   ConnectionInit = 'connection_init', // Client -> Server

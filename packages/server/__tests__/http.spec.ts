@@ -1,9 +1,9 @@
 // Adapted from https://github.com/graphql/express-graphql/blob/master/src/__tests__/http-test.ts
-import { suite } from 'uvu';
-import assert from 'uvu/assert';
-import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
-import request from 'supertest';
-import { Config } from '@benzene/core/src/types';
+import { suite } from '../../core/__tests__/uvu';
+import assert from '../../core/__tests__/uvu/assert';
+import { GraphQLObjectType, GraphQLString, GraphQLSchema } from '../../core/__tests__/graphql';
+import request from './supertest';
+import { Config } from './@benzene/core/src/types';
 import { createServer } from 'http';
 import { Benzene, httpHandler } from '../src';
 import { HandlerConfig } from '../src/http/types';

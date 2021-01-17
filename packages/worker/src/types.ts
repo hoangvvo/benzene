@@ -1,4 +1,4 @@
-import { ValueOrPromise, TContext } from '@benzene/core';
+import { ValueOrPromise, TContext } from '../../ws/__tests__/@benzene/core';
 
 export interface HandlerConfig {
   path?: string;

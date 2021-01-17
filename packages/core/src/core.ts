@@ -10,13 +10,13 @@ import {
   SubscriptionArgs,
   GraphQLArgs,
   ExecutionArgs,
-} from 'graphql';
+} from '../__tests__/graphql';
 import {
   compileQuery,
   isCompiledQuery,
   CompiledQuery,
-} from '@hoangvvo/graphql-jit';
-import lru, { Lru } from 'tiny-lru';
+} from '../__tests__/@hoangvvo/graphql-jit';
+import lru, { Lru } from '../__tests__/tiny-lru';
 import {
   Config,
   QueryCache,

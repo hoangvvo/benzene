@@ -1,5 +1,5 @@
-import { suite } from 'uvu';
-import assert from 'uvu/assert';
+import { suite } from './uvu';
+import assert from './uvu/assert';
 import { Benzene } from '../../src';
 import { httpTest as oHttpTest } from '../http.spec';
 import { TestSchema } from '../schema.spec';

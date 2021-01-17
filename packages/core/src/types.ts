@@ -3,8 +3,8 @@ import {
   GraphQLSchema,
   DocumentNode,
   GraphQLFormattedError,
-} from 'graphql';
-import { CompiledQuery } from '@hoangvvo/graphql-jit';
+} from '../__tests__/graphql';
+import { CompiledQuery } from '../__tests__/@hoangvvo/graphql-jit';
 
 export type TContext = { [key: string]: any };
 

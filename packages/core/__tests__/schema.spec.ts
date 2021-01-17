@@ -1,4 +1,4 @@
-import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLSchema } from './graphql';
 
 const QueryRootType = new GraphQLObjectType({
   name: 'QueryRoot',

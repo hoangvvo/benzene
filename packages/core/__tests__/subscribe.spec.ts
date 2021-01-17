@@ -6,8 +6,8 @@
  * the GraphQLObject in the schema.
  */
 
-import { suite } from 'uvu';
-import assert from 'uvu/assert';
+import { suite } from './uvu';
+import assert from './uvu/assert';
 import { EventEmitter } from 'events';
 import {
   GraphQLObjectType,
@@ -21,10 +21,10 @@ import {
   GraphQLError,
   SubscriptionArgs,
   ExecutionResult,
-} from 'graphql';
+} from './graphql';
 import Benzene from '../src/core';
 import { isAsyncIterable } from '../src/utils';
-import { compileQuery, isCompiledQuery } from '@hoangvvo/graphql-jit';
+import { compileQuery, isCompiledQuery } from './@hoangvvo/graphql-jit';
 
 function checkDeepEqual(actual, expected) {
   // FIXME: Should not have to do this
