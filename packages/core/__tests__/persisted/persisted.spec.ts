@@ -1,8 +1,6 @@
-import { suite } from './uvu';
-import assert from './uvu/assert';
 import { Benzene } from '../../src';
 import { httpTest as oHttpTest } from '../http.spec';
-import { TestSchema } from '../schema.spec';
+import { TestSchema } from '../utils/schema';
 
 const TestPersisted = {
   isPersistedQuery(params) {
@@ -20,18 +18,17 @@ const GQL = new Benzene({
 
 const httpTest = (httpParams, expected, GQLInstance = GQL) =>
   oHttpTest(httpParams, expected, GQLInstance);
-const suitePersisted = suite('GraphQL#persisted');
 
-suitePersisted('Allows options.persisted to be set', () => {
+test('Allows options.persisted to be set', () => {
   const persisted = {} as any;
   const GQL = new Benzene({
     schema: TestSchema,
     persisted,
   });
-  assert.is(GQL.persisted, persisted);
+  expect(GQL.persisted).toBe(persisted);
 });
 
-suitePersisted('Gets query using persisted#getQuery', async () => {
+test('Gets query using persisted#getQuery', async () => {
   await httpTest(
     {
       method: 'POST',
@@ -41,31 +38,28 @@ suitePersisted('Gets query using persisted#getQuery', async () => {
   );
 });
 
-suitePersisted(
-  'Bypass persisted if isPersistedQuery returns false',
-  async () => {
-    await httpTest(
-      {
-        method: 'POST',
-        body: { extensions: { persisted: false, query: '{test}' } },
+test('Bypass persisted if isPersistedQuery returns false', async () => {
+  await httpTest(
+    {
+      method: 'POST',
+      body: { extensions: { persisted: false, query: '{test}' } },
+    },
+    {
+      status: 400,
+      payload: {
+        errors: [
+          {
+            message: 'Must provide query string.',
+            locations: undefined,
+            path: undefined,
+          },
+        ],
       },
-      {
-        status: 400,
-        payload: {
-          errors: [
-            {
-              message: 'Must provide query string.',
-              locations: undefined,
-              path: undefined,
-            },
-          ],
-        },
-      }
-    );
-  }
-);
+    }
+  );
+});
 
-suitePersisted('Allows persisted#getQuery to returns undefined', async () => {
+test('Allows persisted#getQuery to returns undefined', async () => {
   await httpTest(
     {
       method: 'POST',
@@ -86,7 +80,7 @@ suitePersisted('Allows persisted#getQuery to returns undefined', async () => {
   );
 });
 
-suitePersisted('Catches errors throw in persisted#getQuery', async () => {
+test('Catches errors throw in persisted#getQuery', async () => {
   const GQL = new Benzene({
     schema: TestSchema,
     persisted: {
@@ -112,41 +106,36 @@ suitePersisted('Catches errors throw in persisted#getQuery', async () => {
   );
 });
 
-suitePersisted(
-  'Uses error.status of error thrown in persisted#getQuery',
-  async () => {
-    const GQL = new Benzene({
-      schema: TestSchema,
-      persisted: {
-        isPersistedQuery: () => true,
-        async getQuery() {
-          const error = new Error('Bad Persisted Query');
-          (error as any).status = 400;
-          throw error;
-        },
+test('Uses error.status of error thrown in persisted#getQuery', async () => {
+  const GQL = new Benzene({
+    schema: TestSchema,
+    persisted: {
+      isPersistedQuery: () => true,
+      async getQuery() {
+        const error = new Error('Bad Persisted Query');
+        (error as any).status = 400;
+        throw error;
       },
-    });
+    },
+  });
 
-    await httpTest(
-      {
-        method: 'GET',
-        body: {},
+  await httpTest(
+    {
+      method: 'GET',
+      body: {},
+    },
+    {
+      status: 400,
+      payload: {
+        errors: [
+          {
+            message: 'Bad Persisted Query',
+            locations: undefined,
+            path: undefined,
+          },
+        ],
       },
-      {
-        status: 400,
-        payload: {
-          errors: [
-            {
-              message: 'Bad Persisted Query',
-              locations: undefined,
-              path: undefined,
-            },
-          ],
-        },
-      },
-      GQL
-    );
-  }
-);
-
-suitePersisted.run();
+    },
+    GQL
+  );
+});

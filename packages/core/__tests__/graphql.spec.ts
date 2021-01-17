@@ -1,18 +1,14 @@
-import { suite } from './uvu';
-import assert from './uvu/assert';
 import {
   GraphQLArgs,
   FormattedExecutionResult,
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLString,
-} from './graphql';
+} from 'graphql';
 import Benzene from '../src/core';
-import { TestSchema } from './schema.spec';
+import { TestSchema } from './utils/schema';
 
 const GQL = new Benzene({ schema: TestSchema });
-
-const suiteGraphql = suite('GraphQL#graphql');
 
 async function testGraphql(
   args: Pick<
@@ -25,12 +21,13 @@ async function testGraphql(
   GQLInstance = GQL
 ) {
   const result = await GQLInstance.graphql(args);
-  return assert.equal(result, expected);
+  return expect(result).toEqual(expected);
 }
-suiteGraphql('allows with query', () => {
+test('allows with query', async () => {
   return testGraphql({ source: '{test}' }, { data: { test: 'Hello World' } });
 });
-suiteGraphql('allows with variable values', () => {
+
+test('allows with variable values', async () => {
   return testGraphql(
     {
       source: 'query helloWho($who: String){ test(who: $who) }',
@@ -39,7 +36,8 @@ suiteGraphql('allows with variable values', () => {
     { data: { test: 'Hello Dolly' } }
   );
 });
-suiteGraphql('allows with operation name', () => {
+
+test('allows with operation name', () => {
   return testGraphql(
     {
       source: `
@@ -60,7 +58,8 @@ suiteGraphql('allows with operation name', () => {
     }
   );
 });
-suiteGraphql('reports validation errors', () => {
+
+test('reports validation errors', () => {
   return testGraphql(
     {
       source: '{ test, unknownOne, unknownTwo }',
@@ -81,7 +80,8 @@ suiteGraphql('reports validation errors', () => {
     }
   );
 });
-suiteGraphql('Errors when missing operation name', () => {
+
+test('Errors when missing operation name', () => {
   return testGraphql(
     {
       source: `
@@ -102,7 +102,7 @@ suiteGraphql('Errors when missing operation name', () => {
   );
 });
 
-suiteGraphql('Allows passing in a context', () => {
+test('Allows passing in a context', () => {
   const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
       name: 'Query',
@@ -129,7 +129,7 @@ suiteGraphql('Allows passing in a context', () => {
   );
 });
 
-suiteGraphql('allows passing in a rootValue', () => {
+test('allows passing in a rootValue', () => {
   const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
       name: 'Query',
@@ -148,5 +148,3 @@ suiteGraphql('allows passing in a rootValue', () => {
     new Benzene({ schema })
   );
 });
-
-suiteGraphql.run();

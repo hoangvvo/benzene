@@ -1,6 +1,6 @@
+import { ExecutionResult, GraphQLError } from 'graphql';
 import Benzene from './core';
 import { HTTPRequest, HTTPResponse, GraphQLParams } from './types';
-import { ExecutionResult, GraphQLError } from '../__tests__/graphql';
 
 function parseBodyByContentType(
   rawBody: string,

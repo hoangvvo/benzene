@@ -2,7 +2,7 @@
 
 const Fastify = require('fastify');
 const mercurius = require('mercurius');
-const schema = require('../schema');
+const schema = require('../utils/schema');
 
 const app = Fastify();
 

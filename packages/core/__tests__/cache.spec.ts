@@ -1,21 +1,18 @@
-import { suite } from './uvu';
-import assert from './uvu/assert';
-import { Lru } from './tiny-lru';
+import { Lru } from 'tiny-lru';
 import Benzene from '../src/core';
-import { TestSchema } from './schema.spec';
+import { TestSchema } from './utils/schema';
 import { QueryCache } from '../src/types';
 
-const suiteCache = suite('GraphQL#cache');
-
-suiteCache('saves compiled query to cache', async () => {
+test('saves compiled query to cache', async () => {
   const GQL = new Benzene({
     schema: TestSchema,
   });
   const lru: Lru<QueryCache> = (GQL as any).lru;
   await GQL.getCachedGQL(`{ test }`);
-  assert.ok(lru.has('{ test }'));
+  expect(lru.has('{ test }')).toBe(true);
 });
-suiteCache('uses compiled query from cache', async () => {
+
+test('uses compiled query from cache', async () => {
   const GQL = new Benzene({
     schema: TestSchema,
   });
@@ -30,15 +27,13 @@ suiteCache('uses compiled query from cache', async () => {
   });
 
   const result = await GQL.graphql({ source: '{ test }' });
-  assert.equal(result, { data: { test: 'Goodbye' } });
+  expect(result).toEqual({ data: { test: 'Goodbye' } });
 });
-suiteCache('does not cache bad query', async () => {
+test('does not cache bad query', async () => {
   const GQL = new Benzene({
     schema: TestSchema,
   });
   const lru: Lru<QueryCache> = (GQL as any).lru;
   await GQL.getCachedGQL('{ baddd }');
-  assert.not.ok(lru.has('{ baddd }'));
+  expect(lru.has('{ baddd }')).toBe(false);
 });
-
-suiteCache.run();

@@ -1,5 +1,5 @@
 import { IncomingMessage } from 'http';
-import { ValueOrPromise, TContext } from '../../../ws/__tests__/@benzene/core';
+import { ValueOrPromise, TContext } from '@benzene/core';
 
 export interface HandlerConfig {
   path?: string;

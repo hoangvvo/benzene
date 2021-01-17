@@ -1,4 +1,4 @@
-import { Benzene, runHttpQuery, TContext } from '../../ws/__tests__/@benzene/core';
+import { Benzene, runHttpQuery, TContext } from '@benzene/core';
 import { HandlerConfig } from './types';
 
 export function createHandler(gql: Benzene, options: HandlerConfig = {}) {

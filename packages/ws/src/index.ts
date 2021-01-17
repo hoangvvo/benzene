@@ -1,4 +1,4 @@
-export * from '../__tests__/@benzene/core';
+export * from '@benzene/core';
 export { makeHandler } from './handler';
 export {
   MessageType,

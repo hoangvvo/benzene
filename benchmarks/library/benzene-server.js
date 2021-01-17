@@ -2,7 +2,7 @@
 
 const polka = require('polka');
 const { Benzene, httpHandler } = require('@benzene/server');
-const schema = require('../schema');
+const schema = require('../utils/schema');
 
 const app = polka();
 

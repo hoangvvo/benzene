@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import lru from 'tiny-lru';
 import { Benzene, persistedQueryPresets } from '../../src';
 import { httpTest as oHttpTest } from '../http.spec';
-import { TestSchema } from '../schema.spec';
+import { TestSchema } from '../utils/schema';
 
 const sha256 = (query: string) =>
   crypto.createHash('sha256').update(query).digest('hex');
@@ -15,9 +15,7 @@ const GQL = new Benzene({
 const httpTest = (httpParams, expected, GQLInstance = GQL) =>
   oHttpTest(httpParams, expected, GQLInstance);
 
-const suiteAuto = suite('PersistedAutomatic');
-
-suiteAuto('Bypass if isPersistedQuery returns false', async () => {
+test('Bypass if isPersistedQuery returns false', async () => {
   const persistedAuto = persistedQueryPresets.automatic({ sha256 });
   const GQL = new Benzene({
     schema: TestSchema,
@@ -92,40 +90,37 @@ suiteAuto('Bypass if isPersistedQuery returns false', async () => {
   );
 });
 
-suiteAuto(
-  'Throws PersistedQueryNotFound if query not found in store',
-  async () => {
-    await httpTest(
-      {
-        method: 'POST',
-        body: {
-          extensions: {
-            persistedQuery: {
-              sha256Hash: sha256('{test}'),
-              version: 1,
-            },
+test('Throws PersistedQueryNotFound if query not found in store', async () => {
+  await httpTest(
+    {
+      method: 'POST',
+      body: {
+        extensions: {
+          persistedQuery: {
+            sha256Hash: sha256('{test}'),
+            version: 1,
           },
         },
       },
-      {
-        status: 200,
-        payload: {
-          errors: [
-            {
-              message: 'PersistedQueryNotFound',
-              extensions: { code: 'PERSISTED_QUERY_NOT_FOUND' },
-              locations: undefined,
-              path: undefined,
-            },
-          ],
-        },
+    },
+    {
+      status: 200,
+      payload: {
+        errors: [
+          {
+            message: 'PersistedQueryNotFound',
+            extensions: { code: 'PERSISTED_QUERY_NOT_FOUND' },
+            locations: undefined,
+            path: undefined,
+          },
+        ],
       },
-      GQL
-    );
-  }
-);
+    },
+    GQL
+  );
+});
 
-suiteAuto('Saves query by hash sent from clients', async () => {
+test('Saves query by hash sent from clients', async () => {
   const cache = lru(1024);
   const auto = persistedQueryPresets.automatic({ sha256, cache });
   const sha256Hash: string = await sha256('{test}');
@@ -145,10 +140,10 @@ suiteAuto('Saves query by hash sent from clients', async () => {
     { payload: { data: { test: 'Hello World' } } },
     new Benzene({ schema: TestSchema, persisted: auto })
   );
-  assert.is(cache.get(`apq:${sha256Hash}`), '{test}');
+  expect(cache.get(`apq:${sha256Hash}`)).toBe('{test}');
 });
 
-suiteAuto('Throws error if client provided hash256 is mismatched', async () => {
+test('Throws error if client provided hash256 is mismatched', async () => {
   const auto = persistedQueryPresets.automatic({ sha256 });
   await httpTest(
     {
@@ -179,7 +174,7 @@ suiteAuto('Throws error if client provided hash256 is mismatched', async () => {
   );
 });
 
-suiteAuto('Returns query using stored hash256', async () => {
+test('Returns query using stored hash256', async () => {
   const cache = lru(1024);
   const sha256Hash: string = await sha256('{test}');
   cache.set(`apq:${sha256Hash}`, '{test}');
@@ -202,19 +197,15 @@ suiteAuto('Returns query using stored hash256', async () => {
   );
 });
 
-suiteAuto('Allows using custom cache', () => {
-  return new Promise((resolve) => {
-    const cache = {
-      get: async () => {
-        resolve();
-        return '{hello}';
-      },
-      set: () => null,
-      delete: () => true,
-    };
-    const auto = persistedQueryPresets.automatic({ cache, sha256 });
-    auto.getQuery({ extensions: { persistedQuery: { sha256: '' } } });
-  });
+test('Allows using custom cache', (done) => {
+  const cache = {
+    get: async () => {
+      done();
+      return '{hello}';
+    },
+    set: () => null,
+    delete: () => true,
+  };
+  const auto = persistedQueryPresets.automatic({ cache, sha256 });
+  auto.getQuery({ extensions: { persistedQuery: { sha256: '' } } });
 });
-
-suiteAuto.run();
