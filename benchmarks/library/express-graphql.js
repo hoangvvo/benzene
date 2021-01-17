@@ -2,7 +2,7 @@
 
 const polka = require('polka');
 const { graphqlHTTP } = require('express-graphql');
-const schema = require('../schema');
+const schema = require('../utils/schema');
 
 const app = polka();
 

@@ -3,7 +3,7 @@ const WebSocket = require('ws');
 const fs = require('fs');
 const { Benzene, httpHandler } = require('@benzene/server');
 const { makeHandler } = require('@benzene/ws');
-const schema = require('./schema');
+const schema = require('./utils/schema');
 
 const GQL = new Benzene({ schema });
 

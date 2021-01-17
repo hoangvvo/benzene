@@ -1,9 +1,9 @@
 import { Benzene, HTTPResponse, runHttpQuery } from '@benzene/core';
+import { GraphQLError } from 'graphql';
+import { IncomingMessage, ServerResponse } from 'http';
 import { parse as parseQS } from 'querystring';
 import { readBody } from './readBody';
 import { HandlerConfig } from './types';
-import { IncomingMessage, ServerResponse } from 'http';
-import { GraphQLError } from 'graphql';
 
 export function httpHandler(gql: Benzene, options: HandlerConfig = {}) {
   function sendResponse(res: ServerResponse, result: HTTPResponse) {

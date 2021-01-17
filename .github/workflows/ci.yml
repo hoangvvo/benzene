@@ -27,9 +27,4 @@ jobs:
     - name: Build & Test
       run: |
         yarn build
-        yarn test
-        yarn coverage
-    - name: Coverage
-      uses: codecov/codecov-action@v1
-      with:
-        file: ./coverage.lcov
+        yarn test:ci

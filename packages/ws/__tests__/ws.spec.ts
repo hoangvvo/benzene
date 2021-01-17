@@ -1,8 +1,4 @@
-import { suite } from 'uvu';
-import assert from 'uvu/assert';
 import WebSocket from 'ws';
-import { Benzene } from '@benzene/core';
-import { Config as GraphQLConfig } from '@benzene/core/src/types';
 import { createServer, IncomingMessage, Server } from 'http';
 import {
   GraphQLError,
@@ -12,6 +8,8 @@ import {
 } from 'graphql';
 import { EventEmitter } from 'events';
 import { AddressInfo } from 'net';
+import { Benzene } from '@benzene/core';
+import { Config as GraphQLConfig } from '@benzene/core/src/types';
 import { HandlerOptions, makeHandler } from '../src/handler';
 import {
   MessageType,
@@ -201,7 +199,7 @@ async function startServer(
             type: MessageType.ConnectionInit,
           });
           return this.waitForMessage((message) => {
-            assert.equal(message.type, MessageType.ConnectionAck);
+            expect(message.type).toBe(MessageType.ConnectionAck);
           });
         },
         publish(message = 'Hello World') {
@@ -265,47 +263,42 @@ const cleanupTest = () => {
   serverInit.server.close();
 };
 
-const wsSuite = suite('makeHandler');
+afterEach(cleanupTest);
 
-wsSuite.after.each(cleanupTest);
+test('closes connection if use protocol other than graphql-transport-ws', async () => {
+  const utils = await startServer(
+    {},
+    {},
+    { protocols: 'graphql-subscriptions' }
+  );
 
-wsSuite(
-  'closes connection if use protocol other than graphql-transport-ws',
-  async () => {
-    const utils = await startServer(
-      {},
-      {},
-      { protocols: 'graphql-subscriptions' }
-    );
+  await utils.waitForClose((code) => {
+    expect(code).toBe(1002);
+  });
+});
 
-    await utils.waitForClose((code) => {
-      assert.equal(code, 1002);
-    });
-  }
-);
-
-wsSuite('closes connection if message is invalid', async () => {
+test('closes connection if message is invalid', async () => {
   const utils = await startServer();
 
   utils.ws.send("'");
 
   await utils.waitForClose((code, message) => {
-    assert.equal(code, 4400);
-    assert.equal(message, 'Invalid message received');
+    expect(code).toBe(4400);
+    expect(message).toBe('Invalid message received');
   });
 });
 
-wsSuite('replies with connection_ack', async () => {
+test('replies with connection_ack', async () => {
   const utils = await startServer();
 
   utils.send({ type: MessageType.ConnectionInit });
 
   await utils.waitForMessage((message) => {
-    assert.equal(message.type, MessageType.ConnectionAck);
+    expect(message.type).toBe(MessageType.ConnectionAck);
   });
 });
 
-wsSuite('replies with connection_ack if onConnect() == true', async () => {
+test('replies with connection_ack if onConnect() == true', async () => {
   const utils = await startServer({
     onConnect: () => true,
   });
@@ -313,27 +306,24 @@ wsSuite('replies with connection_ack if onConnect() == true', async () => {
   utils.send({ type: MessageType.ConnectionInit });
 
   await utils.waitForMessage((message) => {
-    assert.equal(message.type, MessageType.ConnectionAck);
+    expect(message.type).toBe(MessageType.ConnectionAck);
   });
 });
 
-wsSuite(
-  'replies with connection_ack and payload if onConnect() == object',
-  async () => {
-    const utils = await startServer({
-      onConnect: () => ({ test: 1 }),
-    });
+test('replies with connection_ack and payload if onConnect() == object', async () => {
+  const utils = await startServer({
+    onConnect: () => ({ test: 1 }),
+  });
 
-    utils.send({ type: MessageType.ConnectionInit });
+  utils.send({ type: MessageType.ConnectionInit });
 
-    await utils.waitForMessage((message) => {
-      assert.equal(message.type, MessageType.ConnectionAck);
-      assert.equal((message as ConnectionAckMessage).payload, { test: 1 });
-    });
-  }
-);
+  await utils.waitForMessage((message) => {
+    expect(message.type).toBe(MessageType.ConnectionAck);
+    expect((message as ConnectionAckMessage).payload).toEqual({ test: 1 });
+  });
+});
 
-wsSuite('closes connection if onConnect() == false', async () => {
+test('closes connection if onConnect() == false', async () => {
   const utils = await startServer({
     onConnect: async () => false,
   });
@@ -341,12 +331,12 @@ wsSuite('closes connection if onConnect() == false', async () => {
   utils.send({ type: MessageType.ConnectionInit });
 
   await utils.waitForClose((code, reason) => {
-    assert.equal(code, 4403);
-    assert.equal(reason, 'Forbidden');
+    expect(code).toBe(4403);
+    expect(reason).toBe('Forbidden');
   });
 });
 
-wsSuite('receive connectionParams in onConnect', async () => {
+test('receive connectionParams in onConnect', async () => {
   const utils = await startServer({
     onConnect: async (ctx, connectionParams) => connectionParams,
   });
@@ -354,12 +344,12 @@ wsSuite('receive connectionParams in onConnect', async () => {
   utils.send({ type: MessageType.ConnectionInit, payload: { test: 'ok' } });
 
   await utils.waitForMessage((message) => {
-    assert.equal(message.type, MessageType.ConnectionAck);
-    assert.equal((message as ConnectionAckMessage).payload, { test: 'ok' });
+    expect(message.type).toBe(MessageType.ConnectionAck);
+    expect((message as ConnectionAckMessage).payload).toEqual({ test: 'ok' });
   });
 });
 
-wsSuite('receive connection context and extra', async () => {
+test('receive connection context and extra', async () => {
   const utils = await startServer({
     // see startServer - makeHandler(socket, request) request is extra
     onConnect: async (ctx) => ctx.extra instanceof IncomingMessage,
@@ -368,11 +358,11 @@ wsSuite('receive connection context and extra', async () => {
   utils.send({ type: MessageType.ConnectionInit, payload: { test: 'ok' } });
 
   await utils.waitForMessage((message) => {
-    assert.equal(message.type, MessageType.ConnectionAck);
+    expect(message.type).toBe(MessageType.ConnectionAck);
   });
 });
 
-wsSuite('closes connection if onConnect() throws', async () => {
+test('closes connection if onConnect() throws', async () => {
   const utils = await startServer({
     onConnect: async () => {
       throw new Error('bad');
@@ -382,35 +372,35 @@ wsSuite('closes connection if onConnect() throws', async () => {
   utils.send({ type: MessageType.ConnectionInit });
 
   await utils.waitForClose((code, reason) => {
-    assert.equal(code, 4403);
-    assert.equal(reason, 'bad');
+    expect(code).toBe(4403);
+    expect(reason).toBe('bad');
   });
 });
 
-wsSuite('closes connection if too many initialisation requests', async () => {
+test('closes connection if too many initialisation requests', async () => {
   const utils = await startServer();
 
   utils.send({ type: MessageType.ConnectionInit });
   utils.send({ type: MessageType.ConnectionInit });
 
   await utils.waitForClose((code, reason) => {
-    assert.equal(code, 4429);
-    assert.equal(reason, 'Too many initialisation requests');
+    expect(code).toBe(4429);
+    expect(reason).toBe('Too many initialisation requests');
   });
 });
 
-wsSuite('closes connection if subscribe before initialized', async () => {
+test('closes connection if subscribe before initialized', async () => {
   const utils = await startServer();
 
   utils.send({ type: MessageType.Subscribe, id: '1', payload: {} });
 
   await utils.waitForClose((code, reason) => {
-    assert.equal(code, 4401);
-    assert.equal(reason, 'Unauthorized');
+    expect(code).toBe(4401);
+    expect(reason).toBe('Unauthorized');
   });
 });
 
-wsSuite('closes connection if subscriber id is already existed', async () => {
+test('closes connection if subscriber id is already existed', async () => {
   const utils = await startServer();
 
   await utils.doAck();
@@ -432,12 +422,12 @@ wsSuite('closes connection if subscriber id is already existed', async () => {
   });
 
   await utils.waitForClose((code, reason) => {
-    assert.equal(code, 4409);
-    assert.equal(reason, 'Subscriber for 1 already exists');
+    expect(code).toBe(4409);
+    expect(reason).toBe('Subscriber for 1 already exists');
   });
 });
 
-wsSuite('returns errors if no payload', async () => {
+test('returns errors if no payload', async () => {
   const utils = await startServer();
 
   await utils.doAck();
@@ -449,7 +439,7 @@ wsSuite('returns errors if no payload', async () => {
   });
 
   await utils.waitForMessage((message) => {
-    assert.equal(message, {
+    expect(message).toEqual({
       id: '1',
       type: MessageType.Error,
       payload: [{ message: 'Must provide query string.' }],
@@ -457,7 +447,7 @@ wsSuite('returns errors if no payload', async () => {
   });
 });
 
-wsSuite('returns errors on syntax error', async () => {
+test('returns errors on syntax error', async () => {
   const utils = await startServer();
 
   await utils.doAck();
@@ -477,7 +467,7 @@ wsSuite('returns errors on syntax error', async () => {
   });
 
   await utils.waitForMessage((message) => {
-    assert.equal(message, {
+    expect(message).toEqual({
       id: '1',
       type: MessageType.Error,
       payload: [
@@ -490,7 +480,7 @@ wsSuite('returns errors on syntax error', async () => {
   });
 });
 
-wsSuite('format errors using formatError', async () => {
+test('format errors using formatError', async () => {
   const utils = await startServer(
     {},
     {
@@ -524,7 +514,7 @@ wsSuite('format errors using formatError', async () => {
   utils.publish();
 
   await utils.waitForMessage((message) => {
-    assert.equal(message, {
+    expect(message).toEqual({
       id: '1',
       type: MessageType.Next,
       payload: {
@@ -541,7 +531,7 @@ wsSuite('format errors using formatError', async () => {
   });
 });
 
-wsSuite('resolves subscriptions and send updates', async () => {
+test('resolves subscriptions and send updates', async () => {
   const utils = await startServer();
 
   await utils.doAck();
@@ -566,7 +556,7 @@ wsSuite('resolves subscriptions and send updates', async () => {
   utils.publish();
 
   await utils.waitForMessage((message) => {
-    assert.equal(message, {
+    expect(message).toEqual({
       type: MessageType.Next,
       id: '1',
       payload: {
@@ -581,38 +571,35 @@ wsSuite('resolves subscriptions and send updates', async () => {
   });
 });
 
-wsSuite(
-  'resolves queries and mutations (single result operation)',
-  async () => {
-    // We can also add a Query test just to be sure but Mutation one only should be sufficient
-    const utils = await startServer();
+test('resolves queries and mutations (single result operation)', async () => {
+  // We can also add a Query test just to be sure but Mutation one only should be sufficient
+  const utils = await startServer();
 
-    await utils.doAck();
+  await utils.doAck();
 
-    utils.send({
+  utils.send({
+    id: '1',
+    payload: { query: `query { test }` },
+    type: MessageType.Subscribe,
+  });
+
+  await utils.waitForMessage((message) => {
+    expect(message).toEqual({
+      type: MessageType.Next,
       id: '1',
-      payload: { query: `query { test }` },
-      type: MessageType.Subscribe,
+      payload: { data: { test: 'test' } },
     });
+  });
 
-    await utils.waitForMessage((message) => {
-      assert.equal(message, {
-        type: MessageType.Next,
-        id: '1',
-        payload: { data: { test: 'test' } },
-      });
+  await utils.waitForMessage((message) => {
+    expect(message).toEqual({
+      id: '1',
+      type: MessageType.Complete,
     });
+  });
+});
 
-    await utils.waitForMessage((message) => {
-      assert.equal(message, {
-        id: '1',
-        type: MessageType.Complete,
-      });
-    });
-  }
-);
-
-wsSuite('creates GraphQL context using options.contextFn', async () => {
+test('creates GraphQL context using options.contextFn', async () => {
   const utils = await startServer({
     contextFn: async () => ({ user: 'Alexa' }),
   });
@@ -638,7 +625,7 @@ wsSuite('creates GraphQL context using options.contextFn', async () => {
   utils.publish();
 
   await utils.waitForMessage((message) => {
-    assert.equal(message, {
+    expect(message).toEqual({
       id: '1',
       payload: {
         data: {
@@ -652,7 +639,7 @@ wsSuite('creates GraphQL context using options.contextFn', async () => {
   });
 });
 
-wsSuite('returns errors on subscribe() error', async () => {
+test('returns errors on subscribe() error', async () => {
   const utils = await startServer();
 
   await utils.doAck();
@@ -670,7 +657,7 @@ wsSuite('returns errors on subscribe() error', async () => {
   });
 
   await utils.waitForMessage((message) => {
-    assert.equal(message, {
+    expect(message).toEqual({
       id: '1',
       type: MessageType.Error,
       payload: [
@@ -683,7 +670,7 @@ wsSuite('returns errors on subscribe() error', async () => {
   });
 });
 
-wsSuite('stops subscription upon MessageType.GQL_STOP', async () => {
+test('stops subscription upon MessageType.GQL_STOP', async () => {
   const utils = await startServer();
 
   await utils.doAck();
@@ -710,10 +697,8 @@ wsSuite('stops subscription upon MessageType.GQL_STOP', async () => {
   utils.publish();
 
   await utils.waitForMessage(() => {
-    assert.unreachable('Should have been unsubscribed');
+    throw new Error('Should have been unsubscribed');
   }, 100);
 });
-
-wsSuite.run();
 
 // TODO: Add test to test on close event cleanup

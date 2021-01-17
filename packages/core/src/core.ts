@@ -120,10 +120,7 @@ export default class Benzene {
     variableValues,
     operationName,
     rootValue,
-  }: Pick<
-    GraphQLArgs,
-    'contextValue' | 'variableValues' | 'operationName' | 'rootValue'
-  > & {
+  }: Partial<GraphQLArgs> & {
     source: string;
   }): Promise<FormattedExecutionResult> {
     const cachedOrResult = this.getCachedGQL(source, operationName);
@@ -148,7 +145,7 @@ export default class Benzene {
       contextValue,
       variableValues,
       rootValue,
-    }: Omit<SubscriptionArgs, 'schema'>,
+    }: Partial<Omit<SubscriptionArgs, 'schema'>>,
     jit: CompiledQuery
   ): ValueOrPromise<ExecutionResult> {
     return jit.query(rootValue, contextValue, variableValues);
@@ -156,7 +153,11 @@ export default class Benzene {
 
   // Reimplements graphql/subscription/subscribe but using jit
   subscribe(
-    { contextValue, variableValues, rootValue }: Omit<ExecutionArgs, 'schema'>,
+    {
+      contextValue,
+      variableValues,
+      rootValue,
+    }: Partial<Omit<ExecutionArgs, 'schema'>>,
     jit: CompiledQuery
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
     return jit.subscribe!(rootValue, contextValue, variableValues);

@@ -1,7 +1,7 @@
 'use strict';
 
 const { ApolloServer } = require('apollo-server');
-const schema = require('../schema');
+const schema = require('../utils/schema');
 
 const server = new ApolloServer({
   schema,

@@ -2,7 +2,7 @@
 
 const { ApolloServer } = require('apollo-server-fastify');
 const app = require('fastify')();
-const schema = require('../schema');
+const schema = require('../utils/schema');
 
 const server = new ApolloServer({ schema });
 
