@@ -1,7 +1,7 @@
-import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLSchema } from "graphql";
 
 const QueryRootType = new GraphQLObjectType({
-  name: 'QueryRoot',
+  name: "QueryRoot",
   fields: {
     test: {
       type: GraphQLString,
@@ -9,12 +9,12 @@ const QueryRootType = new GraphQLObjectType({
         who: { type: GraphQLString },
       },
       resolve: (_root, args: { who?: string }) =>
-        'Hello ' + (args.who ?? 'World'),
+        "Hello " + (args.who ?? "World"),
     },
     thrower: {
       type: GraphQLString,
       resolve() {
-        throw new Error('Throws!');
+        throw new Error("Throws!");
       },
     },
   },
@@ -23,7 +23,7 @@ const QueryRootType = new GraphQLObjectType({
 export const TestSchema = new GraphQLSchema({
   query: QueryRootType,
   mutation: new GraphQLObjectType({
-    name: 'MutationRoot',
+    name: "MutationRoot",
     fields: {
       writeTest: {
         type: QueryRootType,

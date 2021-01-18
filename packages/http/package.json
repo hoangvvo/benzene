@@ -20,13 +20,21 @@
   "homepage": "https://hoangvvo.github.io/benzene/",
   "license": "MIT",
   "main": "dist/index.js",
-  "module": "dist/index.module.js",
-  "unpkg": "dist/index.umd.js",
+  "module": "dist/index.m.js",
+  "esmodule": "dist/index.m.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.m.js",
+      "require": "./dist/index.js"
+    }
+  },
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "scripts": {
-    "build": "microbundle --strict --globals @benzene/core=benzeneCore --no-sourcemap --no-compress",
+    "build": "microbundle -f modern,cjs --strict --globals @benzene/core=benzeneCore --no-sourcemap --no-compress",
     "clean": "npx rimraf dist",
     "test": "jest"
   },

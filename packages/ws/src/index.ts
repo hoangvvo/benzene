@@ -1,5 +1,5 @@
-export * from '@benzene/core';
-export { makeHandler } from './handler';
+export * from "@benzene/core";
+export { makeHandler } from "./handler";
 export {
   MessageType,
   CompleteMessage,
@@ -8,5 +8,5 @@ export {
   ErrorMessage,
   NextMessage,
   SubscribeMessage,
-} from './message';
-export { GRAPHQL_TRANSPORT_WS_PROTOCOL } from './protocol';
+} from "./message";
+export { GRAPHQL_TRANSPORT_WS_PROTOCOL } from "./protocol";

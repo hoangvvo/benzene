@@ -1,11 +1,11 @@
-import { ExecutionResult } from 'graphql';
-import { Benzene, GraphQLParams } from '@benzene/core';
-import { HTTPRequest, HTTPResponse } from './types';
+import { ExecutionResult } from "graphql";
+import { Benzene, GraphQLParams } from "@benzene/core";
+import { HTTPRequest, HTTPResponse } from "./types";
 
 export function getGraphQLParams({
   query,
   body,
-}: Pick<HTTPRequest, 'query' | 'body'>): GraphQLParams {
+}: Pick<HTTPRequest, "query" | "body">): GraphQLParams {
   return {
     query: body?.query || query?.query,
     variables:
@@ -28,28 +28,28 @@ export function createResponse(
   return {
     payload: GQL.formatExecutionResult(result),
     status: code,
-    headers: { 'content-type': 'application/json' },
+    headers: { "content-type": "application/json" },
   };
 }
 
 export function parseGraphQLBody(
   rawBody: string,
-  oCtype: string = ''
+  oCtype: string = ""
 ): Record<string, any> | null {
-  const semiIndex = oCtype.indexOf(';');
+  const semiIndex = oCtype.indexOf(";");
   const ctype = (semiIndex !== -1
     ? oCtype.substring(0, semiIndex)
     : oCtype
   ).trim();
 
   switch (ctype) {
-    case 'application/graphql':
+    case "application/graphql":
       return { query: rawBody };
-    case 'application/json':
+    case "application/json":
       try {
         return JSON.parse(rawBody);
       } catch (e) {
-        throw new Error('POST body sent invalid JSON.');
+        throw new Error("POST body sent invalid JSON.");
       }
     default:
       // If no Content-Type header matches, parse nothing.

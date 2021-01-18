@@ -10,19 +10,15 @@ import {
   SubscriptionArgs,
   GraphQLArgs,
   ExecutionArgs,
-} from 'graphql';
+  FormattedExecutionResult,
+} from "graphql";
 import {
   compileQuery,
   isCompiledQuery,
   CompiledQuery,
-} from '@hoangvvo/graphql-jit';
-import lru, { Lru } from 'tiny-lru';
-import {
-  Config,
-  QueryCache,
-  FormattedExecutionResult,
-  ValueOrPromise,
-} from './types';
+} from "@hoangvvo/graphql-jit";
+import lru, { Lru } from "tiny-lru";
+import { Config, QueryCache, ValueOrPromise } from "./types";
 
 export default class Benzene {
   private lru: Lru<QueryCache>;
@@ -32,7 +28,7 @@ export default class Benzene {
   constructor(options: Config) {
     // validate options
     if (!options) {
-      throw new TypeError('GQL must be initialized with options');
+      throw new TypeError("GQL must be initialized with options");
     }
     this.options = options;
     // build cache
@@ -50,7 +46,7 @@ export default class Benzene {
     query: string,
     operationName?: string | null
   ): QueryCache | ExecutionResult {
-    const key = query + (operationName ? `:${operationName}` : '');
+    const key = query + (operationName ? `:${operationName}` : "");
     const cached = this.lru.get(key);
 
     if (cached) {
@@ -77,7 +73,7 @@ export default class Benzene {
         return {
           errors: [
             new GraphQLError(
-              'Must provide operation name if query contains multiple operations.'
+              "Must provide operation name if query contains multiple operations."
             ),
           ],
         };
@@ -121,7 +117,7 @@ export default class Benzene {
   }): Promise<FormattedExecutionResult> {
     const cachedOrResult = this.getCachedGQL(source, operationName);
     return this.formatExecutionResult(
-      'document' in cachedOrResult
+      "document" in cachedOrResult
         ? await this.execute(
             {
               document: cachedOrResult.document,
@@ -141,7 +137,7 @@ export default class Benzene {
       contextValue,
       variableValues,
       rootValue,
-    }: Partial<Omit<SubscriptionArgs, 'schema'>>,
+    }: Partial<Omit<SubscriptionArgs, "schema">>,
     jit: CompiledQuery
   ): ValueOrPromise<ExecutionResult> {
     return jit.query(rootValue, contextValue, variableValues);
@@ -153,7 +149,7 @@ export default class Benzene {
       contextValue,
       variableValues,
       rootValue,
-    }: Partial<Omit<ExecutionArgs, 'schema'>>,
+    }: Partial<Omit<ExecutionArgs, "schema">>,
     jit: CompiledQuery
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
     return jit.subscribe!(rootValue, contextValue, variableValues);

@@ -4,16 +4,16 @@ import {
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLString,
-} from 'graphql';
-import Benzene from '../src/core';
-import { TestSchema } from './utils/schema';
+} from "graphql";
+import Benzene from "../src/core";
+import { TestSchema } from "./utils/schema";
 
 const GQL = new Benzene({ schema: TestSchema });
 
 async function testGraphql(
   args: Pick<
     GraphQLArgs,
-    'contextValue' | 'variableValues' | 'operationName' | 'rootValue'
+    "contextValue" | "variableValues" | "operationName" | "rootValue"
   > & {
     source: string;
   },
@@ -23,21 +23,21 @@ async function testGraphql(
   const result = await GQLInstance.graphql(args);
   return expect(result).toEqual(expected);
 }
-test('allows with query', async () => {
-  return testGraphql({ source: '{test}' }, { data: { test: 'Hello World' } });
+test("allows with query", async () => {
+  return testGraphql({ source: "{test}" }, { data: { test: "Hello World" } });
 });
 
-test('allows with variable values', async () => {
+test("allows with variable values", async () => {
   return testGraphql(
     {
-      source: 'query helloWho($who: String){ test(who: $who) }',
-      variableValues: { who: 'Dolly' },
+      source: "query helloWho($who: String){ test(who: $who) }",
+      variableValues: { who: "Dolly" },
     },
-    { data: { test: 'Hello Dolly' } }
+    { data: { test: "Hello Dolly" } }
   );
 });
 
-test('allows with operation name', () => {
+test("allows with operation name", () => {
   return testGraphql(
     {
       source: `
@@ -48,21 +48,21 @@ test('allows with operation name', () => {
         shared: test(who: "Everyone")
       }
     `,
-      operationName: 'helloWorld',
+      operationName: "helloWorld",
     },
     {
       data: {
-        test: 'Hello World',
-        shared: 'Hello Everyone',
+        test: "Hello World",
+        shared: "Hello Everyone",
       },
     }
   );
 });
 
-test('reports validation errors', () => {
+test("reports validation errors", () => {
   return testGraphql(
     {
-      source: '{ test, unknownOne, unknownTwo }',
+      source: "{ test, unknownOne, unknownTwo }",
     },
     {
       errors: [
@@ -81,7 +81,7 @@ test('reports validation errors', () => {
   );
 });
 
-test('Errors when missing operation name', () => {
+test("Errors when missing operation name", () => {
   return testGraphql(
     {
       source: `
@@ -95,17 +95,17 @@ test('Errors when missing operation name', () => {
           locations: undefined,
           path: undefined,
           message:
-            'Must provide operation name if query contains multiple operations.',
+            "Must provide operation name if query contains multiple operations.",
         },
       ],
     }
   );
 });
 
-test('Allows passing in a context', () => {
+test("Allows passing in a context", () => {
   const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
-      name: 'Query',
+      name: "Query",
       fields: {
         test: {
           type: GraphQLString,
@@ -117,22 +117,22 @@ test('Allows passing in a context', () => {
 
   return testGraphql(
     {
-      source: '{ test }',
-      contextValue: 'testValue',
+      source: "{ test }",
+      contextValue: "testValue",
     },
     {
       data: {
-        test: 'testValue',
+        test: "testValue",
       },
     },
     new Benzene({ schema })
   );
 });
 
-test('allows passing in a rootValue', () => {
+test("allows passing in a rootValue", () => {
   const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
-      name: 'Query',
+      name: "Query",
       fields: {
         test: {
           type: GraphQLString,
@@ -141,10 +141,10 @@ test('allows passing in a rootValue', () => {
       },
     }),
   });
-  const rootValue = { test: 'testValue' };
+  const rootValue = { test: "testValue" };
   return testGraphql(
-    { source: 'query { test }', rootValue },
-    { data: { test: 'testValue' } },
+    { source: "query { test }", rootValue },
+    { data: { test: "testValue" } },
     new Benzene({ schema })
   );
 });

@@ -1,4 +1,5 @@
-import { FormattedExecutionResult, ValueOrPromise } from '@benzene/core';
+import { FormattedExecutionResult } from "graphql";
+import { ValueOrPromise } from "@benzene/core";
 
 interface RequestContext<TExtra> {
   extra: TExtra;

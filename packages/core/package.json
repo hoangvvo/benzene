@@ -1,7 +1,7 @@
 {
   "name": "@benzene/core",
   "version": "0.3.0",
-  "description": "Fast and minimal JavaScript GraphQL Server and Executor",
+  "description": "Fast and minimal JavaScript GraphQL",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "repository": {
     "type": "git",
@@ -14,13 +14,19 @@
   "homepage": "https://hoangvvo.github.io/benzene/",
   "source": "src/index.ts",
   "main": "dist/index.js",
-  "module": "dist/index.module.js",
-  "unpkg": "dist/index.umd.js",
+  "module": "dist/index.m.js",
+  "esmodule": "dist/index.m.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.m.js",
+      "require": "./dist/index.js"
+    }
+  },
   "types": "dist/index.d.ts",
   "files": ["dist"],
   "sideEffects": false,
   "scripts": {
-    "build": "microbundle --strict --globals @benzene/core=benzeneCore",
+    "build": "microbundle -f modern,cjs --strict --globals @benzene/core=benzeneCore --no-sourcemap --no-compress",
     "clean": "npx rimraf dist",
     "test": "jest"
   },

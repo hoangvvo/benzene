@@ -1,14 +1,14 @@
-import { GraphQLParams } from '@benzene/core';
-import { FormattedExecutionResult, GraphQLFormattedError } from 'graphql';
+import { FormattedExecutionResult, GraphQLFormattedError } from "graphql";
+import { GraphQLParams } from "@benzene/core";
 
 export enum MessageType {
-  ConnectionInit = 'connection_init', // Client -> Server
-  ConnectionAck = 'connection_ack', // Server -> Client
+  ConnectionInit = "connection_init", // Client -> Server
+  ConnectionAck = "connection_ack", // Server -> Client
 
-  Subscribe = 'subscribe', // Client -> Server
-  Next = 'next', // Server -> Client
-  Error = 'error', // Server -> Client
-  Complete = 'complete', // bidirectional
+  Subscribe = "subscribe", // Client -> Server
+  Next = "next", // Server -> Client
+  Error = "error", // Server -> Client
+  Complete = "complete", // bidirectional
 }
 
 export interface ConnectionInitMessage {

@@ -1,14 +1,14 @@
-import { GraphQLSchema } from 'graphql';
-import Benzene from '../src/core';
+import { GraphQLSchema } from "graphql";
+import Benzene from "../src/core";
 
-test('throws if initializing instance with no option', () => {
+test("throws if initializing instance with no option", () => {
   expect(() => {
     // @ts-expect-error
     new Benzene();
-  }).toThrowError('GQL must be initialized with options');
+  }).toThrowError("GQL must be initialized with options");
 });
 
-test('throws if schema is invalid', () => {
+test("throws if schema is invalid", () => {
   expect(() => {
     new Benzene({
       schema: new GraphQLSchema({ directives: [null] }),

@@ -3,8 +3,8 @@ import {
   GraphQLSchema,
   DocumentNode,
   GraphQLFormattedError,
-} from 'graphql';
-import { CompiledQuery } from '@hoangvvo/graphql-jit';
+} from "graphql";
+import { CompiledQuery } from "@hoangvvo/graphql-jit";
 export interface Config {
   schema: GraphQLSchema;
   formatError?: (error: GraphQLError) => GraphQLFormattedError;
@@ -23,20 +23,4 @@ export interface QueryCache {
   jit: CompiledQuery;
 }
 
-// Can be replaced with `FormattedExecutionResult` from 5.3.0
-export interface FormattedExecutionResult<
-  TData = { [key: string]: any },
-  TExtensions = { [key: string]: any }
-> {
-  errors?: ReadonlyArray<GraphQLFormattedError>;
-  data?: TData | null;
-  extensions?: TExtensions;
-}
-
 export type ValueOrPromise<T> = T | Promise<T>;
-
-export interface KeyValueStore<V = string> {
-  get(key: string): ValueOrPromise<V | undefined | null>;
-  set(key: string, value: V): ValueOrPromise<any>;
-  delete(key: string): ValueOrPromise<any>;
-}

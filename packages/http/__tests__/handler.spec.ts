@@ -1,10 +1,10 @@
 // Adapted from https://github.com/graphql/express-graphql/blob/master/src/__tests__/http-test.ts
-import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
-import { Benzene } from '@benzene/core';
-import { makeHandler } from '../src/handler';
+import { GraphQLObjectType, GraphQLString, GraphQLSchema } from "graphql";
+import { Benzene } from "@benzene/core";
+import { makeHandler } from "../src/handler";
 
 const QueryRootType = new GraphQLObjectType({
-  name: 'QueryRoot',
+  name: "QueryRoot",
   fields: {
     test: {
       type: GraphQLString,
@@ -12,12 +12,12 @@ const QueryRootType = new GraphQLObjectType({
         who: { type: GraphQLString },
       },
       resolve: (_root, args: { who?: string }) =>
-        'Hello ' + (args.who ?? 'World'),
+        "Hello " + (args.who ?? "World"),
     },
     thrower: {
       type: GraphQLString,
       resolve() {
-        throw new Error('Throws!');
+        throw new Error("Throws!");
       },
     },
   },
@@ -26,7 +26,7 @@ const QueryRootType = new GraphQLObjectType({
 const TestSchema = new GraphQLSchema({
   query: QueryRootType,
   mutation: new GraphQLObjectType({
-    name: 'MutationRoot',
+    name: "MutationRoot",
     fields: {
       writeTest: {
         type: QueryRootType,
@@ -38,28 +38,28 @@ const TestSchema = new GraphQLSchema({
 
 const GQL = new Benzene({ schema: TestSchema });
 
-describe('GET functionality', () => {
-  test('allows GET with query param', async () => {
+describe("GET functionality", () => {
+  test("allows GET with query param", async () => {
     expect(
       await makeHandler(GQL)(
-        { method: 'GET', query: { query: '{test}' }, headers: {} },
+        { method: "GET", query: { query: "{test}" }, headers: {} },
         undefined
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
-      payload: { data: { test: 'Hello World' } },
+      headers: { "content-type": "application/json" },
+      payload: { data: { test: "Hello World" } },
     });
   });
 
-  test('allows GET with variable values', async () => {
+  test("allows GET with variable values", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'GET',
+          method: "GET",
           query: {
-            query: 'query helloWho($who: String){ test(who: $who) }',
-            variables: JSON.stringify({ who: 'Dolly' }),
+            query: "query helloWho($who: String){ test(who: $who) }",
+            variables: JSON.stringify({ who: "Dolly" }),
           },
           headers: {},
         },
@@ -67,16 +67,16 @@ describe('GET functionality', () => {
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
-      payload: { data: { test: 'Hello Dolly' } },
+      headers: { "content-type": "application/json" },
+      payload: { data: { test: "Hello Dolly" } },
     });
   });
 
-  test('allows GET with operation name', async () => {
+  test("allows GET with operation name", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'GET',
+          method: "GET",
           query: {
             query: `
             query helloYou { test(who: "You"), ...shared }
@@ -86,7 +86,7 @@ describe('GET functionality', () => {
               shared: test(who: "Everyone")
             }
           `,
-            operationName: 'helloWorld',
+            operationName: "helloWorld",
           },
           headers: {},
         },
@@ -94,23 +94,23 @@ describe('GET functionality', () => {
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       payload: {
         data: {
-          test: 'Hello World',
-          shared: 'Hello Everyone',
+          test: "Hello World",
+          shared: "Hello Everyone",
         },
       },
     });
   });
 
-  test('Reports validation errors', async () => {
+  test("Reports validation errors", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'GET',
+          method: "GET",
           query: {
-            query: '{ test, unknownOne, unknownTwo }',
+            query: "{ test, unknownOne, unknownTwo }",
           },
           headers: {},
         },
@@ -118,7 +118,7 @@ describe('GET functionality', () => {
       )
     ).toEqual({
       status: 400,
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       payload: {
         errors: [
           {
@@ -136,11 +136,11 @@ describe('GET functionality', () => {
     });
   });
 
-  test('Errors when missing operation name', async () => {
+  test("Errors when missing operation name", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'GET',
+          method: "GET",
           query: {
             query: `
           query TestQuery { test }
@@ -153,12 +153,12 @@ describe('GET functionality', () => {
       )
     ).toEqual({
       status: 400,
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       payload: {
         errors: [
           {
             message:
-              'Must provide operation name if query contains multiple operations.',
+              "Must provide operation name if query contains multiple operations.",
             locations: undefined,
             path: undefined,
           },
@@ -167,13 +167,13 @@ describe('GET functionality', () => {
     });
   });
 
-  test('Errors when sending a mutation via GET', async () => {
+  test("Errors when sending a mutation via GET", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'GET',
+          method: "GET",
           query: {
-            query: 'mutation TestMutation { writeTest { test } }',
+            query: "mutation TestMutation { writeTest { test } }",
           },
           headers: {},
         },
@@ -181,12 +181,12 @@ describe('GET functionality', () => {
       )
     ).toEqual({
       status: 405,
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       payload: {
         errors: [
           {
             message:
-              'Can only perform a mutation operation from a POST request.',
+              "Can only perform a mutation operation from a POST request.",
             locations: undefined,
             path: undefined,
           },
@@ -195,13 +195,13 @@ describe('GET functionality', () => {
     });
   });
 
-  test('Errors when selecting a mutation within a GET', async () => {
+  test("Errors when selecting a mutation within a GET", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'GET',
+          method: "GET",
           query: {
-            operationName: 'TestMutation',
+            operationName: "TestMutation",
             query: `
             query TestQuery { test }
             mutation TestMutation { writeTest { test } }
@@ -213,12 +213,12 @@ describe('GET functionality', () => {
       )
     ).toEqual({
       status: 405,
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       payload: {
         errors: [
           {
             message:
-              'Can only perform a mutation operation from a POST request.',
+              "Can only perform a mutation operation from a POST request.",
             locations: undefined,
             path: undefined,
           },
@@ -227,13 +227,13 @@ describe('GET functionality', () => {
     });
   });
 
-  test('Allows a mutation to exist within a GET', async () => {
+  test("Allows a mutation to exist within a GET", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'GET',
+          method: "GET",
           query: {
-            operationName: 'TestQuery',
+            operationName: "TestQuery",
             query: `
           mutation TestMutation { writeTest { test } }
           query TestQuery { test }
@@ -245,10 +245,10 @@ describe('GET functionality', () => {
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       payload: {
         data: {
-          test: 'Hello World',
+          test: "Hello World",
         },
       },
     });
@@ -257,10 +257,10 @@ describe('GET functionality', () => {
   // Allows passing in a fieldResolve
   // Allows passing in a typeResolver
 
-  test('creates GraphQL context using options.contextFn', async () => {
+  test("creates GraphQL context using options.contextFn", async () => {
     const schema = new GraphQLSchema({
       query: new GraphQLObjectType({
-        name: 'Query',
+        name: "Query",
         fields: {
           test: {
             type: GraphQLString,
@@ -272,12 +272,12 @@ describe('GET functionality', () => {
 
     expect(
       await makeHandler(new Benzene({ schema }), {
-        contextFn: () => 'testValue',
+        contextFn: () => "testValue",
       })(
         {
-          method: 'GET',
+          method: "GET",
           query: {
-            query: '{ test }',
+            query: "{ test }",
           },
           headers: {},
         },
@@ -285,19 +285,19 @@ describe('GET functionality', () => {
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       payload: {
         data: {
-          test: 'testValue',
+          test: "testValue",
         },
       },
     });
   });
 
-  test('Receive extra in options.contextFn', async () => {
+  test("Receive extra in options.contextFn", async () => {
     const schema = new GraphQLSchema({
       query: new GraphQLObjectType({
-        name: 'Query',
+        name: "Query",
         fields: {
           test: {
             type: GraphQLString,
@@ -312,129 +312,129 @@ describe('GET functionality', () => {
         contextFn: ({ extra }) => extra.value,
       })(
         {
-          method: 'GET',
+          method: "GET",
           query: {
-            query: '{ test }',
+            query: "{ test }",
           },
           headers: {},
         },
-        { value: 'testValue' }
+        { value: "testValue" }
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       payload: {
         data: {
-          test: 'testValue',
+          test: "testValue",
         },
       },
     });
   });
 });
 
-describe('POST functionality', () => {
-  test('allows POST with JSON encoding', async () => {
+describe("POST functionality", () => {
+  test("allows POST with JSON encoding", async () => {
     expect(
       await makeHandler(GQL)(
-        { method: 'POST', body: { query: '{test}' }, headers: {} },
+        { method: "POST", body: { query: "{test}" }, headers: {} },
         undefined
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
-      payload: { data: { test: 'Hello World' } },
+      headers: { "content-type": "application/json" },
+      payload: { data: { test: "Hello World" } },
     });
   });
 
-  test('alows POST with JSON encoding with additional directives', async () => {
+  test("alows POST with JSON encoding with additional directives", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'POST',
-          body: { query: '{test}' },
+          method: "POST",
+          body: { query: "{test}" },
           headers: {
-            'content-type': 'application/json; charset=UTF-8',
+            "content-type": "application/json; charset=UTF-8",
           },
         },
         undefined
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
-      payload: { data: { test: 'Hello World' } },
+      headers: { "content-type": "application/json" },
+      payload: { data: { test: "Hello World" } },
     });
   });
 
-  test('Allows sending a mutation via POST', async () => {
+  test("Allows sending a mutation via POST", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'POST',
-          body: { query: 'mutation TestMutation { writeTest { test } }' },
+          method: "POST",
+          body: { query: "mutation TestMutation { writeTest { test } }" },
           headers: {
-            'content-type': 'application/json',
+            "content-type": "application/json",
           },
         },
         undefined
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
-      payload: { data: { writeTest: { test: 'Hello World' } } },
+      headers: { "content-type": "application/json" },
+      payload: { data: { writeTest: { test: "Hello World" } } },
     });
   });
 
   // supports POST JSON query with string variables
 
-  test('supports POST JSON query with JSON variables', async () => {
+  test("supports POST JSON query with JSON variables", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'POST',
+          method: "POST",
           body: {
-            query: 'query helloWho($who: String){ test(who: $who) }',
-            variables: { who: 'Dolly' },
+            query: "query helloWho($who: String){ test(who: $who) }",
+            variables: { who: "Dolly" },
           },
           headers: {
-            'content-type': 'application/json',
+            "content-type": "application/json",
           },
         },
         undefined
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
-      payload: { data: { test: 'Hello Dolly' } },
+      headers: { "content-type": "application/json" },
+      payload: { data: { test: "Hello Dolly" } },
     });
   });
 
   // supports POST url encoded query with string variables
 
-  test('supports POST JSON query with GET variable values', async () => {
+  test("supports POST JSON query with GET variable values", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'POST',
+          method: "POST",
           query: {
-            variables: JSON.stringify({ who: 'Dolly' }),
+            variables: JSON.stringify({ who: "Dolly" }),
           },
-          body: { query: 'query helloWho($who: String){ test(who: $who) }' },
+          body: { query: "query helloWho($who: String){ test(who: $who) }" },
           headers: {},
         },
         undefined
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
-      payload: { data: { test: 'Hello Dolly' } },
+      headers: { "content-type": "application/json" },
+      payload: { data: { test: "Hello Dolly" } },
     });
   });
 
-  test('allows POST with operation name', async () => {
+  test("allows POST with operation name", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'POST',
+          method: "POST",
           body: {
             query: `
             query helloYou { test(who: "You"), ...shared }
@@ -444,21 +444,21 @@ describe('POST functionality', () => {
               shared: test(who: "Everyone")
             }
           `,
-            operationName: 'helloWorld',
+            operationName: "helloWorld",
           },
           headers: {
-            'content-type': 'application/json',
+            "content-type": "application/json",
           },
         },
         undefined
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       payload: {
         data: {
-          test: 'Hello World',
-          shared: 'Hello Everyone',
+          test: "Hello World",
+          shared: "Hello Everyone",
         },
       },
     });
@@ -474,14 +474,14 @@ describe('POST functionality', () => {
   // will send request and response when using thunk
 });
 
-describe('Error handling functionality', () => {
-  test('handles field errors caught by GraphQL', async () => {
+describe("Error handling functionality", () => {
+  test("handles field errors caught by GraphQL", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'GET',
+          method: "GET",
           query: {
-            query: '{thrower}',
+            query: "{thrower}",
           },
           headers: {},
         },
@@ -489,14 +489,14 @@ describe('Error handling functionality', () => {
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       payload: {
         data: { thrower: null },
         errors: [
           {
-            message: 'Throws!',
+            message: "Throws!",
             locations: [{ line: 1, column: 2 }],
-            path: ['thrower'],
+            path: ["thrower"],
           },
         ],
       },
@@ -505,20 +505,20 @@ describe('Error handling functionality', () => {
 
   // handles query errors from non-null top field errors (graphql-jit seems to fix this behavior)
 
-  test('allows for custom error formatting', async () => {
+  test("allows for custom error formatting", async () => {
     expect(
       await makeHandler(
         new Benzene({
           schema: TestSchema,
           formatError(error) {
-            return { message: 'Custom error format: ' + error.message };
+            return { message: "Custom error format: " + error.message };
           },
         })
       )(
         {
-          method: 'GET',
+          method: "GET",
           query: {
-            query: '{thrower}',
+            query: "{thrower}",
           },
           headers: {},
         },
@@ -526,19 +526,19 @@ describe('Error handling functionality', () => {
       )
     ).toEqual({
       status: 200,
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       payload: {
         data: { thrower: null },
         errors: [
           {
-            message: 'Custom error format: Throws!',
+            message: "Custom error format: Throws!",
           },
         ],
       },
     });
   });
 
-  test('allows for custom error formatting to elaborate', async () => {
+  test("allows for custom error formatting to elaborate", async () => {
     expect(
       await makeHandler(
         new Benzene({
@@ -547,50 +547,50 @@ describe('Error handling functionality', () => {
             return {
               message: error.message,
               locations: error.locations,
-              stack: 'Stack trace',
+              stack: "Stack trace",
             };
           },
         })
       )(
         {
-          method: 'GET',
+          method: "GET",
           query: {
-            query: '{thrower}',
+            query: "{thrower}",
           },
           headers: {},
         },
         undefined
       )
     ).toEqual({
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       status: 200,
       payload: {
         data: { thrower: null },
         errors: [
           {
-            message: 'Throws!',
+            message: "Throws!",
             locations: [{ line: 1, column: 2 }],
-            stack: 'Stack trace',
+            stack: "Stack trace",
           },
         ],
       },
     });
   });
 
-  test('handles syntax errors caught by GraphQL', async () => {
+  test("handles syntax errors caught by GraphQL", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'GET',
+          method: "GET",
           query: {
-            query: 'syntax_error',
+            query: "syntax_error",
           },
           headers: {},
         },
         undefined
       )
     ).toEqual({
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       status: 400,
       payload: {
         errors: [
@@ -604,16 +604,16 @@ describe('Error handling functionality', () => {
     });
   });
 
-  test('handles errors caused by a lack of query', async () => {
+  test("handles errors caused by a lack of query", async () => {
     expect(
-      await makeHandler(GQL)({ method: 'GET', headers: {} }, undefined)
+      await makeHandler(GQL)({ method: "GET", headers: {} }, undefined)
     ).toEqual({
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       status: 400,
       payload: {
         errors: [
           {
-            message: 'Must provide query string.',
+            message: "Must provide query string.",
             locations: undefined,
             path: undefined,
           },
@@ -629,21 +629,21 @@ describe('Error handling functionality', () => {
   // allows for custom error formatting of poorly formed requests
   // allows for custom error formatting of poorly formed requests
 
-  test('handles invalid variables', async () => {
+  test("handles invalid variables", async () => {
     expect(
       await makeHandler(GQL)(
         {
-          method: 'POST',
+          method: "POST",
           body: {
-            query: 'query helloWho($who: String){ test(who: $who) }',
-            variables: { who: ['John', 'Jane'] },
+            query: "query helloWho($who: String){ test(who: $who) }",
+            variables: { who: ["John", "Jane"] },
           },
           headers: {},
         },
         undefined
       )
     ).toEqual({
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       status: 200, // graphql-express uses 500
       payload: {
         errors: [
@@ -658,19 +658,19 @@ describe('Error handling functionality', () => {
     });
   });
 
-  test('handles unsupported HTTP methods', async () => {
+  test("handles unsupported HTTP methods", async () => {
     expect(
       await makeHandler(GQL)(
-        { method: 'PUT', query: { query: '{test}' }, headers: {} },
+        { method: "PUT", query: { query: "{test}" }, headers: {} },
         undefined
       )
     ).toEqual({
-      headers: { 'content-type': 'application/json' },
+      headers: { "content-type": "application/json" },
       status: 405,
       payload: {
         errors: [
           {
-            message: 'GraphQL only supports GET and POST requests.',
+            message: "GraphQL only supports GET and POST requests.",
             locations: undefined,
             path: undefined,
           },

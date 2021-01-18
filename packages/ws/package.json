@@ -5,9 +5,7 @@
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
     "graphql",
-    "server",
-    "api",
-    "http",
+    "ws",
     "subscription",
     "websocket"
   ],
@@ -22,13 +20,21 @@
   "homepage": "https://hoangvvo.github.io/benzene/",
   "license": "MIT",
   "main": "dist/index.js",
-  "module": "dist/index.module.js",
-  "unpkg": "dist/index.umd.js",
+  "module": "dist/index.m.js",
+  "esmodule": "dist/index.m.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.m.js",
+      "require": "./dist/index.js"
+    }
+  },
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "scripts": {
-    "build": "microbundle --strict --globals @benzene/core=benzeneCore --target node --no-sourcemap --no-compress",
+    "build": "microbundle -f modern,cjs --strict --globals @benzene/core=benzeneCore --no-sourcemap --no-compress",
     "clean": "npx rimraf dist",
     "test": "jest"
   },
@@ -36,15 +42,7 @@
     "@benzene/core": "^0.3.0"
   },
   "peerDependencies": {
-    "graphql": "^14.0.0 || ^15.0.0",
-    "ws": "^7.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^14.0.23",
-    "@types/ws": "^7.2.6"
-  },
-  "engines": {
-    "node": ">=10.0.0"
+    "graphql": "^14.0.0 || ^15.0.0"
   },
   "publishConfig": {
     "access": "public"

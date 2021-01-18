@@ -1,16 +1,17 @@
-import WebSocket from 'ws';
-import { createServer, IncomingMessage, Server } from 'http';
+import WebSocket from "ws";
+import { createServer, IncomingMessage, Server } from "http";
 import {
   GraphQLError,
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLString,
-} from 'graphql';
-import { EventEmitter } from 'events';
-import { AddressInfo } from 'net';
-import { Benzene } from '@benzene/core';
-import { Config as GraphQLConfig } from '@benzene/core/src/types';
-import { HandlerOptions, makeHandler } from '../src/handler';
+} from "graphql";
+import { EventEmitter } from "events";
+import { AddressInfo } from "net";
+import { Benzene } from "@benzene/core";
+import { Config as GraphQLConfig } from "@benzene/core/src/types";
+import { makeHandler } from "../src/handler";
+import { HandlerOptions } from "../src/types";
 import {
   MessageType,
   CompleteMessage,
@@ -19,8 +20,8 @@ import {
   ErrorMessage,
   NextMessage,
   SubscribeMessage,
-} from '../src/message';
-import { GRAPHQL_TRANSPORT_WS_PROTOCOL } from '../src/protocol';
+} from "../src/message";
+import { GRAPHQL_TRANSPORT_WS_PROTOCOL } from "../src/protocol";
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -82,7 +83,7 @@ function emitterAsyncIterator(
 }
 
 const Notification = new GraphQLObjectType({
-  name: 'Notification',
+  name: "Notification",
   fields: {
     message: {
       type: GraphQLString,
@@ -94,7 +95,7 @@ const Notification = new GraphQLObjectType({
     DO_NOT_USE_THIS_FIELD: {
       type: GraphQLString,
       resolve: () => {
-        throw new Error('I told you so');
+        throw new Error("I told you so");
       },
     },
     user: {
@@ -109,24 +110,24 @@ let serverInit: { ws: WebSocket; server: Server };
 const createSchema = (ee: EventEmitter) =>
   new GraphQLSchema({
     query: new GraphQLObjectType({
-      name: 'Query',
+      name: "Query",
       fields: {
         test: {
           type: GraphQLString,
-          resolve: () => 'test',
+          resolve: () => "test",
         },
       },
     }),
     subscription: new GraphQLObjectType({
-      name: 'Subscription',
+      name: "Subscription",
       fields: {
         notificationAdded: {
           type: Notification,
-          subscribe: () => emitterAsyncIterator(ee, 'NOTIFICATION_ADDED'),
+          subscribe: () => emitterAsyncIterator(ee, "NOTIFICATION_ADDED"),
         },
         badAdded: {
           type: GraphQLString,
-          subscribe: () => 'nope',
+          subscribe: () => "nope",
         },
       },
     }),
@@ -146,7 +147,7 @@ async function startServer(
   await new Promise<void>((resolve) => server.listen(0, resolve));
   const port = (server.address() as AddressInfo).port;
   // We cross test different packages
-  wss.on('connection', makeHandler(gql, handlerOptions));
+  wss.on("connection", makeHandler(gql, handlerOptions));
 
   // Inspired by https://github.com/enisdenjo/graphql-ws/tree/master/src/tests/utils/tclient.ts#L28
   return new Promise<{
@@ -184,7 +185,7 @@ async function startServer(
     ws.onclose = (event) => (closeEvent = event);
     ws.onmessage = (message) => queue.push(message);
 
-    ws.once('open', () => {
+    ws.once("open", () => {
       resolve({
         ws,
         send(message) {
@@ -202,8 +203,8 @@ async function startServer(
             expect(message.type).toBe(MessageType.ConnectionAck);
           });
         },
-        publish(message = 'Hello World') {
-          ee.emit('NOTIFICATION_ADDED', {
+        publish(message = "Hello World") {
+          ee.emit("NOTIFICATION_ADDED", {
             notificationAdded: { message },
           });
         },
@@ -221,10 +222,10 @@ async function startServer(
             if (queue.length > 0) {
               return done();
             }
-            ws.once('message', done);
+            ws.once("message", done);
             if (expire) {
               setTimeout(() => {
-                ws.removeListener('message', done); // expired
+                ws.removeListener("message", done); // expired
                 resolve();
               }, expire);
             }
@@ -265,11 +266,11 @@ const cleanupTest = () => {
 
 afterEach(cleanupTest);
 
-test('closes connection if use protocol other than graphql-transport-ws', async () => {
+test("closes connection if use protocol other than graphql-transport-ws", async () => {
   const utils = await startServer(
     {},
     {},
-    { protocols: 'graphql-subscriptions' }
+    { protocols: "graphql-subscriptions" }
   );
 
   await utils.waitForClose((code) => {
@@ -277,18 +278,18 @@ test('closes connection if use protocol other than graphql-transport-ws', async 
   });
 });
 
-test('closes connection if message is invalid', async () => {
+test("closes connection if message is invalid", async () => {
   const utils = await startServer();
 
   utils.ws.send("'");
 
   await utils.waitForClose((code, message) => {
     expect(code).toBe(4400);
-    expect(message).toBe('Invalid message received');
+    expect(message).toBe("Invalid message received");
   });
 });
 
-test('replies with connection_ack', async () => {
+test("replies with connection_ack", async () => {
   const utils = await startServer();
 
   utils.send({ type: MessageType.ConnectionInit });
@@ -298,7 +299,7 @@ test('replies with connection_ack', async () => {
   });
 });
 
-test('replies with connection_ack if onConnect() == true', async () => {
+test("replies with connection_ack if onConnect() == true", async () => {
   const utils = await startServer({
     onConnect: () => true,
   });
@@ -310,7 +311,7 @@ test('replies with connection_ack if onConnect() == true', async () => {
   });
 });
 
-test('replies with connection_ack and payload if onConnect() == object', async () => {
+test("replies with connection_ack and payload if onConnect() == object", async () => {
   const utils = await startServer({
     onConnect: () => ({ test: 1 }),
   });
@@ -323,7 +324,7 @@ test('replies with connection_ack and payload if onConnect() == object', async (
   });
 });
 
-test('closes connection if onConnect() == false', async () => {
+test("closes connection if onConnect() == false", async () => {
   const utils = await startServer({
     onConnect: async () => false,
   });
@@ -332,40 +333,40 @@ test('closes connection if onConnect() == false', async () => {
 
   await utils.waitForClose((code, reason) => {
     expect(code).toBe(4403);
-    expect(reason).toBe('Forbidden');
+    expect(reason).toBe("Forbidden");
   });
 });
 
-test('receive connectionParams in onConnect', async () => {
+test("receive connectionParams in onConnect", async () => {
   const utils = await startServer({
     onConnect: async (ctx, connectionParams) => connectionParams,
   });
 
-  utils.send({ type: MessageType.ConnectionInit, payload: { test: 'ok' } });
+  utils.send({ type: MessageType.ConnectionInit, payload: { test: "ok" } });
 
   await utils.waitForMessage((message) => {
     expect(message.type).toBe(MessageType.ConnectionAck);
-    expect((message as ConnectionAckMessage).payload).toEqual({ test: 'ok' });
+    expect((message as ConnectionAckMessage).payload).toEqual({ test: "ok" });
   });
 });
 
-test('receive connection context and extra', async () => {
+test("receive connection context and extra", async () => {
   const utils = await startServer({
     // see startServer - makeHandler(socket, request) request is extra
     onConnect: async (ctx) => ctx.extra instanceof IncomingMessage,
   });
 
-  utils.send({ type: MessageType.ConnectionInit, payload: { test: 'ok' } });
+  utils.send({ type: MessageType.ConnectionInit, payload: { test: "ok" } });
 
   await utils.waitForMessage((message) => {
     expect(message.type).toBe(MessageType.ConnectionAck);
   });
 });
 
-test('closes connection if onConnect() throws', async () => {
+test("closes connection if onConnect() throws", async () => {
   const utils = await startServer({
     onConnect: async () => {
-      throw new Error('bad');
+      throw new Error("bad");
     },
   });
 
@@ -373,11 +374,11 @@ test('closes connection if onConnect() throws', async () => {
 
   await utils.waitForClose((code, reason) => {
     expect(code).toBe(4403);
-    expect(reason).toBe('bad');
+    expect(reason).toBe("bad");
   });
 });
 
-test('closes connection if too many initialisation requests', async () => {
+test("closes connection if too many initialisation requests", async () => {
   const utils = await startServer();
 
   utils.send({ type: MessageType.ConnectionInit });
@@ -385,22 +386,22 @@ test('closes connection if too many initialisation requests', async () => {
 
   await utils.waitForClose((code, reason) => {
     expect(code).toBe(4429);
-    expect(reason).toBe('Too many initialisation requests');
+    expect(reason).toBe("Too many initialisation requests");
   });
 });
 
-test('closes connection if subscribe before initialized', async () => {
+test("closes connection if subscribe before initialized", async () => {
   const utils = await startServer();
 
-  utils.send({ type: MessageType.Subscribe, id: '1', payload: {} });
+  utils.send({ type: MessageType.Subscribe, id: "1", payload: {} });
 
   await utils.waitForClose((code, reason) => {
     expect(code).toBe(4401);
-    expect(reason).toBe('Unauthorized');
+    expect(reason).toBe("Unauthorized");
   });
 });
 
-test('closes connection if subscriber id is already existed', async () => {
+test("closes connection if subscriber id is already existed", async () => {
   const utils = await startServer();
 
   await utils.doAck();
@@ -410,7 +411,7 @@ test('closes connection if subscriber id is already existed', async () => {
   await utils.send({
     type: MessageType.Subscribe,
     payload: { query },
-    id: '1',
+    id: "1",
   });
 
   await wait(50);
@@ -418,16 +419,16 @@ test('closes connection if subscriber id is already existed', async () => {
   utils.send({
     type: MessageType.Subscribe,
     payload: { query },
-    id: '1',
+    id: "1",
   });
 
   await utils.waitForClose((code, reason) => {
     expect(code).toBe(4409);
-    expect(reason).toBe('Subscriber for 1 already exists');
+    expect(reason).toBe("Subscriber for 1 already exists");
   });
 });
 
-test('returns errors if no payload', async () => {
+test("returns errors if no payload", async () => {
   const utils = await startServer();
 
   await utils.doAck();
@@ -435,25 +436,25 @@ test('returns errors if no payload', async () => {
   utils.send({
     type: MessageType.Subscribe,
     payload: undefined,
-    id: '1',
+    id: "1",
   });
 
   await utils.waitForMessage((message) => {
     expect(message).toEqual({
-      id: '1',
+      id: "1",
       type: MessageType.Error,
-      payload: [{ message: 'Must provide query string.' }],
+      payload: [{ message: "Must provide query string." }],
     });
   });
 });
 
-test('returns errors on syntax error', async () => {
+test("returns errors on syntax error", async () => {
   const utils = await startServer();
 
   await utils.doAck();
 
   utils.send({
-    id: '1',
+    id: "1",
     payload: {
       query: `
       subscription {
@@ -468,7 +469,7 @@ test('returns errors on syntax error', async () => {
 
   await utils.waitForMessage((message) => {
     expect(message).toEqual({
-      id: '1',
+      id: "1",
       type: MessageType.Error,
       payload: [
         {
@@ -480,12 +481,12 @@ test('returns errors on syntax error', async () => {
   });
 });
 
-test('format errors using formatError', async () => {
+test("format errors using formatError", async () => {
   const utils = await startServer(
     {},
     {
       formatError: () => {
-        return new GraphQLError('Internal server error');
+        return new GraphQLError("Internal server error");
       },
     }
   );
@@ -493,7 +494,7 @@ test('format errors using formatError', async () => {
   await utils.doAck();
 
   await utils.send({
-    id: '1',
+    id: "1",
     payload: {
       query: `
             subscription {
@@ -515,29 +516,29 @@ test('format errors using formatError', async () => {
 
   await utils.waitForMessage((message) => {
     expect(message).toEqual({
-      id: '1',
+      id: "1",
       type: MessageType.Next,
       payload: {
         data: {
           notificationAdded: {
             DO_NOT_USE_THIS_FIELD: null,
-            message: 'Hello World',
+            message: "Hello World",
           },
         },
         // Override "I told you so" error
-        errors: [{ message: 'Internal server error' }],
+        errors: [{ message: "Internal server error" }],
       },
     });
   });
 });
 
-test('resolves subscriptions and send updates', async () => {
+test("resolves subscriptions and send updates", async () => {
   const utils = await startServer();
 
   await utils.doAck();
 
   await utils.send({
-    id: '1',
+    id: "1",
     payload: {
       query: `
         subscription {
@@ -558,12 +559,12 @@ test('resolves subscriptions and send updates', async () => {
   await utils.waitForMessage((message) => {
     expect(message).toEqual({
       type: MessageType.Next,
-      id: '1',
+      id: "1",
       payload: {
         data: {
           notificationAdded: {
-            message: 'Hello World',
-            dummy: 'Hello World',
+            message: "Hello World",
+            dummy: "Hello World",
           },
         },
       },
@@ -571,14 +572,14 @@ test('resolves subscriptions and send updates', async () => {
   });
 });
 
-test('resolves queries and mutations (single result operation)', async () => {
+test("resolves queries and mutations (single result operation)", async () => {
   // We can also add a Query test just to be sure but Mutation one only should be sufficient
   const utils = await startServer();
 
   await utils.doAck();
 
   utils.send({
-    id: '1',
+    id: "1",
     payload: { query: `query { test }` },
     type: MessageType.Subscribe,
   });
@@ -586,28 +587,28 @@ test('resolves queries and mutations (single result operation)', async () => {
   await utils.waitForMessage((message) => {
     expect(message).toEqual({
       type: MessageType.Next,
-      id: '1',
-      payload: { data: { test: 'test' } },
+      id: "1",
+      payload: { data: { test: "test" } },
     });
   });
 
   await utils.waitForMessage((message) => {
     expect(message).toEqual({
-      id: '1',
+      id: "1",
       type: MessageType.Complete,
     });
   });
 });
 
-test('creates GraphQL context using options.contextFn', async () => {
+test("creates GraphQL context using options.contextFn", async () => {
   const utils = await startServer({
-    contextFn: async () => ({ user: 'Alexa' }),
+    contextFn: async () => ({ user: "Alexa" }),
   });
 
   await utils.doAck();
 
   await utils.send({
-    id: '1',
+    id: "1",
     payload: {
       query: `
           subscription {
@@ -626,11 +627,11 @@ test('creates GraphQL context using options.contextFn', async () => {
 
   await utils.waitForMessage((message) => {
     expect(message).toEqual({
-      id: '1',
+      id: "1",
       payload: {
         data: {
           notificationAdded: {
-            user: 'Alexa',
+            user: "Alexa",
           },
         },
       },
@@ -639,13 +640,13 @@ test('creates GraphQL context using options.contextFn', async () => {
   });
 });
 
-test('returns errors on subscribe() error', async () => {
+test("returns errors on subscribe() error", async () => {
   const utils = await startServer();
 
   await utils.doAck();
 
   utils.send({
-    id: '1',
+    id: "1",
     payload: {
       query: `
       subscription {
@@ -658,7 +659,7 @@ test('returns errors on subscribe() error', async () => {
 
   await utils.waitForMessage((message) => {
     expect(message).toEqual({
-      id: '1',
+      id: "1",
       type: MessageType.Error,
       payload: [
         {
@@ -670,13 +671,13 @@ test('returns errors on subscribe() error', async () => {
   });
 });
 
-test('stops subscription upon MessageType.GQL_STOP', async () => {
+test("stops subscription upon MessageType.GQL_STOP", async () => {
   const utils = await startServer();
 
   await utils.doAck();
 
   await utils.send({
-    id: '1',
+    id: "1",
     payload: {
       query: `
           subscription {
@@ -690,14 +691,14 @@ test('stops subscription upon MessageType.GQL_STOP', async () => {
   });
 
   await utils.send({
-    id: '1',
+    id: "1",
     type: MessageType.Complete,
   });
 
   utils.publish();
 
   await utils.waitForMessage(() => {
-    throw new Error('Should have been unsubscribed');
+    throw new Error("Should have been unsubscribed");
   }, 100);
 });
 
