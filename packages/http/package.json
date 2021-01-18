@@ -1,6 +1,6 @@
 {
   "name": "@benzene/http",
-  "version": "0.2.0",
+  "version": "0.0.0",
   "description": "Fast and simple GraphQL HTTP Server",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
