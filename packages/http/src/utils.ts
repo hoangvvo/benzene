@@ -4,9 +4,8 @@ import { HTTPRequest, HTTPResponse } from './types';
 
 export function getGraphQLParams({
   query,
-  body: b,
+  body,
 }: Pick<HTTPRequest, 'query' | 'body'>): GraphQLParams {
-  const body = typeof b === 'string' ? { query: b } : b;
   return {
     query: body?.query || query?.query,
     variables:
