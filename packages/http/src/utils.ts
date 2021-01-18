@@ -34,7 +34,7 @@ export function createResponse(
 
 export function parseGraphQLBody(
   rawBody: string,
-  oCtype: string
+  oCtype: string = ''
 ): Record<string, any> | null {
   const semiIndex = oCtype.indexOf(';');
   const ctype = (semiIndex !== -1

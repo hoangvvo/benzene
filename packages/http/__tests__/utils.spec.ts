@@ -27,6 +27,7 @@ test('parses application/graphql', () => {
 });
 
 test('does not parse on unrecognized or missing content-type', () => {
+  expect(parseGraphQLBody(`query test { test }`, undefined)).toBeNull();
   expect(parseGraphQLBody(`query test { test }`, '')).toBeNull();
   expect(parseGraphQLBody(`query test { test }`, 'wut')).toBeNull();
 });

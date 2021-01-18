@@ -12,7 +12,7 @@ export interface HandlerOptions<TContext, TExtra> {
   contextFn?: (ctx: RequestContext<TExtra>) => ValueOrPromise<TContext>;
 }
 
-type Headers = Record<string, string | string[] | undefined>;
+type Headers = Record<string, string | undefined>;
 
 export interface HTTPRequest {
   method: string;

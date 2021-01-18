@@ -8,15 +8,24 @@
 > Fast and simple GraphQL HTTP Server for Node.js
 
 ```js
-const { Benzene, makeHandler } = require('@benzene/server');
-const { createServer } = require('http');
+import { Benzene, makeHandler, parseGraphQLBody } from '@benzene/server';
+import { createServer } from 'http';
+import querystring from 'querystring';
 
 const GQL = new Benzene({ schema });
 
 const httpHandle = makeHandler(GQL, options);
 
-createServer((req, res) => {
-  httpHandle()
+createServer(async (req, res) => {
+  const rawBody = await readRawBody(req);
+  const result = await httpHandle({
+    method: req.method,
+    query: querystring.parse(request.url.split('?')[1]),
+    body: parseGraphQLBody(rawBody, req.headers['content-type']),
+    headers: req.headers
+  }, { anything: req.something });
+  res.writeHead(result.status, result.headers);
+  res.end(JSON.stringify(result.payload));
 }).listen(3000);
 ```
 
