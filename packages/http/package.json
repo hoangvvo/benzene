@@ -1,0 +1,42 @@
+{
+  "name": "@benzene/http",
+  "version": "0.2.0",
+  "description": "Fast and simple GraphQL HTTP Server",
+  "author": "Hoang Vo (https://hoangvvo.com)",
+  "keywords": [
+    "graphql",
+    "server",
+    "api",
+    "http"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoangvvo/benzene.git",
+    "directory": "packages/http"
+  },
+  "bugs": {
+    "url": "https://github.com/hoangvvo/benzene/issues"
+  },
+  "homepage": "https://hoangvvo.github.io/benzene/",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.module.js",
+  "unpkg": "dist/index.umd.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "microbundle --strict --globals @benzene/core=benzeneCore --no-sourcemap --no-compress",
+    "clean": "npx rimraf dist",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@benzene/core": "^0.3.0"
+  },
+  "peerDependencies": {
+    "graphql": "^14.0.0 || ^15.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
