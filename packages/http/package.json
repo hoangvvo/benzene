@@ -1,7 +1,24 @@
 {
-  "name": "@benzene/worker",
-  "version": "0.2.0",
-  "description": "GraphQL for Web Workers",
+  "name": "@benzene/http",
+  "version": "0.0.0",
+  "description": "Fast and simple GraphQL HTTP Server",
+  "author": "Hoang Vo (https://hoangvvo.com)",
+  "keywords": [
+    "graphql",
+    "server",
+    "api",
+    "http"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoangvvo/benzene.git",
+    "directory": "packages/http"
+  },
+  "bugs": {
+    "url": "https://github.com/hoangvvo/benzene/issues"
+  },
+  "homepage": "https://hoangvvo.github.io/benzene/",
+  "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.module.js",
   "unpkg": "dist/index.umd.js",
@@ -9,28 +26,10 @@
   "files": ["dist"],
   "sideEffects": false,
   "scripts": {
-    "build": "microbundle --strict --globals @benzene/core=benzeneCore",
+    "build": "microbundle --strict --globals @benzene/core=benzeneCore --no-sourcemap --no-compress",
     "clean": "npx rimraf dist",
     "test": "jest"
   },
-  "author": "Hoang Vo (https://hoangvvo.com)",
-  "keywords": [
-    "graphql",
-    "server",
-    "api",
-    "web",
-    "workers"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/hoangvvo/benzene.git",
-    "directory": "packages/worker"
-  },
-  "bugs": {
-    "url": "https://github.com/hoangvvo/benzene/issues"
-  },
-  "homepage": "https://hoangvvo.github.io/benzene/",
-  "license": "MIT",
   "dependencies": {
     "@benzene/core": "^0.3.0"
   },

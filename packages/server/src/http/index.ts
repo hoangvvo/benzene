@@ -1,1 +1,0 @@
-export { httpHandler } from './handler';
