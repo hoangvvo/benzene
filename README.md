@@ -20,24 +20,15 @@ There is also a [Getting Started](https://hoangvvo.github.io/benzene/#/getting-s
 
 ## Packages
 
-There are currently three packages under `@benzene`, which can be used together or independently.
+There are currently two packages under `@benzene`, which can be used together or independently.
 
-### Server (`@benzene/server`)
+### HTTP (`@benzene/http`)
 
-[![npm](https://badgen.net/npm/v/@benzene/server)](https://www.npmjs.com/package/@benzene/server)
+[![npm](https://badgen.net/npm/v/@benzene/http)](https://www.npmjs.com/package/@benzene/http)
 
 Fast and simple GraphQL Server for Node.js
 
-[Documentation](https://hoangvvo.github.io/benzene/#/server/) [npm](https://www.npmjs.com/package/@benzene/server)
-
-### Worker (`@benzene/worker`)
-
-[![npm](https://badgen.net/npm/v/@benzene/worker)](https://www.npmjs.com/package/@benzene/worker)
-
-GraphQL server right in the browser ([Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)) or at the edge ([Cloudflare Workers®](https://workers.cloudflare.com/))
-
-[Documentation](https://hoangvvo.github.io/benzene/#/worker/) [npm](https://www.npmjs.com/package/@benzene/worker)
-
+[Documentation](https://hoangvvo.github.io/benzene/#/http/) [npm](https://www.npmjs.com/package/@benzene/http)
 ### WebSocket (`@benzene/ws`)
 
 [![npm](https://badgen.net/npm/v/@benzene/ws)](https://www.npmjs.com/package/@benzene/ws)

@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-const Fastify = require('fastify');
-const mercurius = require('mercurius');
-const schema = require('../utils/schema');
+const Fastify = require("fastify");
+const mercurius = require("mercurius");
+const schema = require("../utils/schema");
 
 const app = Fastify();
 

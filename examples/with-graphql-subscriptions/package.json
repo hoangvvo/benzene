@@ -11,7 +11,7 @@
     "sirv-cli": "^1.0.3"
   },
   "dependencies": {
-    "@benzene/server": "^0.1.0",
+    "@benzene/http": "^0.1.0",
     "@benzene/ws": "^0.1.0",
     "@graphql-tools/schema": "^6.0.18",
     "@urql/preact": "^1.2.0",

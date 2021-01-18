@@ -1,10 +1,10 @@
-const express = require('express');
-const { Benzene, httpHandler } = require('@benzene/server');
-const { makeExecutableSchema } = require('@graphql-tools/schema');
-const expressPlayground = require('graphql-playground-middleware-express')
+const express = require("express");
+const { Benzene, makeHandler } = require("@benzene/http");
+const { makeExecutableSchema } = require("@graphql-tools/schema");
+const expressPlayground = require("graphql-playground-middleware-express")
   .default;
-const DataLoader = require('dataloader');
-const { getUser, getBatchUsers } = require('./users');
+const DataLoader = require("dataloader");
+const { getUser, getBatchUsers } = require("./users");
 
 function createLoaders() {
   return {
@@ -70,34 +70,33 @@ var schema = makeExecutableSchema({
 
 const GQL = new Benzene({ schema });
 
-const app = express();
-
-app.get('/playground', expressPlayground({ endpoint: '/graphql' }));
-app.all(
-  '/graphql',
-  httpHandler(GQL, {
-    context: (req) => {
-      console.log(' --- ');
-      return {
-        // other contexts
-        loaders: createLoaders(),
-      };
-    },
-  })
-);
-app.use(express.static('public'));
-
-app.listen(4000, () => {
-  console.log('Server ready at http://localhost:4000/');
+const httpHandler = makeHandler(GQL, {
+  contextFn: () => {
+    console.log(" --- ");
+    return {
+      // other contexts
+      loaders: createLoaders(),
+    };
+  },
 });
 
-// It is not only helpful in httpHandler but also in GraphQL#graphql
-// The example below creates a new loader inside the function to avoid stale data
-// function getUserWithGraphQL(id) {
-//   const context = {
-//     loaders: createLoaders(),
-//   }
-//   GQL.graphql({
-//     query: userQuery, variableValues: { id }, contextValue: context
-//   })
-// }
+const app = express();
+
+app.use(express.json());
+
+app.get("/playground", expressPlayground({ endpoint: "/graphql" }));
+app.all("/graphql", (req, res) => {
+  httpHandler({
+    method: req.method,
+    headers: req.headers,
+    body: req.body,
+  }).then((result) => {
+    res.writeHead(result.status, result.headers);
+    res.send(result.payload);
+  });
+});
+app.use(express.static("public"));
+
+app.listen(4000, () => {
+  console.log("Server ready at http://localhost:4000/");
+});

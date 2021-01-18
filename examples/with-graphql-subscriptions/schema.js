@@ -1,5 +1,5 @@
-const { makeExecutableSchema } = require('@graphql-tools/schema');
-const { PubSub } = require('graphql-subscriptions');
+const { makeExecutableSchema } = require("@graphql-tools/schema");
+const { PubSub } = require("graphql-subscriptions");
 
 const pubsub = new PubSub();
 
@@ -7,7 +7,7 @@ let idCount = 1;
 const messages = [
   {
     id: idCount,
-    message: 'Message message',
+    message: "Message message",
   },
 ];
 
@@ -42,7 +42,7 @@ const resolvers = {
         message: text,
       };
       messages.push(message);
-      await pubsub.publish('NOTIFICATION_ADDED', {
+      await pubsub.publish("NOTIFICATION_ADDED", {
         messageAdded: message,
       });
       return message;
@@ -50,7 +50,7 @@ const resolvers = {
   },
   Subscription: {
     messageAdded: {
-      subscribe: () => pubsub.asyncIterator('NOTIFICATION_ADDED'),
+      subscribe: () => pubsub.asyncIterator("NOTIFICATION_ADDED"),
     },
   },
 };

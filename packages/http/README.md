@@ -8,7 +8,7 @@
 > Fast and simple GraphQL HTTP Server for Node.js
 
 ```js
-import { Benzene, makeHandler, parseGraphQLBody } from '@benzene/server';
+import { Benzene, makeHandler, parseGraphQLBody } from '@benzene/http';
 import { createServer } from 'http';
 import querystring from 'querystring';
 

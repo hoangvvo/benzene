@@ -4,10 +4,10 @@ This tutorial takes you through the process of building a GraphQL server with `b
 
 ## Create our Todo App with Query and Mutation
 
-We will install `@benzene/server` and [`graphql-js`](https://github.com/graphql/graphql-js).
+We will install `@benzene/http` and [graphql-js](https://github.com/graphql/graphql-js).
 
 ```bash
-npm i graphql @benzene/server
+npm i graphql @benzene/http
 ```
 
 ### Create a GraphQLSchema instance
@@ -88,30 +88,100 @@ export default schema;
 
 ### Create a Benzene instance and HTTP Server
 
-With our schema, create a [Benzene instance](core/) instance with it. Let's create `server.js`:
+With our schema, create a [Benzene instance](core/) instance with it like so using `Benzene` export from `@benzene/http` (which is re-exported from `@benzene/core`). 
 
 ```js
-import { Benzene } from "@benzene/server";
-import schema from "./schema";
-
 const GQL = new Benzene({ schema });
 ```
 
-We then hook that instance into `httpHandler` which creates a [request listener](https://nodejs.org/api/http.html#http_http_createserver_options_requestlistener) that can be used in [`http`](https://nodejs.org/api/http.html).
+`benzene` libraries are designed to work anywhere, but let's use Node.js `http` this time.
+
+Since we don't use Express.js or [body-parser](https://github.com/expressjs/body-parser), we need to write a function to read data from incoming request:
+
+```js
+function readBody(req) {
+  return new Promise(resolve => {
+    let body = '';
+    req.on('data', (chunk) => (body += chunk));
+    req.on('end', () => resolve(body));
+  });
+}
+```
+
+To parse the string body retrieved from `readBody` according to GraphQL HTTP spec, use `parseGraphQLBody` from `@benzene/http`, which requires the string raw body and the incoming request's content-type. 
+
+```js
+const rawBody = await readBody(req);
+const body = parseGraphQLBody(rawBody, req.headers['content-type']);
+```
+
+Next, use `makeHandler` from `@benzene/http` to create a handler for the incoming request.
+
+```js
+const httpHandler = makeHandler(GQL);
+```
+
+`makeHandler` returns a handler function `httpHandler` that is to be called an object with the following fields: 
+
+- `method` (the HTTP method)
+- `body` (parsed from `parseGraphQLBody` or `undefined`),
+- `query` (can be parsed from `req.url` using `querystring` or `undefined`)
+- `headers` (the object of incoming headers)
+
+Since we are sending GraphQL via POST body, `query` is not needed.
+
+```js
+const result = await httpHandler({
+  method: req.method,
+  headers: req.headers,
+  body
+});
+```
+
+The returned `result` is an object with:
+
+- `status` the status code that should be set to response
+- `headers` the headers that should be set to response
+- `payload` the execution result object
+
+Simply uses `res` to send the response.
+
+```js
+res.writeHead(result.status, result.headers);
+res.end(JSON.stringify(result.payload));
+```
+
+Here is our complete code:
+
 
 ```js
 import http from "http";
-import { Benzene, httpHandler } from "@benzene/server";
+import { Benzene, parseGraphQLBody, makeHandler } from "@benzene/http";
 import schema from "./schema";
+
+function readBody(request) {
+  return new Promise(resolve => {
+    var body = '';
+    request.on('data', (chunk) => (body += chunk));
+    request.on('end', () => resolve(body));
+  });
+}
 
 const GQL = new Benzene({ schema });
 
-// Note: options.path is often set if using with `http` only.
-// If you use other frameworks like Express, which has its
-// own router, you don't have to set it.
-const gqlHandle = httpHandler(GQL, { path: "/graphql" });
+const httpHandler = makeHandler(GQL);
 
-const server = http.createServer(gqlHandle);
+const server = http.createServer(async (req, res) => {
+  const rawBody = await readBody(req);
+  const result = await httpHandler({
+    method: req.method,
+    headers: req.headers,
+    body: parseGraphQLBody(rawBody, req.headers['content-type'])
+  });
+  res.writeHead(result.status, result.headers);
+  res.end(JSON.stringify(result.payload));
+});
+
 server.listen(3000);
 ```
 
@@ -119,9 +189,11 @@ We should now have a GraphQL server listening at port `3000`.
 
 ## Extended: Add Subscription to our Todo App
 
-Suppose the todo list is used by multiple people. We need a way to notify other people if a todo is updated by a person. One way to do so is to have GraphQL Subscription over [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API). We can use WebSocket inside Node.js with [`ws`](https://github.com/websockets/ws).
+Suppose the todo list is used by multiple people. We need a way to notify other people if a todo is updated by a person. One way to do so is to have GraphQL Subscription over [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API).
 
-Install `ws` and `@benzene/ws`. We also use `graphql-subscriptions` to create [Asynchronous Iterators](https://github.com/tc39/proposal-async-iteration), but you can use any other libraries that achieve the same purpose.
+Similiar, while `@benzene/ws` can work with any compatible WebSocket server, we will use [`ws`](https://github.com/websockets/ws) this time.
+
+Install `ws` and `@benzene/ws`. We also needs `graphql-subscriptions` to create [Asynchronous Iterators](https://github.com/tc39/proposal-async-iteration), but you can use any other libraries that achieve the same purpose.
 
 ```bash
 npm i ws @benzene/ws graphql-subscriptions
@@ -191,22 +263,40 @@ Let's edit `server.ts`
 
 ```js
 import http from "http";
-import * as WebSocket from "ws";
-import { Benzene, httpHandler } from "@benzene/server";
-import { makeHandler } from "@benzene/ws";
+import WebSocket from "ws";
+import { Benzene, parseGraphQLBody, makeHandler } from "@benzene/http";
+import { makeHandler as makeWsHandler } from "@benzene/ws";
 import schema from "./schema";
+
+function readBody(request) {
+  return new Promise(resolve => {
+    var body = '';
+    request.on('data', () => (body += chunk));
+    request.on('end', () => resolve(body));
+  });
+}
 
 const GQL = new Benzene({ schema });
 
-const gqlHandle = httpHandler(GQL, { path: "/graphql" });
-// Add wsHandle
-const wsHandle = makeHandler(GQL);
+const httpHandler = makeHandler(GQL);
 
-const server = http.createServer(gqlHandle);
-server.listen(3000);
+const wsHandler = makeWsHandler(GQL);
+
+const server = http.createServer(async (req, res) => {
+  const rawBody = await readBody(req);
+  const result = await httpHandler({
+    method: req.method,
+    headers: req.headers,
+    body: parseGraphQLBody(rawBody, req.headers['content-type'])
+  });
+  res.writeHead(result.status, result.headers);
+  res.end(JSON.stringify(result.payload));
+});
 
 const wss = new WebSocket.Server({ server });
-wss.on("connection", wsHandle);
+wss.on("connection", (ws) => wsHandle(ws));
+
+server.listen(3000);
 ```
 
-As you can see, we reuse the same `Benzene` instance that is used inside `httpHandler`. We also create a `ws` server instance and respond to `connection` event using the handler created by `makeHandler`.
+As you can see, we use the same `Benzene` instance. We also create a `ws` server instance and respond to `connection` event using the handler created by `makeHandler`.

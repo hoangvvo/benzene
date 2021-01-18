@@ -3,7 +3,7 @@
   "license": "MIT",
   "peerDependencies": {},
   "dependencies": {
-    "@benzene/server": "file:../packages/server",
+    "@benzene/http": "file:../packages/http",
     "apollo-server": "^2.17.0",
     "apollo-server-fastify": "^2.17.0",
     "express-graphql": "^0.11.0",

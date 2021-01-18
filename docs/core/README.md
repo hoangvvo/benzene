@@ -5,11 +5,9 @@
 The main export is `GraphQL`, which can be used to create a Benzene "GraphQL" instance. This is re-exported from each binding package and can be shared across them.
 
 ```js
-import { Benzene } from '@benzene/server';
+import { Benzene } from '@benzene/http';
 // or
 import { Benzene } from '@benzene/ws';
-// or
-import { Benzene } from '@benzene/worker';
 
 // Create the instance
 const GQL = new Benzene(options);

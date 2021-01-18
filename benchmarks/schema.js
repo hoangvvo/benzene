@@ -7,10 +7,10 @@ const {
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLString,
-} = require('graphql');
+} = require("graphql");
 
 const BlogImage = new GraphQLObjectType({
-  name: 'Image',
+  name: "Image",
   fields: {
     url: {
       type: GraphQLString,
@@ -28,7 +28,7 @@ const BlogImage = new GraphQLObjectType({
 });
 
 const BlogAuthor = new GraphQLObjectType({
-  name: 'Author',
+  name: "Author",
   fields: () => ({
     id: {
       type: GraphQLString,
@@ -51,7 +51,7 @@ const BlogAuthor = new GraphQLObjectType({
 });
 
 const BlogArticle = new GraphQLObjectType({
-  name: 'Article',
+  name: "Article",
   fields: {
     id: {
       type: new GraphQLNonNull(GraphQLID),
@@ -79,7 +79,7 @@ const BlogArticle = new GraphQLObjectType({
 
 const johnSmith = {
   id: 123,
-  name: 'John Smith',
+  name: "John Smith",
   pic: (width, height) => getPic(123, width, height),
   recentArticle: null,
 };
@@ -90,10 +90,10 @@ function article(id) {
     id,
     isPublished: true,
     author: johnSmith,
-    title: 'My Article ' + id,
-    body: 'This is a post',
-    hidden: 'This data is not exposed in the schema',
-    keywords: ['foo', 'bar', 1, true, null],
+    title: "My Article " + id,
+    body: "This is a post",
+    hidden: "This data is not exposed in the schema",
+    keywords: ["foo", "bar", 1, true, null],
   };
 }
 
@@ -106,7 +106,7 @@ function getPic(uid, width, height) {
 }
 
 const BlogQuery = new GraphQLObjectType({
-  name: 'Query',
+  name: "Query",
   fields: {
     article: {
       type: BlogArticle,

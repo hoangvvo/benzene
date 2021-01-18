@@ -10,3 +10,4 @@ export {
   SubscribeMessage,
 } from "./message";
 export { GRAPHQL_TRANSPORT_WS_PROTOCOL } from "./protocol";
+export { WebSocket } from "./types";

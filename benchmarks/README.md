@@ -1,6 +1,6 @@
 # Benchmarks
 
-A basic HTTP benchmarks against `@benzene/server` and popular GraphQL Server libraries using [rakyll/hey](https://github.com/rakyll/hey).
+A basic HTTP benchmarks against `@benzene/http` and popular GraphQL Server libraries using [rakyll/hey](https://github.com/rakyll/hey).
 
 [`lukeed/polka`](https://github.com/lukeed/polka) is used in place of `express` where applicable because `express` adds overhead (See [fastify/benchmarks](https://github.com/fastify/benchmarks)).
 
@@ -22,7 +22,7 @@ The following can be used as `<library>`:
 
 - [`apollo-server`](https://github.com/apollographql/apollo-server)
 - [`apollo-server-fastify`](https://github.com/apollographql/apollo-server)
-- `benzene-server` ([`@benzene/server`](https://github.com/hoangvvo/benzene/tree/main/packages/server))
+- `benzene-http` ([`@benzene/http`](https://github.com/hoangvvo/benzene/tree/main/packages/http))
 - [`express-graphql`](https://github.com/graphql/express-graphql)
 - [`mercurius`](https://github.com/mercurius-js/mercurius)
 
@@ -42,7 +42,7 @@ Node: `v14.12.0`
 
 | Library | Request/sec | Latency |
 | --- | --- | --- |
-| benzene-server | 13592.2223 | 0.0073 secs |
+| benzene-http | 13592.2223 | 0.0073 secs |
 | mercurius | 12277.0624 | 0.0081 secs |
 | apollo-server-fastify | 3264.9005 | 0.0306 secs |
 | apollo-server | 2032.8558 | 0.0490 secs |

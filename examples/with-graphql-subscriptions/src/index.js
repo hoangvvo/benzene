@@ -5,16 +5,16 @@ import {
   useMutation,
   useSubscription,
   subscriptionExchange,
-} from '@urql/preact';
-import { SubscriptionClient } from 'subscriptions-transport-ws';
+} from "@urql/preact";
+import { SubscriptionClient } from "subscriptions-transport-ws";
 
 const subscriptionClient = new SubscriptionClient(
-  'ws://localhost:3000/graphql',
+  "ws://localhost:3000/graphql",
   { reconnect: true }
 );
 
 const client = createClient({
-  url: 'http://localhost:8080/graphql',
+  url: "http://localhost:8080/graphql",
   exchanges: [
     ...defaultExchanges,
     subscriptionExchange({
@@ -48,10 +48,10 @@ export default function App() {
     <Provider value={client}>
       <div>
         <h1>
-          <a href="https://github.com/hoangvvo/benzene">@benzene/ws</a> and{' '}
+          <a href="https://github.com/hoangvvo/benzene">@benzene/ws</a> and{" "}
           <a href="https://github.com/apollographql/graphql-subscriptions">
             graphql-subscriptions
-          </a>{' '}
+          </a>{" "}
           example
         </h1>
         <p>
@@ -82,7 +82,7 @@ function ChatApp() {
           e.preventDefault();
           sendMessage({ text: e.currentTarget.text.value });
         }}
-        style={{ display: 'flex' }}
+        style={{ display: "flex" }}
       >
         <input name="text" />
         <button type="submit">Send</button>

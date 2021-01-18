@@ -38,11 +38,14 @@ const wsHandler = makeHandler(GQL, options);
 // Refer to https://github.com/websockets/ws#usage-examples for more info.
 const wss = new WebSocket.Server({ path: '/graphql', server });
 
-// Attach makeHandler to WebSocket.Server `connection` event
+// Call makeHandler with WebSocket from the WebSocket.Server `connection` event
 // See https://github.com/websockets/ws/blob/master/doc/ws.md#event-connection
 wss.on('connection', (socket, request) => {
   wsHandler(socket, { request });
 });
 ```
 
-`makeHandler` returns a function with two arguments, the first being the WebSocket and the second is an optional extra object you can use to store data that persists throughout the connection.
+`makeHandler` returns a function with two arguments, the first being the WebSocket and the second is an optional `extra` value you can use to store data that persists throughout the connection.
+
+`extra` will be available in `onConnect` and `contextFn` in `options`.
+

@@ -2,8 +2,5 @@
 - **[Benchmarks](benchmarks)**
 - **Packages**
   - **[Core](core/)**
-  - **[Server](server/)**
-  - **[WebWorker](worker/)**
+  - **[HTTP](http/)**
   - **[WebSocket](ws/)**
-- **Extra**
-  - **[Persisted Queries](persisted/)**

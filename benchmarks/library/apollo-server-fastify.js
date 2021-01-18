@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-const { ApolloServer } = require('apollo-server-fastify');
-const app = require('fastify')();
-const schema = require('../utils/schema');
+const { ApolloServer } = require("apollo-server-fastify");
+const app = require("fastify")();
+const schema = require("../utils/schema");
 
 const server = new ApolloServer({ schema });
 
