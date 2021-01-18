@@ -5,9 +5,6 @@ import {
   GraphQLFormattedError,
 } from 'graphql';
 import { CompiledQuery } from '@hoangvvo/graphql-jit';
-
-export type TContext = { [key: string]: any };
-
 export interface Config {
   schema: GraphQLSchema;
   formatError?: (error: GraphQLError) => GraphQLFormattedError;
@@ -21,21 +18,6 @@ export interface GraphQLParams {
   operationName?: string | null;
   extensions?: Record<string, any> | null;
 }
-
-export interface HTTPRequest {
-  context: TContext;
-  httpMethod: string;
-  queryParams: Record<string, string> | null;
-  body: string | Record<string, any> | null;
-  headers: Record<string, string | null>;
-}
-
-export interface HTTPResponse {
-  status: number;
-  payload: FormattedExecutionResult;
-  headers: Record<string, string>;
-}
-
 export interface QueryCache {
   operation: string;
   document: DocumentNode;
