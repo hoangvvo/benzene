@@ -8,7 +8,6 @@ import { CompiledQuery } from '@hoangvvo/graphql-jit';
 export interface Config {
   schema: GraphQLSchema;
   formatError?: (error: GraphQLError) => GraphQLFormattedError;
-  persisted?: BenzenePersisted;
 }
 
 export interface GraphQLParams {
@@ -32,13 +31,6 @@ export interface FormattedExecutionResult<
   errors?: ReadonlyArray<GraphQLFormattedError>;
   data?: TData | null;
   extensions?: TExtensions;
-}
-
-export abstract class BenzenePersisted {
-  abstract isPersistedQuery: (params: GraphQLParams) => boolean;
-  abstract getQuery: (
-    params: GraphQLParams
-  ) => ValueOrPromise<string | undefined>;
 }
 
 export type ValueOrPromise<T> = T | Promise<T>;

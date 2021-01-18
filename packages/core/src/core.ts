@@ -22,14 +22,12 @@ import {
   QueryCache,
   FormattedExecutionResult,
   ValueOrPromise,
-  BenzenePersisted,
 } from './types';
 
 export default class Benzene {
   private lru: Lru<QueryCache>;
   public schema: GraphQLSchema;
   protected options: Config;
-  persisted?: BenzenePersisted;
 
   constructor(options: Config) {
     // validate options
@@ -45,8 +43,6 @@ export default class Benzene {
     if (schemaValidationErrors.length > 0) {
       throw schemaValidationErrors;
     }
-    // persisted config
-    this.persisted = options.persisted;
   }
 
   // This API is internal even if it is defined as public

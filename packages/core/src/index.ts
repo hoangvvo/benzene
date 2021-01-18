@@ -3,6 +3,5 @@ export {
   GraphQLParams,
   FormattedExecutionResult,
   ValueOrPromise,
-  BenzenePersisted,
 } from './types';
-export * as persistedQueryPresets from './persisted/index';
+export { isAsyncIterator } from './utils';
