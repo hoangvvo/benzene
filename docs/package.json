@@ -1,0 +1,26 @@
+{
+  "name": "@benzene/docs",
+  "version": "0.0.0",
+  "description": "Documentation for Benzene",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoangvvo/benzene.git",
+    "directory": "packages/docs"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "start": "next start",
+    "build": "next build"
+  },
+  "author": "Hoang Vo (https://hoangvvo.com)",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "next": "^10.0.5",
+    "nextra": "^0.4.0",
+    "nextra-theme-docs": "^1.1.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  }
+}
