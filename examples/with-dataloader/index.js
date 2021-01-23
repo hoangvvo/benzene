@@ -68,9 +68,8 @@ var schema = makeExecutableSchema({
   resolvers,
 });
 
-const GQL = new Benzene({ schema });
-
-const httpHandler = makeHandler(GQL, {
+const GQL = new Benzene({
+  schema,
   contextFn: () => {
     console.log(" --- ");
     return {
@@ -80,13 +79,15 @@ const httpHandler = makeHandler(GQL, {
   },
 });
 
+const graphqlHTTP = makeHandler(GQL);
+
 const app = express();
 
 app.use(express.json());
 
 app.get("/playground", expressPlayground({ endpoint: "/graphql" }));
 app.all("/graphql", (req, res) => {
-  httpHandler({
+  graphqlHTTP({
     method: req.method,
     headers: req.headers,
     body: req.body,

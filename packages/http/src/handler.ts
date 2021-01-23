@@ -1,13 +1,37 @@
-import { Benzene } from "@benzene/core";
-import { GraphQLError } from "graphql";
-import { getGraphQLParams, createResponse } from "./utils";
+import { Benzene, ExtractExtraType } from "@benzene/core";
+import { ExecutionResult, GraphQLError } from "graphql";
+import { getGraphQLParams } from "./utils";
 import { HandlerOptions, HTTPRequest, HTTPResponse } from "./types";
 
-export function makeHandler<TContext = unknown, TExtra = unknown>(
+function createResponse(
   GQL: Benzene,
-  options: HandlerOptions<TContext, TExtra> = {}
+  code: number,
+  result: ExecutionResult
+): HTTPResponse {
+  return {
+    payload: GQL.formatExecutionResult(result),
+    status: code,
+    headers: { "content-type": "application/json" },
+  };
+}
+
+/**
+ * Create a handler to handle incoming request
+ * @param GQL A Benzene instance
+ * @param options Handler options
+ */
+export function makeHandler<TBenzene extends Benzene>(
+  GQL: TBenzene,
+  // @ts-ignore
+  options: HandlerOptions<ExtractExtraType<TBenzene>> = {}
 ) {
-  return async function httpHandler(
+  type TExtra = ExtractExtraType<TBenzene>;
+  /**
+   * A function that handles incoming request
+   * @param socket The incoming request
+   * @param extra An extra field to store anything that needs to be accessed later
+   */
+  return async function graphqlHTTP(
     request: HTTPRequest,
     extra: TExtra
   ): Promise<HTTPResponse> {
@@ -49,8 +73,8 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
       await GQL.execute(
         {
           document: cachedOrResult.document,
-          contextValue: options.contextFn
-            ? await options.contextFn({ extra })
+          contextValue: GQL.contextFn
+            ? await GQL.contextFn({ extra })
             : undefined,
           variableValues: params.variables,
         },

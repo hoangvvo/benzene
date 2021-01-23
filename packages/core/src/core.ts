@@ -18,27 +18,26 @@ import {
   CompiledQuery,
 } from "@hoangvvo/graphql-jit";
 import lru, { Lru } from "tiny-lru";
-import { Config, QueryCache, ValueOrPromise } from "./types";
+import { Options, ContextFn, QueryCache, ValueOrPromise } from "./types";
 
-export default class Benzene {
+export default class Benzene<TContext = any, TExtra = any> {
   private lru: Lru<QueryCache>;
   public schema: GraphQLSchema;
-  protected options: Config;
+  formatErrorFn: typeof formatError;
+  contextFn?: ContextFn<TContext, TExtra>;
 
-  constructor(options: Config) {
-    // validate options
-    if (!options) {
-      throw new TypeError("GQL must be initialized with options");
-    }
-    this.options = options;
+  constructor(options: Options<TContext, TExtra>) {
+    if (!options) throw new TypeError("GQL must be initialized with options");
+    this.formatErrorFn = options.formatErrorFn || formatError;
+    this.contextFn = options.contextFn;
     // build cache
     this.lru = lru(1024);
     // construct schema and validate
-    this.schema = this.options.schema;
-    const schemaValidationErrors = validateSchema(this.schema);
+    const schemaValidationErrors = validateSchema(options.schema);
     if (schemaValidationErrors.length > 0) {
       throw schemaValidationErrors;
     }
+    this.schema = options.schema;
   }
 
   // This API is internal even if it is defined as public
@@ -101,8 +100,7 @@ export default class Benzene {
   formatExecutionResult(result: ExecutionResult): FormattedExecutionResult {
     const o: FormattedExecutionResult = {};
     if (result.data) o.data = result.data;
-    if (result.errors)
-      o.errors = result.errors.map(this.options.formatError || formatError);
+    if (result.errors) o.errors = result.errors.map(this.formatErrorFn);
     return o;
   }
 

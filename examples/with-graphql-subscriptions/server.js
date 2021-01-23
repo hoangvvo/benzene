@@ -1,12 +1,12 @@
 const http = require("http");
 const WebSocket = require("ws");
 const { Benzene, makeHandler, parseGraphQLBody } = require("@benzene/http");
-const { makeHandler: makeWsHandler } = require("@benzene/ws");
+const { makeHandler: makeHandlerWs } = require("@benzene/ws");
 const schema = require("./utils/schema");
 
 const GQL = new Benzene({ schema });
 
-const httpHandler = makeHandler(GQL);
+const graphqlHTTP = makeHandler(GQL);
 
 const readBody = (req, done) => {
   let body = "";
@@ -16,7 +16,7 @@ const readBody = (req, done) => {
 
 const server = http.createServer((req, res) => {
   readBody(req, (rawBody) => {
-    httpHandler({
+    graphqlHTTP({
       method: req.method,
       headers: req.headers,
       body: parseGraphQLBody(rawBody, req.headers["content-type"]),
@@ -29,7 +29,7 @@ const server = http.createServer((req, res) => {
 
 const wss = new WebSocket.Server({ path: "/graphql", server });
 
-wss.on("connection", makeWsHandler(GQL));
+wss.on("connection", makeHandlerWs(GQL));
 
 server.listen(3000, () => {
   console.log(`🚀  Server ready at http://localhost:3000/`);

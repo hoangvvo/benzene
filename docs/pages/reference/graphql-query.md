@@ -5,7 +5,7 @@ The Benzene instance is not only used to create transport handlers but also to e
 ```js
 const GQL = new Benzene({ schema });
 
-const { data, errors } = GQL.graphql({
+const { data, errors } = await GQL.graphql({
   source: `
     query pokemon($id: ID!) {
       pokemon(id: $id) {

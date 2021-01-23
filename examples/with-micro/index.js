@@ -7,11 +7,11 @@ global.fetch = require("node-fetch");
 
 const GQL = new Benzene({ schema });
 
-const httpHandler = makeHandler(GQL);
+const graphqlHTTP = makeHandler(GQL);
 
 module.exports = async (req, res) => {
   const txt = await text(req);
-  const result = await httpHandler({
+  const result = await graphqlHTTP({
     method: req.method,
     headers: req.headers,
     body: parseGraphQLBody(txt, req.headers["content-type"]),

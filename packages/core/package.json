@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/hoangvvo/benzene/issues"
   },
-  "homepage": "https://benzene.vercel.app/",
+  "homepage": "https://benzen.vercel.app/",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.m.js",

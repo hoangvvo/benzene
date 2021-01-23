@@ -134,7 +134,7 @@ Create a file called `server.js` and add the following:
 import { createServer } from "http";
 import WebSocket from "ws";
 import { Benzene, parseGraphQLBody, makeHandler } from "@benzene/http";
-import { makeHandler as makeWsHandler } from "@benzene/ws";
+import { makeHandler as makeHandlerWs } from "@benzene/ws";
 import schema from "./schema";
 
 function readBody(request) {
@@ -148,7 +148,7 @@ function readBody(request) {
 const GQL = new Benzene({ schema });
 
 const graphqlHTTP = makeHandler(GQL);
-const graphqlWS = makeWsHandler(GQL);
+const graphqlWS = makeHandlerWs(GQL);
 
 const server = http.createServer(async (req, res) => {
   const rawBody = await readBody(req);
