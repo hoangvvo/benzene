@@ -1,5 +1,3 @@
-# Benchmarks
-
 A basic HTTP benchmarks against `@benzene/http` and popular GraphQL Server libraries using [rakyll/hey](https://github.com/rakyll/hey).
 
 [`lukeed/polka`](https://github.com/lukeed/polka) is used in place of `express` where applicable because `express` adds overhead (See [fastify/benchmarks](https://github.com/fastify/benchmarks)).
@@ -13,6 +11,16 @@ hey -c 100 -z 8s -D body.txt -T application/json -m POST http://localhost:4000/g
 > Remember, this benchmark is for *reference only* and by no means says that one is better than the others. The slowest part of the application is still the application code itself, not the library.
 
 ## How to use
+
+Clone the repository and go to benchmarks folder and install the dependencies.
+
+```bash
+git clone https://github.com/hoangvvo/benzene.git
+cd benzene/benchmarks
+npm i
+```
+
+Run the benchmarks (for Windows, use [git bash](https://www.atlassian.com/git/tutorials/git-bash)):
 
 ```bash
 ./run <library>
@@ -32,7 +40,7 @@ To run all benchmarks at once:
 ./runall
 ```
 
-Make a PR to add one.
+[Create a PR](https://github.com/hoangvvo/benzene/pulls) to add one.
 
 ## Result
 

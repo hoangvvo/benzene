@@ -1,0 +1,17 @@
+import Markdown from 'markdown-to-jsx'
+import { useSSG } from 'nextra/ssg'
+
+export const getStaticProps = ({ params }) => {
+  return fetch('https://raw.githubusercontent.com/hoangvvo/benzene/main/benchmarks/README.md')
+    .then(res => res.text())
+    .then(text => ({ props: { ssg: text } }))
+}
+
+export const BenchmarksRenderer = ({}) => {
+  const text = useSSG()
+  return <Markdown>{text}</Markdown>
+}
+
+# Benchmarks
+
+<BenchmarksRenderer/>

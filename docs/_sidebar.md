@@ -1,6 +1,0 @@
-- **[Getting Started](getting-started)**
-- **[Benchmarks](benchmarks)**
-- **Packages**
-  - **[Core](core/)**
-  - **[HTTP](http/)**
-  - **[WebSocket](ws/)**

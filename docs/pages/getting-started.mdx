@@ -1,0 +1,196 @@
+import Callout from 'nextra-theme-docs/callout'
+
+# Getting Started
+
+This tutorial will take you through the process of building a GraphQL server with `@benzene/server` and `@benzene/ws`. We will build a simple posting app that can:
+
+- Returns a list of posts and authors
+- Upvote a post
+- Synchronize votes with real-time changes
+
+Everything will be built with the bare [http](https://nodejs.org/api/http.html) module and the [ws](https://github.com/websockets/ws) library. You can adapt it to any other libraries.
+
+In this tutorial, we will use the *SDL-first* library [graphql-tools](https://github.com/ardatan/graphql-tools) for our schema. (However, you can choose a *code-first* libraries likes [type-graphql](https://github.com/MichalLytek/type-graphql) and [@nexus/schema](https://github.com/graphql-nexus/schema))
+
+## Setup Project
+
+Create a project and install the neccessary dependencies.
+
+```bash
+mkdir benzene-votes
+cd benzene-votes
+npm init -y
+npm i ws graphql @benzene/http @benzene/ws @graphql-tools/schema
+```
+
+## Define our schema
+
+Create a file called `schema.js` and add the following:
+
+```js
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import { on, EventEmitter } from "events";
+
+const authors = [
+  { id: 1, firstName: "Tom", lastName: "Coleman" },
+  { id: 2, firstName: "Sashko", lastName: "Stubailo" },
+  { id: 3, firstName: "Mikhail", lastName: "Novikov" },
+];
+
+const posts = [
+  { id: 1, authorId: 1, title: "Introduction to GraphQL", votes: 2 },
+  { id: 2, authorId: 2, title: "Welcome to Meteor", votes: 3 },
+  { id: 3, authorId: 2, title: "Advanced GraphQL", votes: 1 },
+  { id: 4, authorId: 3, title: "Launchpad is Cool", votes: 7 },
+];
+
+const typeDefs = `
+  type Author {
+    id: Int!
+    name: String
+    posts: [Post]
+  }
+
+  type Post {
+    id: Int!
+    title: String
+    author: Author
+    votes: Int
+  }
+
+  type Query {
+    posts: [Post]
+  }
+
+  type Mutation {
+    postUpvote (
+      postId: Int!
+    ): Post
+  }
+
+  type Subscription {
+    postSubscribe: Post
+  }
+`;
+
+const ee = new EventEmitter();
+
+const resolvers = {
+  Query: {
+    posts: () => posts,
+  },
+
+  Mutation: {
+    postUpvote: (_, { postId }) => {
+      const post = posts.find((post) => post.id === postId);
+      if (!post) {
+        throw new Error(`Couldn't find post with id ${postId}`);
+      }
+      post.votes += 1;
+      ee.emit("POST_SUBSCRIBE", { postSubscribe: post });
+      return post;
+    },
+  },
+
+  Subscription: {
+    postSubscribe: {
+      subscribe: () => on(ee, "POST_SUBSCRIBE"),
+    },
+  },
+
+  Author: {
+    posts: (author) => posts.filter((post) => post.authorId === author.id),
+  },
+
+  Post: {
+    author: (post) => authors.filter((author) => author.id === post.authorId),
+  },
+};
+
+const schema = makeExecutableSchema({
+  typeDefs,
+  resolvers,
+});
+
+export default schema;
+```
+
+We created a GraphQL schema with three functionalities:
+
+- A query to retrieve all posts, as well resolvers for *Post* and *Author* to resolve nested fields.
+- A mutation to upvote a post, which also announces the change to the `"POST_SUBSCRIBE"` event.
+- A subscription to post updates that listens to the `"POST_SUBSCRIBE"` event.
+
+<Callout emoji="💡">
+  We use [events.on](https://nodejs.org/api/events.html#events_events_on_emitter_eventname_options)
+to create the async iterator, but you may be more familiar with [graphql-subscriptions](https://github.com/apollographql/graphql-subscriptions))
+</Callout>
+
+## Create the server
+
+Create a file called `server.js` and add the following:
+
+```js
+import { createServer } from "http";
+import WebSocket from "ws";
+import { Benzene, parseGraphQLBody, makeHandler } from "@benzene/http";
+import { makeHandler as makeWsHandler } from "@benzene/ws";
+import schema from "./schema";
+
+function readBody(request) {
+  return new Promise((resolve) => {
+    let body = "";
+    request.on("data", (chunk) => (body += chunk));
+    request.on("end", () => resolve(body));
+  });
+}
+
+const GQL = new Benzene({ schema });
+
+const graphqlHTTP = makeHandler(GQL);
+const graphqlWS = makeWsHandler(GQL);
+
+const server = http.createServer(async (req, res) => {
+  const rawBody = await readBody(req);
+  const result = await graphqlHTTP({
+    method: req.method,
+    headers: req.headers,
+    body: parseGraphQLBody(rawBody, req.headers["content-type"]),
+  });
+  res.writeHead(result.status, result.headers);
+  res.end(JSON.stringify(result.payload));
+});
+
+const wss = new WebSocket.Server({ server });
+
+wss.on("connection", (ws) => {
+  graphqlWS(ws);
+});
+
+server.listen(3000);
+```
+
+### Parse incoming request
+
+Our defined `readBody` function read the data from the incoming request and output it as a string.
+Meanwhile, the [graphql-over-http spec](https://github.com/graphql/graphql-over-http) allows different incoming [Content-Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type),
+each must be parsed differently. We provide `parseGraphQLBody` function, which accepts the body string and the content type, to do just that.
+
+<Callout emoji="💡">
+  You do not have to do this if you use a framework or library with body parsing, like [express](https://expressjs.com/en/4x/api.html#express.json)
+</Callout>
+
+### Create a Benzene instance and transport handlers
+
+After creating an Benzene instance, we create HTTP and WebSocket handler by supplying the it to the `makeHandler` functions from
+`@benzene/http` and `@benzene/ws`.
+
+`@benzene/http` is then called with a generic request object and returns a generic response object with `status`, `headers`, and `payload` so we can respond
+as we wish. This allows us to work with any frameworks or runtimes.
+
+Similarly, `@benzene/ws` is called with any [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)-like instance, so you can use it
+with libraries other than `ws`.
+
+<Callout emoji="📦">
+  Benzene class is exported from both `@benzene/ws` and `@benzene/http`
+</Callout>
