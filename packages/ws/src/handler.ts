@@ -14,9 +14,9 @@ import { HandlerOptions, WebSocket, ConnectionContext } from "./types";
  * @param GQL A Benzene instance
  * @param options Handler options
  */
-export function makeHandler<TContext = unknown, TExtra = unknown>(
+export function makeHandler<TExtra = unknown>(
   GQL: Benzene,
-  options: HandlerOptions<TContext, TExtra> = {}
+  options: HandlerOptions<TExtra> = {}
 ) {
   const sendRes = (socket: WebSocket, id: string, payload: ExecutionResult) =>
     socket.send(
@@ -102,8 +102,8 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
     }
     const execArg = {
       document: cachedOrResult.document,
-      contextValue: options.contextFn
-        ? await options.contextFn(ctx)
+      contextValue: GQL.contextFn
+        ? await GQL.contextFn({ extra: ctx.extra })
         : undefined,
       variableValues: message.payload.variables,
       operationName: message.payload.operationName,

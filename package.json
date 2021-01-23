@@ -32,7 +32,8 @@
     "ws": "^7.4.2"
   },
   "dependencies": {
-    "@changesets/cli": "^2.13.0"
+    "@changesets/cli": "^2.13.0",
+    "@types/ws": "^7.4.0"
   },
   "browserslist": [
     "last 1 Chrome versions",

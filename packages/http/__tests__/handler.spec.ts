@@ -256,80 +256,6 @@ describe("GET functionality", () => {
 
   // Allows passing in a fieldResolve
   // Allows passing in a typeResolver
-
-  test("creates GraphQL context using options.contextFn", async () => {
-    const schema = new GraphQLSchema({
-      query: new GraphQLObjectType({
-        name: "Query",
-        fields: {
-          test: {
-            type: GraphQLString,
-            resolve: (_obj, _args, context) => context,
-          },
-        },
-      }),
-    });
-
-    expect(
-      await makeHandler(new Benzene({ schema }), {
-        contextFn: () => "testValue",
-      })(
-        {
-          method: "GET",
-          query: {
-            query: "{ test }",
-          },
-          headers: {},
-        },
-        undefined
-      )
-    ).toEqual({
-      status: 200,
-      headers: { "content-type": "application/json" },
-      payload: {
-        data: {
-          test: "testValue",
-        },
-      },
-    });
-  });
-
-  test("Receive extra in options.contextFn", async () => {
-    const schema = new GraphQLSchema({
-      query: new GraphQLObjectType({
-        name: "Query",
-        fields: {
-          test: {
-            type: GraphQLString,
-            resolve: (_obj, _args, context) => context,
-          },
-        },
-      }),
-    });
-
-    expect(
-      await makeHandler<any, { value: string }>(new Benzene({ schema }), {
-        contextFn: ({ extra }) => extra.value,
-      })(
-        {
-          method: "GET",
-          query: {
-            query: "{ test }",
-          },
-          headers: {},
-        },
-        { value: "testValue" }
-      )
-    ).toEqual({
-      status: 200,
-      headers: { "content-type": "application/json" },
-      payload: {
-        data: {
-          test: "testValue",
-        },
-      },
-    });
-  });
 });
 
 describe("POST functionality", () => {
@@ -677,6 +603,78 @@ describe("Error handling functionality", () => {
         ],
       },
     });
+  });
+});
+
+test("creates GraphQL context using Benzene#contextFn", async () => {
+  const schema = new GraphQLSchema({
+    query: new GraphQLObjectType({
+      name: "Query",
+      fields: {
+        test: {
+          type: GraphQLString,
+          resolve: (_obj, _args, context) => context,
+        },
+      },
+    }),
+  });
+
+  expect(
+    await makeHandler(new Benzene({ schema, contextFn: () => "testValue" }))(
+      {
+        method: "GET",
+        query: {
+          query: "{ test }",
+        },
+        headers: {},
+      },
+      undefined
+    )
+  ).toEqual({
+    status: 200,
+    headers: { "content-type": "application/json" },
+    payload: {
+      data: {
+        test: "testValue",
+      },
+    },
+  });
+});
+
+test("Receive extra in Benzene#contextFn", async () => {
+  const schema = new GraphQLSchema({
+    query: new GraphQLObjectType({
+      name: "Query",
+      fields: {
+        test: {
+          type: GraphQLString,
+          resolve: (_obj, _args, context) => context,
+        },
+      },
+    }),
+  });
+
+  expect(
+    await makeHandler<any, { value: string }>(
+      new Benzene({ schema, contextFn: ({ extra }) => extra.value })
+    )(
+      {
+        method: "GET",
+        query: {
+          query: "{ test }",
+        },
+        headers: {},
+      },
+      { value: "testValue" }
+    )
+  ).toEqual({
+    status: 200,
+    headers: { "content-type": "application/json" },
+    payload: {
+      data: {
+        test: "testValue",
+      },
+    },
   });
 });
 

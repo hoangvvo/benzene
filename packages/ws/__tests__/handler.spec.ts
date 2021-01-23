@@ -9,7 +9,7 @@ import {
 import { EventEmitter } from "events";
 import { AddressInfo } from "net";
 import { Benzene } from "@benzene/core";
-import { Config as GraphQLConfig } from "@benzene/core/src/types";
+import { Options } from "@benzene/core/src/types";
 import { makeHandler } from "../src/handler";
 import { HandlerOptions } from "../src/types";
 import {
@@ -66,7 +66,7 @@ function emitterAsyncIterator(
 
   return {
     next() {
-      return listening ? pullValue() : this.return();
+      return listening ? pullValue() : this.return?.();
     },
     return() {
       emptyQueue();
@@ -134,10 +134,32 @@ const createSchema = (ee: EventEmitter) =>
   });
 
 async function startServer(
-  handlerOptions?: Partial<HandlerOptions<any, any>>,
-  options?: Partial<GraphQLConfig>,
-  wsOptions?: { protocols?: string }
-) {
+  handlerOptions?: Partial<HandlerOptions<any>>,
+  options?: Partial<Options<any, any>>,
+  wsOptions?: { protocols?: string },
+  extra?: any
+): Promise<{
+  ws: WebSocket;
+  waitForMessage: (
+    test?: (
+      message:
+        | ConnectionAckMessage
+        | NextMessage
+        | ErrorMessage
+        | CompleteMessage
+    ) => void,
+    expire?: number
+  ) => Promise<void>;
+  waitForClose: (
+    test?: (code: number, reason: string) => void,
+    expire?: number
+  ) => Promise<void>;
+  send: (
+    message: ConnectionInitMessage | SubscribeMessage | CompleteMessage
+  ) => Promise<void>;
+  doAck: () => Promise<void>;
+  publish: (message?: string) => void;
+}> {
   const ee = new EventEmitter();
 
   const gql = new Benzene({ schema: createSchema(ee), ...options });
@@ -147,31 +169,11 @@ async function startServer(
   await new Promise<void>((resolve) => server.listen(0, resolve));
   const port = (server.address() as AddressInfo).port;
   // We cross test different packages
+  const graphqlWS = makeHandler(gql, handlerOptions);
   wss.on("connection", makeHandler(gql, handlerOptions));
 
   // Inspired by https://github.com/enisdenjo/graphql-ws/tree/master/src/tests/utils/tclient.ts#L28
-  return new Promise<{
-    ws: WebSocket;
-    waitForMessage: (
-      test?: (
-        message:
-          | ConnectionAckMessage
-          | NextMessage
-          | ErrorMessage
-          | CompleteMessage
-      ) => void,
-      expire?: number
-    ) => Promise<void>;
-    waitForClose: (
-      test?: (code: number, reason: string) => void,
-      expire?: number
-    ) => Promise<void>;
-    send: (
-      message: ConnectionInitMessage | SubscribeMessage | CompleteMessage
-    ) => Promise<void>;
-    doAck: () => Promise<void>;
-    publish: (message?: string) => void;
-  }>((resolve) => {
+  return new Promise((resolve) => {
     let closeEvent: WebSocket.CloseEvent;
     const queue: WebSocket.MessageEvent[] = [];
 
@@ -248,6 +250,7 @@ async function startServer(
             };
             if (expire) {
               setTimeout(() => {
+                // @ts-ignore: Can do
                 ws.onclose = null; // expired
                 resolve();
               }, expire);
@@ -350,13 +353,13 @@ test("receive connectionParams in onConnect", async () => {
   });
 });
 
-test("receive connection context and extra", async () => {
+test("receive connection context and extra in onConnect", async () => {
   const utils = await startServer({
     // see startServer - makeHandler(socket, request) request is extra
     onConnect: async (ctx) => ctx.extra instanceof IncomingMessage,
   });
 
-  utils.send({ type: MessageType.ConnectionInit, payload: { test: "ok" } });
+  utils.send({ type: MessageType.ConnectionInit });
 
   await utils.waitForMessage((message) => {
     expect(message.type).toBe(MessageType.ConnectionAck);
@@ -600,8 +603,8 @@ test("resolves queries and mutations (single result operation)", async () => {
   });
 });
 
-test("creates GraphQL context using options.contextFn", async () => {
-  const utils = await startServer({
+test("creates GraphQL context using Benzene#contextFn", async () => {
+  const utils = await startServer(undefined, {
     contextFn: async () => ({ user: "Alexa" }),
   });
 
@@ -632,6 +635,53 @@ test("creates GraphQL context using options.contextFn", async () => {
         data: {
           notificationAdded: {
             user: "Alexa",
+          },
+        },
+      },
+      type: MessageType.Next,
+    });
+  });
+});
+
+test("Receive extra in Benzene#contextFn", async () => {
+  const utils = await startServer(
+    undefined,
+    {
+      contextFn: async ({ extra }) => ({
+        user: extra instanceof IncomingMessage,
+      }),
+    },
+    undefined,
+    "Alexa"
+  );
+
+  await utils.doAck();
+
+  await utils.send({
+    id: "1",
+    payload: {
+      query: `
+          subscription {
+            notificationAdded {
+              user
+            }
+          }
+          `,
+    },
+    type: MessageType.Subscribe,
+  });
+
+  await wait(50);
+
+  utils.publish();
+
+  await utils.waitForMessage((message) => {
+    expect(message).toEqual({
+      id: "1",
+      payload: {
+        data: {
+          notificationAdded: {
+            user: "true",
           },
         },
       },

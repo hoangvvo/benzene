@@ -68,9 +68,8 @@ var schema = makeExecutableSchema({
   resolvers,
 });
 
-const GQL = new Benzene({ schema });
-
-const graphqlHTTP = makeHandler(GQL, {
+const GQL = new Benzene({
+  schema,
   contextFn: () => {
     console.log(" --- ");
     return {
@@ -79,6 +78,8 @@ const graphqlHTTP = makeHandler(GQL, {
     };
   },
 });
+
+const graphqlHTTP = makeHandler(GQL);
 
 const app = express();
 

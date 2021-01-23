@@ -3,9 +3,10 @@ import { GraphQLError } from "graphql";
 import { getGraphQLParams, createResponse } from "./utils";
 import { HandlerOptions, HTTPRequest, HTTPResponse } from "./types";
 
-export function makeHandler<TContext = unknown, TExtra = unknown>(
+export function makeHandler<TExtra = unknown>(
   GQL: Benzene,
-  options: HandlerOptions<TContext, TExtra> = {}
+  // @ts-ignore
+  options: HandlerOptions<TExtra> = {}
 ) {
   return async function graphqlHTTP(
     request: HTTPRequest,
@@ -49,8 +50,8 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
       await GQL.execute(
         {
           document: cachedOrResult.document,
-          contextValue: options.contextFn
-            ? await options.contextFn({ extra })
+          contextValue: GQL.contextFn
+            ? await GQL.contextFn({ extra })
             : undefined,
           variableValues: params.variables,
         },
