@@ -1,0 +1,25 @@
+import Markdown from 'markdown-to-jsx'
+import { useSSG } from 'nextra/ssg'
+
+export const getStaticProps = ({ params }) => {
+  // Adapted from https://github.com/vercel/swr-site/blob/master/pages/change-log.mdx
+  return fetch('https://api.github.com/repos/hoangvvo/benzene/releases')
+    .then(res => res.json())
+    .then(releases => ({ props: { ssg: releases }, revalidate: 86400 }))
+}
+
+export const ReleasesRenderer = ({}) => {
+  const releases = useSSG()
+  return <Markdown>{
+    releases.map(release => {
+      const body = release.body
+        .replace(/&#39;/g, "'")
+        .replace(/@([a-zA-Z0-9_-]+)(?=(,| ))/g, '<a href="https://github.com/$1" target="_blank" rel="noopener">@$1</a>')
+      return `## <a href="${release.html_url}" target="_blank" rel="noopener">${release.tag_name}</a> 
+Published on ${new Date(release.published_at) .toDateString()}.\n\n${body}`}).join('\n\n')
+  }</Markdown>
+}
+
+# Change Log
+
+<ReleasesRenderer/>

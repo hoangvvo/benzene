@@ -14,6 +14,16 @@ hey -c 100 -z 8s -D body.txt -T application/json -m POST http://localhost:4000/g
 
 ## How to use
 
+Clone the repository and go to benchmarks folder and install the dependencies.
+
+```bash
+git clone https://github.com/hoangvvo/benzene.git
+cd benzene/benchmarks
+npm i
+```
+
+Run the benchmarks (for Windows, use [git bash](https://www.atlassian.com/git/tutorials/git-bash)):
+
 ```bash
 ./run <library>
 ```
@@ -32,7 +42,7 @@ To run all benchmarks at once:
 ./runall
 ```
 
-Make a PR to add one.
+[Create a PR](https://github.com/hoangvvo/benzene/pulls) to add one.
 
 ## Result
 
