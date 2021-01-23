@@ -1,5 +1,11 @@
 # @benzene/core
 
+## 0.4.0
+
+### Minor Changes
+
+- b6b3c59: New `http` package to unify `server` and `worker`
+
 ## 0.3.0
 
 ### Minor Changes

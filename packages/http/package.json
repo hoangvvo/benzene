@@ -1,6 +1,6 @@
 {
   "name": "@benzene/http",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Fast and minimal GraphQL over HTTP server",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -30,9 +30,7 @@
     }
   },
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "sideEffects": false,
   "scripts": {
     "build": "microbundle -f modern,cjs --strict --globals @benzene/core=benzeneCore --no-sourcemap --no-compress",
@@ -40,7 +38,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@benzene/core": "^0.3.0"
+    "@benzene/core": "^0.4.0"
   },
   "peerDependencies": {
     "graphql": "^14.0.0 || ^15.0.0"

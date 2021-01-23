@@ -1,5 +1,16 @@
 # @benzene/ws
 
+## 0.4.0
+
+### Minor Changes
+
+- 954c8a4: Rewrite using new graphql-transport-ws spec
+
+### Patch Changes
+
+- Updated dependencies [b6b3c59]
+  - @benzene/core@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes
