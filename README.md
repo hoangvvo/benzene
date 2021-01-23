@@ -1,35 +1,14 @@
 > A fast and minimal JavaScript GraphQL Server
 
-## Overview
+<p align="center">
+  <a href="https://withstereo.com">
+    <img alt="Stereo" src="https://benzene.vercel.app/og.png">
+  </a>
+</p>
 
-```js
-import express from "express";
-import { Benzene, makeHandler } from "@benzene/http";
+Benzene is a new take on GraphQL server that gives you the control you need while staying blazing fast.
 
-const app = express();
-
-const GQL = new Benzene();
-
-const graphqlHTTP = makeHandler(GQL);
-
-app.use("/graphql", async (req, res) => {
-  const result = await graphqlHTTP({
-    method: req.method,
-    query: req.query,
-    body: req.body,
-    headers: req.headers,
-  });
-  res.writeHead(result.status, result.headers).send(res.payload);
-});
-
-app.listen(4000);
-```
-
-In this example, we create a GraphQL handler `graphqlHTTP` using a [Benzene instance](/reference/benzene). The instance will also be used in other libraries like `@benzene/ws`, allowing us to unify pipelines like error formatting in one place.
-
-`graphqlHTTP` accepts a generic request object containing `method`, `query`, `body`, and `headers` and returns a generic response object containing `status`, `headers`, and `payload`. This allows it to work with any frameworks (or even runtimes).
-
-As you can see, `graphqlHTTP` does nothing but executing the GraphQL request as it is, giving us full control in aspects like [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) or body parsing.
+[benzene.vercel.app](https://benzene.vercel.app/)
 
 ## Documentation
 

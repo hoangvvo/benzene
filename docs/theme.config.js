@@ -1,4 +1,6 @@
 // theme.config.js
+const description = "Benzene: A fast and minimal JavaScript GraphQL Server";
+
 export default {
   repository: "https://github.com/hoangvvo/benzene", // project repo
   docsRepository: "https://github.com/hoangvvo/benzene", // docs repo
@@ -39,12 +41,34 @@ export default {
   ),
   head: (
     <>
+      <meta name="theme-color" content="#ff2e54" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta
-        name="description"
-        content="A fast and minimal JavaScript GraphQL Server"
-      />
+      <meta httpEquiv="Content-Language" content="en" />
+      <meta name="description" content={description} />
+      <meta name="og:description" content={description} />
       <meta name="og:title" content="hoangvvo/benzene" />
+      <meta name="og:image" content="https://benzene.vercel.app/og.png" />
+      <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/apple-touch-icon.png"
+      />
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="32x32"
+        href="/favicon-32x32.png"
+      />
+      <link
+        rel="icon"
+        type="image/png"
+        sizes="16x16"
+        href="/favicon-16x16.png"
+      />
+      <link rel="manifest" href="/site.webmanifest" />
+      <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#ff2e54" />
+      <meta name="msapplication-TileColor" content="#ff2e54" />
+      <meta name="theme-color" content="#ffffff" />
     </>
   ),
 };
