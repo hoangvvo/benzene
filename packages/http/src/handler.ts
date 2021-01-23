@@ -1,7 +1,19 @@
 import { Benzene } from "@benzene/core";
-import { GraphQLError } from "graphql";
-import { getGraphQLParams, createResponse } from "./utils";
+import { ExecutionResult, GraphQLError } from "graphql";
+import { getGraphQLParams } from "./utils";
 import { HandlerOptions, HTTPRequest, HTTPResponse } from "./types";
+
+function createResponse(
+  GQL: Benzene,
+  code: number,
+  result: ExecutionResult
+): HTTPResponse {
+  return {
+    payload: GQL.formatExecutionResult(result),
+    status: code,
+    headers: { "content-type": "application/json" },
+  };
+}
 
 export function makeHandler<TExtra = unknown>(
   GQL: Benzene,

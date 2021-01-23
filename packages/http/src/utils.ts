@@ -1,6 +1,5 @@
-import { ExecutionResult } from "graphql";
-import { Benzene, GraphQLParams } from "@benzene/core";
-import { HTTPRequest, HTTPResponse } from "./types";
+import { GraphQLParams } from "@benzene/core";
+import { HTTPRequest } from "./types";
 
 export function getGraphQLParams({
   query,
@@ -17,18 +16,6 @@ export function getGraphQLParams({
     extensions:
       body?.extensions ||
       (query?.extensions && JSON.parse(query.extensions as string)),
-  };
-}
-
-export function createResponse(
-  GQL: Benzene,
-  code: number,
-  result: ExecutionResult
-): HTTPResponse {
-  return {
-    payload: GQL.formatExecutionResult(result),
-    status: code,
-    headers: { "content-type": "application/json" },
   };
 }
 
