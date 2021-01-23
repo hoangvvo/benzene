@@ -20,7 +20,7 @@ import {
 import lru, { Lru } from "tiny-lru";
 import { Options, ContextFn, QueryCache, ValueOrPromise } from "./types";
 
-export default class Benzene<TContext = unknown, TExtra = unknown> {
+export default class Benzene<TContext = any, TExtra = any> {
   private lru: Lru<QueryCache>;
   public schema: GraphQLSchema;
   formatErrorFn: typeof formatError;
