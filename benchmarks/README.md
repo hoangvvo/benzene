@@ -1,5 +1,3 @@
-# Benchmarks
-
 A basic HTTP benchmarks against `@benzene/http` and popular GraphQL Server libraries using [rakyll/hey](https://github.com/rakyll/hey).
 
 [`lukeed/polka`](https://github.com/lukeed/polka) is used in place of `express` where applicable because `express` adds overhead (See [fastify/benchmarks](https://github.com/fastify/benchmarks)).

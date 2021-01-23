@@ -1,5 +1,3 @@
-# Benzene
-
 > A fast and minimal JavaScript GraphQL Server
 
 ## Overview

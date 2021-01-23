@@ -11,7 +11,18 @@ export default {
   customSearch: null, // customizable, you can use algolia for example
   darkMode: true,
   footer: true,
-  footerText: "MIT 2020 © Hoang Vo.",
+  footerText: (
+    <>
+      <p>
+        MIT {new Date().getFullYear()} ©{" "}
+        <a href="https://hoangvvo.com/" target="_blank" rel="noopener">
+          Hoang Vo
+        </a>
+        .
+      </p>
+      <small>Made with ❤️ love, 🔥 passion, and a ⌨️ keyboard</small>
+    </>
+  ),
   footerEditOnGitHubLink: true, // will link to the docs repo
   logo: (
     <>
