@@ -59,14 +59,15 @@ export interface WebSocket {
 export interface ConnectionContext<TExtra> {
   // A map of all GraphQL subscriptions' async iterators
   subscriptions: Map<string, AsyncIterableIterator<ExecutionResult>>;
-  extra: TExtra;
   // Whether the connection has been acknowledged
   acknowledged: boolean;
   // Whether the server has received connection init request from the client
   connectionInitReceived: boolean;
+  // The "extra" variable
+  extra: TExtra;
 }
 
-export interface HandlerOptions<TContext, TExtra> {
+export interface HandlerOptions<TExtra> {
   /**
    * A function to be called when a new WebSocket connection is established
    * @param ctx The ConnectionContext
@@ -76,9 +77,4 @@ export interface HandlerOptions<TContext, TExtra> {
     ctx: ConnectionContext<TExtra>,
     connectionParams: ConnectionInitMessage["payload"]
   ) => ValueOrPromise<Record<string, unknown> | boolean | void>;
-  /**
-   * A function to create an object used by all the resolvers of a specific GraphQL execution
-   * @param ctx The ConnectionContext
-   */
-  contextFn?: (ctx: ConnectionContext<TExtra>) => ValueOrPromise<TContext>;
 }

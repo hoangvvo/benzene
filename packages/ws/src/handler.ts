@@ -1,4 +1,4 @@
-import { Benzene, isAsyncIterator } from "@benzene/core";
+import { Benzene, isAsyncIterator, ExtractExtraType } from "@benzene/core";
 import { ExecutionResult, GraphQLError } from "graphql";
 import {
   CompleteMessage,
@@ -14,10 +14,13 @@ import { HandlerOptions, WebSocket, ConnectionContext } from "./types";
  * @param GQL A Benzene instance
  * @param options Handler options
  */
-export function makeHandler<TContext = unknown, TExtra = unknown>(
-  GQL: Benzene,
-  options: HandlerOptions<TContext, TExtra> = {}
+export function makeHandler<TBenzene extends Benzene>(
+  GQL: TBenzene,
+  options: HandlerOptions<ExtractExtraType<TBenzene>> = {}
 ) {
+  type TExtra = ExtractExtraType<TBenzene>;
+  type TConnectionContext = ConnectionContext<TExtra>;
+
   const sendRes = (socket: WebSocket, id: string, payload: ExecutionResult) =>
     socket.send(
       JSON.stringify({
@@ -36,7 +39,7 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
       })
     );
 
-  const stopSub = async (ctx: ConnectionContext<TExtra>, subId: string) => {
+  const stopSub = async (ctx: TConnectionContext, subId: string) => {
     const removingSub = ctx.subscriptions.get(subId);
     if (!removingSub) return;
     await removingSub.return?.();
@@ -44,7 +47,7 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
   };
 
   const init = async (
-    ctx: ConnectionContext<TExtra>,
+    ctx: TConnectionContext,
     socket: WebSocket,
     message: ConnectionInitMessage
   ) => {
@@ -74,7 +77,7 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
   };
 
   const subscribe = async (
-    ctx: ConnectionContext<TExtra>,
+    ctx: TConnectionContext,
     socket: WebSocket,
     message: SubscribeMessage
   ) => {
@@ -102,8 +105,8 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
     }
     const execArg = {
       document: cachedOrResult.document,
-      contextValue: options.contextFn
-        ? await options.contextFn(ctx)
+      contextValue: GQL.contextFn
+        ? await GQL.contextFn({ extra: ctx.extra })
         : undefined,
       variableValues: message.payload.variables,
       operationName: message.payload.operationName,
@@ -139,7 +142,7 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
     socket.send(JSON.stringify({ type: MessageType.Complete, id: message.id }));
   };
 
-  const cleanup = (ctx: ConnectionContext<TExtra>) => {
+  const cleanup = (ctx: TConnectionContext) => {
     for (const subId of ctx.subscriptions.keys()) stopSub(ctx, subId);
   };
 
@@ -148,7 +151,7 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
    * @param socket The WebSocket connection {@link https://developer.mozilla.org/en-US/docs/Web/API/WebSocket}
    * @param extra An extra field to store anything that needs to persist throughout connection, accessible in callbacks
    */
-  return function wsHandler(socket: WebSocket, extra: TExtra) {
+  return function graphqlWS(socket: WebSocket, extra: TExtra) {
     if (
       socket.protocol === undefined ||
       socket.protocol.indexOf(GRAPHQL_TRANSPORT_WS_PROTOCOL) === -1
@@ -156,7 +159,7 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
       // 1002: protocol error. We only support graphql_ws for now
       return socket.close(1002);
 
-    const ctx: ConnectionContext<TExtra> = {
+    const ctx: TConnectionContext = {
       subscriptions: new Map(),
       extra,
       acknowledged: false,
