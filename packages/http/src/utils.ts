@@ -1,6 +1,10 @@
 import { GraphQLParams } from "@benzene/core";
 import { HTTPRequest } from "./types";
 
+/**
+ * Extract GraphQLParams from query string and body
+ * @param request An object contains the body object and query object
+ */
 export function getGraphQLParams({
   query,
   body,
@@ -19,6 +23,12 @@ export function getGraphQLParams({
   };
 }
 
+/**
+ * Parse the string body based on content-type according to the graphql-over-http spec
+ * @param rawBody
+ * @param oCtype
+ * @see {@link https://graphql.org/learn/serving-over-http}
+ */
 export function parseGraphQLBody(
   rawBody: string,
   oCtype: string = ""

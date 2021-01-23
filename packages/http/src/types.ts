@@ -5,6 +5,9 @@ export interface HandlerOptions<TExtra> {}
 
 type Headers = Record<string, string | undefined>;
 
+/**
+ * The generic HTTP Request object
+ */
 export interface HTTPRequest {
   method: string;
   query?: Record<string, string | string[]>;
@@ -12,6 +15,9 @@ export interface HTTPRequest {
   headers: Headers;
 }
 
+/**
+ * The generic HTTP Response object
+ */
 export interface HTTPResponse {
   status: number;
   headers: Headers;

@@ -1,4 +1,4 @@
-import { Benzene } from "@benzene/core";
+import { Benzene, ExtractExtraType } from "@benzene/core";
 import { ExecutionResult, GraphQLError } from "graphql";
 import { getGraphQLParams } from "./utils";
 import { HandlerOptions, HTTPRequest, HTTPResponse } from "./types";
@@ -15,11 +15,22 @@ function createResponse(
   };
 }
 
-export function makeHandler<TExtra = unknown>(
-  GQL: Benzene,
+/**
+ * Create a handler to handle incoming request
+ * @param GQL A Benzene instance
+ * @param options Handler options
+ */
+export function makeHandler<TBenzene extends Benzene>(
+  GQL: TBenzene,
   // @ts-ignore
-  options: HandlerOptions<TExtra> = {}
+  options: HandlerOptions<ExtractExtraType<TBenzene>> = {}
 ) {
+  type TExtra = ExtractExtraType<TBenzene>;
+  /**
+   * A function that handles incoming request
+   * @param socket The incoming request
+   * @param extra An extra field to store anything that needs to be accessed later
+   */
   return async function graphqlHTTP(
     request: HTTPRequest,
     extra: TExtra

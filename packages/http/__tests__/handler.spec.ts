@@ -655,8 +655,11 @@ test("Receive extra in Benzene#contextFn", async () => {
   });
 
   expect(
-    await makeHandler<any, { value: string }>(
-      new Benzene({ schema, contextFn: ({ extra }) => extra.value })
+    await makeHandler(
+      new Benzene<string, { value: string }>({
+        schema,
+        contextFn: ({ extra }) => extra.value,
+      })
     )(
       {
         method: "GET",

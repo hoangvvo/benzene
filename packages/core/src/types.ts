@@ -1,16 +1,17 @@
 import { GraphQLSchema, DocumentNode, formatError } from "graphql";
 import { CompiledQuery } from "@hoangvvo/graphql-jit";
+import Benzene from "./core";
 
 export interface Options<TContext, TExtra> {
   /**
    * The GraphQL schema
-   * {@link https://graphql.org/graphql-js/type/#graphqlschema}
+   * @see {@link https://graphql.org/graphql-js/type/#graphqlschema}
    */
   schema: GraphQLSchema;
   /**
    * A function to format errors according to the Response format of the spec.
    * Can also be used for logging errors.
-   * {@link https://graphql.org/graphql-js/error/#formaterror}
+   * @see {@link https://graphql.org/graphql-js/error/#formaterror}
    */
   formatErrorFn?: typeof formatError;
   /**
@@ -20,6 +21,9 @@ export interface Options<TContext, TExtra> {
   contextFn?: ContextFn<TContext, TExtra>;
 }
 
+/**
+ * The parameters used to execute a GraphQL query
+ */
 export interface GraphQLParams {
   // https://github.com/graphql/graphql-over-http/blob/master/spec/GraphQLOverHTTP.md#request-parameters
   query?: string | null;
@@ -27,6 +31,7 @@ export interface GraphQLParams {
   operationName?: string | null;
   extensions?: Record<string, any> | null;
 }
+
 export interface QueryCache {
   operation: string;
   document: DocumentNode;
@@ -38,3 +43,7 @@ export type ContextFn<TContext, TExtra> = (contextInput: {
 }) => ValueOrPromise<TContext>;
 
 export type ValueOrPromise<T> = T | Promise<T>;
+
+export type ExtractExtraType<Type> = Type extends Benzene<any, infer TExtra>
+  ? TExtra
+  : never;

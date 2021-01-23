@@ -1,4 +1,4 @@
-import { Benzene, isAsyncIterator } from "@benzene/core";
+import { Benzene, isAsyncIterator, ExtractExtraType } from "@benzene/core";
 import { ExecutionResult, GraphQLError } from "graphql";
 import {
   CompleteMessage,
@@ -14,10 +14,13 @@ import { HandlerOptions, WebSocket, ConnectionContext } from "./types";
  * @param GQL A Benzene instance
  * @param options Handler options
  */
-export function makeHandler<TExtra = unknown>(
-  GQL: Benzene,
-  options: HandlerOptions<TExtra> = {}
+export function makeHandler<TBenzene extends Benzene>(
+  GQL: TBenzene,
+  options: HandlerOptions<ExtractExtraType<TBenzene>> = {}
 ) {
+  type TExtra = ExtractExtraType<TBenzene>;
+  type TConnectionContext = ConnectionContext<TExtra>;
+
   const sendRes = (socket: WebSocket, id: string, payload: ExecutionResult) =>
     socket.send(
       JSON.stringify({
@@ -36,7 +39,7 @@ export function makeHandler<TExtra = unknown>(
       })
     );
 
-  const stopSub = async (ctx: ConnectionContext<TExtra>, subId: string) => {
+  const stopSub = async (ctx: TConnectionContext, subId: string) => {
     const removingSub = ctx.subscriptions.get(subId);
     if (!removingSub) return;
     await removingSub.return?.();
@@ -44,7 +47,7 @@ export function makeHandler<TExtra = unknown>(
   };
 
   const init = async (
-    ctx: ConnectionContext<TExtra>,
+    ctx: TConnectionContext,
     socket: WebSocket,
     message: ConnectionInitMessage
   ) => {
@@ -74,7 +77,7 @@ export function makeHandler<TExtra = unknown>(
   };
 
   const subscribe = async (
-    ctx: ConnectionContext<TExtra>,
+    ctx: TConnectionContext,
     socket: WebSocket,
     message: SubscribeMessage
   ) => {
@@ -139,7 +142,7 @@ export function makeHandler<TExtra = unknown>(
     socket.send(JSON.stringify({ type: MessageType.Complete, id: message.id }));
   };
 
-  const cleanup = (ctx: ConnectionContext<TExtra>) => {
+  const cleanup = (ctx: TConnectionContext) => {
     for (const subId of ctx.subscriptions.keys()) stopSub(ctx, subId);
   };
 
@@ -156,7 +159,7 @@ export function makeHandler<TExtra = unknown>(
       // 1002: protocol error. We only support graphql_ws for now
       return socket.close(1002);
 
-    const ctx: ConnectionContext<TExtra> = {
+    const ctx: TConnectionContext = {
       subscriptions: new Map(),
       extra,
       acknowledged: false,
