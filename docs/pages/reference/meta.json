@@ -1,8 +1,9 @@
 {
-  "benzene": "Benzene",
-  "graphql-query": "GraphQL Query",
-  "error-handling": "Error Handling",
-  "packages": "Packages",
+  "benzene": "Benzene instance",
+  "packages": "Benzene packages",
   "http": "GraphQL over HTTP",
-  "ws": "GraphQL over WebSockets"
+  "ws": "GraphQL over WebSockets",
+  "build-context": "Building Context",
+  "error-handling": "Error Handling",
+  "graphql-query": "GraphQL Query"
 }

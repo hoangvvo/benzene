@@ -8,6 +8,6 @@ import { Benzene } from "@benzene/http"
 import { Benzene } from "@benzene/ws"
 ```
 
-Most of the GraphQL behavior can be configured upon Benzene initialization, such as context creation or error handling. Those configurations will apply when you use that Benzene instance in `@benzene/http` and `@benzene/ws`. For example, on errors, both `@benzene/http` and `@benzene/ws` will call the same `formatError` from the `Benzene` instance.
+Most of the GraphQL behavior can be configured upon instantiating `Benzene`, such as context creation or error handling. Those configurations will apply when you use that the [Benzene instance](/reference/benzene) in `@benzene/http` and `@benzene/ws`. For example, both `@benzene/http` and `@benzene/ws` will call the same `formatErrorFn` on execution errors and `contextFn` to create the resolver context.
 
-This allows you to write such logic only once and use anywhere.
+This allows you to write such logic only once and use it everywhere.

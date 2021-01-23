@@ -17,9 +17,9 @@ interface HTTPRequest {
 }
 ```
 
-It does not matter whether we are dealing with the [`req` of Node.js IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) or the [`body` of Deno Reader](https://doc.deno.land/builtin/stable#Deno.Reader). We only need provide such an object containing the above JavaScript data types.
+It does not matter whether we are dealing with the [`req` of Node.js IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) or the [`body` of Deno Reader](https://doc.deno.land/builtin/stable#Deno.Reader). We only need to provide such an object containing the above JavaScript data types.
 
-This is great because it enables you to switch frameworks without modifying your GraphQL server logic, while allowing maintainers to focus on developing small sets of packages.
+This is great because it enables you to switch frameworks without modifying your GraphQL server logic while allowing maintainers to focus on few sets of packages.
 
 ## The factory function
 
@@ -33,13 +33,13 @@ const GQL = new Benzene(options);
 const graphqlHandle = makeHandler(GQL, handlerOptions);
 ```
 
-However, this returned function always accepts two arguments, a specific input argument and an `"extra"` argument.
+However, this returned function always accepts two arguments: a specific input argument and an `extra` argument.
 
 ### The extra argument
 
 Unlike other libraries that [store data variables in a "context" object](https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields) for convenient accesses (such as in the GraphQL context factory function), **Benzene** avoids storing those that are not needed for the GraphQL execution to achieve the best performance.
 
-Instead, the `"extra"` argument allows you to specify only what you need to store for later uses. For the best flexibility should you switch environments or frameworks, though, we recommend avoid passing in environment-specific variables (like a Request object or a WebSocket instance).
+Instead, the `extra` argument allows you to specify only what you need to store for later uses. For the best flexibility should you switch environments or frameworks, though, we recommend avoid passing in environment-specific variables (like a Request object or a WebSocket instance).
 
 ```js
 function onRequest(request) {
@@ -47,3 +47,5 @@ function onRequest(request) {
   graphqlHandle(request, extra).then(respondGraphQl);
 }
 ```
+
+This `extra` variable can be accessed in places like the [context creation function](/reference/build-context).
