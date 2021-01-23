@@ -6,7 +6,7 @@ import {
   GraphQLError,
   GraphQLSchema,
   ExecutionResult,
-  formatError,
+  formatErrorFn,
   SubscriptionArgs,
   GraphQLArgs,
   ExecutionArgs,
@@ -102,7 +102,7 @@ export default class Benzene {
     const o: FormattedExecutionResult = {};
     if (result.data) o.data = result.data;
     if (result.errors)
-      o.errors = result.errors.map(this.options.formatError || formatError);
+      o.errors = result.errors.map(this.options.formatErrorFn || formatErrorFn);
     return o;
   }
 

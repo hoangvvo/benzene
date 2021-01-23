@@ -510,7 +510,7 @@ describe("Error handling functionality", () => {
       await makeHandler(
         new Benzene({
           schema: TestSchema,
-          formatError(error) {
+          formatErrorFn(error) {
             return { message: "Custom error format: " + error.message };
           },
         })
@@ -543,7 +543,7 @@ describe("Error handling functionality", () => {
       await makeHandler(
         new Benzene({
           schema: TestSchema,
-          formatError(error) {
+          formatErrorFn(error) {
             return {
               message: error.message,
               locations: error.locations,

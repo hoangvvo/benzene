@@ -481,11 +481,11 @@ test("returns errors on syntax error", async () => {
   });
 });
 
-test("format errors using formatError", async () => {
+test("format errors using formatErrorFn", async () => {
   const utils = await startServer(
     {},
     {
-      formatError: () => {
+      formatErrorFn: () => {
         return new GraphQLError("Internal server error");
       },
     }

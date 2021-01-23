@@ -7,7 +7,7 @@ import {
 import { CompiledQuery } from "@hoangvvo/graphql-jit";
 export interface Config {
   schema: GraphQLSchema;
-  formatError?: (error: GraphQLError) => GraphQLFormattedError;
+  formatErrorFn?: (error: GraphQLError) => GraphQLFormattedError;
 }
 
 export interface GraphQLParams {
