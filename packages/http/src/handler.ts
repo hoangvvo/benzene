@@ -7,7 +7,7 @@ export function makeHandler<TContext = unknown, TExtra = unknown>(
   GQL: Benzene,
   options: HandlerOptions<TContext, TExtra> = {}
 ) {
-  return async function httpHandler(
+  return async function graphqlHTTP(
     request: HTTPRequest,
     extra: TExtra
   ): Promise<HTTPResponse> {
