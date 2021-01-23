@@ -1,5 +1,8 @@
 {
   "benzene": "Benzene",
   "graphql-query": "GraphQL Query",
-  "error-handling": "Error Handling"
+  "error-handling": "Error Handling",
+  "transports": "Transports",
+  "http": "GraphQL over HTTP",
+  "ws": "GraphQL over WebSockets"
 }
