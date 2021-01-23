@@ -5,7 +5,7 @@ export const getStaticProps = ({ params }) => {
   // Adapted from https://github.com/vercel/swr-site/blob/master/pages/change-log.mdx
   return fetch('https://api.github.com/repos/hoangvvo/benzene/releases')
     .then(res => res.json())
-    .then(releases => ({ props: { ssg: releases }, revalidate: 86400 }))
+    .then(releases => ({ props: { ssg: releases } }))
 }
 
 export const ReleasesRenderer = ({}) => {
