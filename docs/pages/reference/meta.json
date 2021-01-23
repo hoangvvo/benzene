@@ -2,7 +2,7 @@
   "benzene": "Benzene",
   "graphql-query": "GraphQL Query",
   "error-handling": "Error Handling",
-  "transports": "Transports",
+  "packages": "Packages",
   "http": "GraphQL over HTTP",
   "ws": "GraphQL over WebSockets"
 }

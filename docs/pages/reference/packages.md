@@ -4,7 +4,7 @@ GraphQL is a flexible specification by being transport-agnostic: You can serve G
 
 ## Framework agnostic
 
-Different from other libraries, **Benzene** do not bind to a specific framework (there is no `@benzene/express` or `@benzene/hapi`) or a specific runtime (there is no `@benzene/deno` or `@benzene/lambda`). It works because we make no assumptions of the environment **Benzene** is used and write our APIs generically.
+Different from other libraries, **Benzene** do not bind to a specific framework (there is no `@benzene/express` or `@benzene/hapi`) or a specific runtime (there is no `@benzene/deno` or `@benzene/lambda`). It works because we make no assumptions of the environment where **Benzene** is used and write our APIs generically.
 
 For example, in `@benzene/http`, we expose a factory function to create a handler that accepts a generic Request object:
 
@@ -23,15 +23,17 @@ This is great because it enables you to switch frameworks without modifying your
 
 ## The factory function
 
-In each package, there is an exported function named `makeHandler`. This function returns a `HandlerFunction` specific to the package being used.
+In each package, there is an exported function named `makeHandler`. This function accepts a shared [Benzene instance](/reference/benzene) and returns a `HandlerFunction` specific to the package being used.
 
 ```js
-import { makeHandler } from "@benzene/x";
+import { Benzene, makeHandler } from "@benzene/x";
 
-const graphqlHandle = makeHandler(options);
+const GQL = new Benzene(options);
+
+const graphqlHandle = makeHandler(GQL, handlerOptions);
 ```
 
-However, this returned function always accepts two arguments, a specific options argument and an `"extra"` argument.
+However, this returned function always accepts two arguments, a specific input argument and an `"extra"` argument.
 
 ### The extra argument
 
