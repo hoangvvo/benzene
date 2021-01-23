@@ -1,13 +1,15 @@
 {
   "name": "@benzene/ws",
   "version": "0.3.0",
-  "description": "GraphQL over WebSocket",
+  "description": "Fast and minimal GraphQL over WebSockets server",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
     "graphql",
-    "ws",
     "subscription",
-    "websocket"
+    "websocket",
+    "websockets",
+    "performance",
+    "agnostic"
   ],
   "repository": {
     "type": "git",
@@ -17,7 +19,7 @@
   "bugs": {
     "url": "https://github.com/hoangvvo/benzene/issues"
   },
-  "homepage": "https://hoangvvo.github.io/benzene/",
+  "homepage": "https://benzene.vercel.app/",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.m.js",

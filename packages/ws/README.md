@@ -5,14 +5,14 @@
 [![codecov](https://codecov.io/gh/hoangvvo/benzene/branch/main/graph/badge.svg?token=KUCEOC1JT2)](https://codecov.io/gh/hoangvvo/benzene)
 [![PRs Welcome](https://badgen.net/badge/PRs/welcome/ff5252)](/CONTRIBUTING.md)
 
-> GraphQL over WebSocket using [`ws`](https://github.com/websockets/ws), implementing [GraphQL over WebSocket Protocol](https://github.com/hoangvvo/benzene/blob/main/packages/ws/PROTOCOL.md).
+> GraphQL over WebSocket implementing the upcoming [GraphQL over WebSocket Protocol](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md).
 
 ```js
-const WebSocket = require('ws');
-const { Benzene, makeHandler } = require('@benzene/ws');
+import * as WebSocket from "ws";
+import { Benzene, makeHandler } from "@benzene/ws";
 
 const GQL = new Benzene({ schema });
 
-const wss = new WebSocket.Server({ path: '/graphql', port: 3000 });
-wss.on('connection', makeHandler(GQL, options));
+const wss = new WebSocket.Server({ path: "/graphql", port: 3000 });
+wss.on("connection", makeHandler(GQL, options));
 ```

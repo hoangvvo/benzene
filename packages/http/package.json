@@ -1,13 +1,14 @@
 {
   "name": "@benzene/http",
   "version": "0.0.0",
-  "description": "Fast and simple GraphQL HTTP Server",
+  "description": "Fast and minimal GraphQL over HTTP server",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
     "graphql",
+    "http",
     "server",
-    "api",
-    "http"
+    "performance",
+    "agnostic"
   ],
   "repository": {
     "type": "git",
@@ -17,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/hoangvvo/benzene/issues"
   },
-  "homepage": "https://hoangvvo.github.io/benzene/",
+  "homepage": "https://benzene.vercel.app/",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.m.js",

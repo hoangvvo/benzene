@@ -33,9 +33,9 @@ As you can see, `graphqlHTTP` does nothing but executing the GraphQL request as 
 
 ## Documentation
 
-Documentation is available at [hoangvvo.github.io/benzene/](https://hoangvvo.github.io/benzene/)
+Documentation is available at [benzene.vercel.app](https://benzene.vercel.app)
 
-There is also a [Getting Started](https://hoangvvo.github.io/benzene/#/getting-started) to get started quickly.
+There is also a [Getting Started](https://benzene.vercel.app/getting-started) to get started quickly.
 
 ## Features
 

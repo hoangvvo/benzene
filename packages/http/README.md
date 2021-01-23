@@ -5,28 +5,34 @@
 [![codecov](https://codecov.io/gh/hoangvvo/benzene/branch/main/graph/badge.svg?token=KUCEOC1JT2)](https://codecov.io/gh/hoangvvo/benzene)
 [![PRs Welcome](https://badgen.net/badge/PRs/welcome/ff5252)](/CONTRIBUTING.md)
 
-> Fast and simple GraphQL HTTP Server for Node.js
+> Fast and simple GraphQL HTTP Server
 
 ```js
-import { Benzene, makeHandler, parseGraphQLBody } from '@benzene/http';
-import { createServer } from 'http';
-import querystring from 'querystring';
+import { createServer } from "http";
+import { Benzene, makeHandler, parseGraphQLBody } from "@benzene/http";
+
+function readBody(request) {
+  return new Promise((resolve) => {
+    let body = "";
+    request.on("data", (chunk) => (body += chunk));
+    request.on("end", () => resolve(body));
+  });
+}
 
 const GQL = new Benzene({ schema });
 
-const httpHandle = makeHandler(GQL, options);
+const graphqlHTTP = makeHandler(GQL, options);
 
 createServer(async (req, res) => {
-  const rawBody = await readRawBody(req);
-  const result = await httpHandle({
+  const rawBody = await readBody(req);
+  const result = await graphqlHTTP({
     method: req.method,
-    query: querystring.parse(request.url.split('?')[1]),
-    body: parseGraphQLBody(rawBody, req.headers['content-type']),
-    headers: req.headers
-  }, { anything: req.something });
+    headers: req.headers,
+    body: parseGraphQLBody(rawBody, req.headers["content-type"]),
+  });
   res.writeHead(result.status, result.headers);
   res.end(JSON.stringify(result.payload));
 }).listen(3000);
 ```
 
-Documentation is available at [hoangvvo.github.io/benzene/#/http](https://hoangvvo.github.io/benzene/#/http/)
+Documentation is available at [benzene.vercel.app](https://benzene.vercel.app/)

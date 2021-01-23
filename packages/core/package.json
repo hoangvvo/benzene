@@ -1,7 +1,7 @@
 {
   "name": "@benzene/core",
   "version": "0.3.0",
-  "description": "Fast and minimal JavaScript GraphQL",
+  "description": "Fast and minimal JavaScript GraphQL Server",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "repository": {
     "type": "git",
@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/hoangvvo/benzene/issues"
   },
-  "homepage": "https://hoangvvo.github.io/benzene/",
+  "homepage": "https://benzene.vercel.app/",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.m.js",
