@@ -13,20 +13,19 @@
   },
   "homepage": "https://benzen.vercel.app/",
   "source": "src/index.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.m.js",
-  "esmodule": "dist/index.m.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.m.js",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
-  "types": "dist/index.d.ts",
   "files": ["dist"],
   "sideEffects": false,
   "scripts": {
-    "build": "microbundle -f modern,cjs --strict --globals @benzene/core=benzeneCore --no-sourcemap --no-compress",
+    "build": "rollup -c",
     "clean": "npx rimraf dist",
     "test": "jest"
   },
