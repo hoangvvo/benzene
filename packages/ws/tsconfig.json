@@ -3,11 +3,6 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "paths": {
-      "@benzene/core": [
-        "../core"
-      ]
-    },
   },
   "include": [
     "src"

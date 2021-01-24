@@ -8,7 +8,7 @@ export default {
       format: "cjs",
     },
     {
-      file: "dist/index.js",
+      dir: "dist",
       format: "es",
     },
   ],
