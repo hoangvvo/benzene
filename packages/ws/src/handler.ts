@@ -84,6 +84,9 @@ export function makeHandler<TBenzene extends Benzene>(
     if (!ctx.acknowledged) {
       return socket.close(4401, "Unauthorized");
     }
+    if (!message.id) {
+      return socket.close(4400, "Invalid message received");
+    }
     if (ctx.subscriptions.has(message.id)) {
       return socket.close(4409, `Subscriber for ${message.id} already exists`);
     }

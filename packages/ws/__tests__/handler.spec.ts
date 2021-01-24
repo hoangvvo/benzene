@@ -281,14 +281,33 @@ test("closes connection if use protocol other than graphql-transport-ws", async 
   });
 });
 
-test("closes connection if message is invalid", async () => {
-  const utils = await startServer();
+describe("closes connection if message is invalid", () => {
+  it("when sending invalid JSON", async () => {
+    const utils = await startServer();
 
-  utils.ws.send("'");
+    utils.ws.send("'");
 
-  await utils.waitForClose((code, message) => {
-    expect(code).toBe(4400);
-    expect(message).toBe("Invalid message received");
+    await utils.waitForClose((code, message) => {
+      expect(code).toBe(4400);
+      expect(message).toBe("Invalid message received");
+    });
+  });
+
+  it("when subscribing without id", async () => {
+    const utils = await startServer();
+
+    await utils.doAck();
+
+    // @ts-expect-error
+    utils.send({
+      payload: {},
+      type: MessageType.Subscribe,
+    });
+
+    await utils.waitForClose((code, message) => {
+      expect(code).toBe(4400);
+      expect(message).toBe("Invalid message received");
+    });
   });
 });
 
