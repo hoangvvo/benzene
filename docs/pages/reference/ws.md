@@ -134,4 +134,4 @@ async function handleWs(sock: WebSocket): Promise<void> {
 
 ## Passing `extra`
 
-It is possible to pass `extra` as the second argument to `graphqlWS`. See [The extra argument](http://localhost:3000/reference/packages#the-extra-argument).
+It is possible to pass `extra` as the second argument to `graphqlWS`. See [The extra argument](/reference/packages#the-extra-argument).

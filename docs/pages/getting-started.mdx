@@ -12,6 +12,8 @@ Everything will be built with the bare [http](https://nodejs.org/api/http.html) 
 
 In this tutorial, we will use the *SDL-first* library [graphql-tools](https://github.com/ardatan/graphql-tools) for our schema. (However, we can choose *code-first* libraries likes [type-graphql](https://github.com/MichalLytek/type-graphql) and [@nexus/schema](https://github.com/graphql-nexus/schema))
 
+Check out the [source code](https://github.com/hoangvvo/benzene/tree/main/examples/benzene-votes) or follow along.
+
 ## Setup Project
 
 Create a project and install the necessary dependencies.
@@ -22,6 +24,9 @@ cd benzene-votes
 npm init -y
 npm i ws graphql @benzene/http @benzene/ws @graphql-tools/schema
 ```
+
+Also, make sure to [set `type` to `"module"` in `package.json`](https://nodejs.org/api/packages.html#packages_type) since we are working with ESModule.
+(Otherwise, we can write the upcoming code in CommonJS)
 
 ## Define our schema
 
@@ -94,7 +99,11 @@ const resolvers = {
 
   Subscription: {
     postSubscribe: {
-      subscribe: () => on(ee, "POST_SUBSCRIBE"),
+      subscribe: async function* postSubscribe() {
+        for await (const event of on(ee, "POST_SUBSCRIBE")) {
+          yield event[0];
+        }
+      },
     },
   },
 
@@ -150,7 +159,7 @@ const GQL = new Benzene({ schema });
 const graphqlHTTP = makeHandler(GQL);
 const graphqlWS = makeHandlerWs(GQL);
 
-const server = http.createServer(async (req, res) => {
+const server = createServer(async (req, res) => {
   const rawBody = await readBody(req);
   const result = await graphqlHTTP({
     method: req.method,
@@ -182,7 +191,7 @@ each must be parsed differently. We provide `parseGraphQLBody` function, which a
 
 ### Create a Benzene instance and transport handlers
 
-After creating a [Benzene instance](http://localhost:3000/reference/benzene), we create HTTP and WebSocket handler by supplying the it to the `makeHandler` functions from
+After creating a [Benzene instance](/reference/benzene), we create HTTP and WebSocket handler by supplying the it to the `makeHandler` functions from
 `@benzene/http` and `@benzene/ws`.
 
 `@benzene/http` is then called with a generic request object and returns a generic response object with `status`, `headers`, and `payload` so we can respond
@@ -194,3 +203,69 @@ with libraries other than `ws`.
 <Callout emoji="📦">
   Benzene class is exported from both `@benzene/ws` and `@benzene/http`
 </Callout>
+
+## Start the application
+
+Start the Node application using
+
+```bash
+node server
+```
+
+Go to the http://localhost:3000 and open the DevTools.
+
+First, try to query all posts:
+
+```js
+await fetch("/graphql", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({
+    query: "query { posts { id, title, author { name }, votes } }",
+  }),
+}).then((res) => res.json());
+```
+
+Before we make a mutation, let's try to subscribe to our posts' changes using GraphQL Subscription.
+
+```js
+const websocket = new WebSocket("ws://localhost:3000/graphql", "graphql-transport-ws")
+websocket.send(JSON.stringify({ type: "connection_init" }))
+```
+
+Take a look at the *WS* tab in the *Network* panel. We can see an opening WebSocket communicating with our GraphQL server.
+Let's try to subscribe to `postSubscribe`.
+
+```js
+websocket.send(
+  JSON.stringify({
+    type: "subscribe",
+    id: "1",
+    payload: { query: "subscription { postSubscribe { title, votes } }" },
+  })
+);
+```
+
+Now make a request to increase the vote:
+
+```js
+await fetch("/graphql", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({ query: "mutation { postUpvote(postId: 1) { id, votes } }" }),
+}).then((res) => res.json());
+```
+
+You will also notice a message coming from the WebSocket channel:
+
+```json
+{
+  "id": "1",
+  "payload": {
+    "data": {
+      "postSubscribe": { "title": "Introduction to GraphQL", "votes": 5 }
+    }
+  },
+  "type": "next"
+}
+```

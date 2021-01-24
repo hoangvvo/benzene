@@ -22,4 +22,4 @@ const { data, errors } = await GQL.graphql({
 
 The API is the same as using the `graphql` export from `graphql-js`, with the only difference that there is no `schema` since it is already defined upon creating the **Benzene** instance.
 
-[`formatErrorFn` from the Benzene instance](http://localhost:3000/reference/error-handling) will apply here so the returned `errors` field includes formatted errors.
+[`formatErrorFn` from the Benzene instance](/reference/error-handling) will apply here so the returned `errors` field includes formatted errors.

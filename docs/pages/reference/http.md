@@ -100,4 +100,4 @@ From the example above, we can see that **Benzene** gives you full control over 
 
 ## Passing `extra`
 
-It is possible to pass `extra` as the second argument to `graphqlHTTP`. See [The extra argument](http://localhost:3000/reference/packages#the-extra-argument).
+It is possible to pass `extra` as the second argument to `graphqlHTTP`. See [The extra argument](/reference/packages#the-extra-argument).
