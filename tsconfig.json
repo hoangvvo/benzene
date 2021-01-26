@@ -4,7 +4,7 @@
       "es2020"
     ],
     "module": "ESNext",
-    "target": "ESnext",
+    "target": "es2019",
     "strict": true,
     "declaration": true,
     "skipLibCheck": true,
