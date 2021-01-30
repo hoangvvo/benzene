@@ -1,16 +1,16 @@
 {
   "name": "with-express",
+  "type": "module",
   "private": true,
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "@benzene/http": "^0.0.2",
+    "@benzene/http": "^0.0.3",
     "express": "^4.17.1",
     "graphql": "^15.5.0",
     "graphql-playground-middleware-express": "^1.7.22",
-    "node-fetch": "^2.6.1",
-    "pokemon-graphql-schema": "^0.0.2"
+    "pokemon-graphql-schema": "^0.0.3"
   },
   "license": "ISC"
 }

@@ -9,14 +9,15 @@
     <script>
       async function runQuery() {
         const t0 = performance.now();
-        await fetch('/graphql', {
+        const result = await fetch('/graphql', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
             query: document.querySelector('#query').innerText
           })
         });
-        alert(`Took ~${(performance.now() - t0).toFixed()}ms`)
+        alert(`Took ~${(performance.now() - t0).toFixed()}ms
+${JSON.stringify(await result.json(), null, 2)}`)
       }
     </script>  
   </head>
@@ -49,7 +50,7 @@
     <h2>Why?</h2>
     <p>Look at the Node.js console/terminal. You will see logs that start with <code>get user:</code>.</p>
     <img src="screenshot.png">
-    <p>Notice how the <code>no dataloader</code> query prints out seven of them with duplicates while the other query prints out only four of them? That's N+1 Problem in GraphQL.</p>
+    <p>Notice how the <code>no dataloader</code> query prints out seven of them with duplicates while the other query prints out only four of them (each user is loaded only once)? That's N+1 Problem in GraphQL.</p>
     <p>The article <a href="https://medium.com/@__xuorig__/the-graphql-dataloader-pattern-visualized-3064a00f319f">The GraphQL Dataloader Pattern: Visualized</a> best explains this pattern.</p>
   </body>
 </html>

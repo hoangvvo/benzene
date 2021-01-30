@@ -1,11 +1,7 @@
-const express = require("express");
-const { Benzene, makeHandler } = require("@benzene/http");
-const expressPlayground = require("graphql-playground-middleware-express")
-  .default;
-const schema = require("pokemon-graphql-schema");
-
-// Polyfill fetch
-global.fetch = require("node-fetch");
+import express from "express";
+import { Benzene, makeHandler } from "@benzene/http";
+import expressPlayground from "graphql-playground-middleware-express";
+import schema from "pokemon-graphql-schema";
 
 const GQL = new Benzene({ schema });
 
@@ -15,19 +11,19 @@ const app = express();
 
 app.use(express.json());
 
-app.get("/playground", expressPlayground({ endpoint: "/graphql" }));
+app.get("/", expressPlayground.default({ endpoint: "/graphql" }));
+
 app.all("/graphql", (req, res) => {
   graphqlHTTP({
     method: req.method,
     headers: req.headers,
     body: req.body,
   }).then((result) => {
-    res.writeHead(result.status, result.headers);
-    res.send(result.payload);
+    res.header(result.headers);
+    res.status(result.status).send(result.payload);
   });
 });
-app.use(express.static("public"));
 
-app.listen(4000, () => {
-  console.log("Server ready at http://localhost:4000/");
+app.listen(3000, () => {
+  console.log(`🚀  Server ready at http://localhost:3000`);
 });

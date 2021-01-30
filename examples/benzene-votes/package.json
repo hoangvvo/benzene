@@ -11,8 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@benzene/http": "^0.0.2",
-    "@benzene/ws": "^0.4.1",
+    "@benzene/http": "^0.0.3",
+    "@benzene/ws": "^0.4.2",
     "@graphql-tools/schema": "^7.1.2",
     "graphql": "^15.5.0",
     "ws": "^7.4.2"

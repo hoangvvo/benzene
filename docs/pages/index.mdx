@@ -23,7 +23,8 @@ app.use("/graphql", async (req, res) => {
     body: req.body,
     headers: req.headers,
   });
-  res.writeHead(result.status, result.headers).send(res.payload);
+  res.header(result.headers);
+  res.status(result.status).send(result.payload);
 });
 
 app.listen(4000);

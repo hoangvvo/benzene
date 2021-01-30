@@ -1,5 +1,11 @@
 # @benzene/ws
 
+## 0.4.3
+
+### Patch Changes
+
+- b853425: Mark @benzene/ws as module and export MessageType
+
 ## 0.4.2
 
 ### Patch Changes

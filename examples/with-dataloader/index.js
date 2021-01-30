@@ -92,8 +92,8 @@ app.all("/graphql", (req, res) => {
     headers: req.headers,
     body: req.body,
   }).then((result) => {
-    res.writeHead(result.status, result.headers);
-    res.send(result.payload);
+    res.header(result.headers);
+    res.status(result.status).send(result.payload);
   });
 });
 app.use(express.static("public"));
