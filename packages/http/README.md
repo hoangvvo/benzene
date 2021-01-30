@@ -36,4 +36,4 @@ createServer(async (req, res) => {
 ```
 
 Documentation is available at [benzene.vercel.app](https://benzene.vercel.app/).
-Check out [examples](https://github.com/hoangvvo/benzene/tree/main/examples) for integrations with different server libraries.
+Check out [examples](https://benzene.vercel.app/examples) for integrations with different server libraries.

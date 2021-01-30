@@ -17,4 +17,5 @@ const wss = new WebSocket.Server({ path: "/graphql", port: 3000 });
 wss.on("connection", makeHandler(GQL, options));
 ```
 
-Check out [examples](https://github.com/hoangvvo/benzene/tree/main/examples) for integrations with different server libraries.
+Documentation is available at [benzene.vercel.app](https://benzene.vercel.app/).
+Check out [examples](https://benzene.vercel.app/examples) for integrations with different server libraries.
