@@ -14,6 +14,8 @@ Documentation is available at [benzene.vercel.app](https://benzene.vercel.app)
 
 There is also a [Getting Started](https://benzene.vercel.app/getting-started) to get started quickly.
 
+There are also various [examples](examples) for integrations with different tools and frameworks.
+
 ## Features
 
 The `@benzene/http` and `@benzene/ws` packages allow us to build a full-featured GraphQL server, featuring:

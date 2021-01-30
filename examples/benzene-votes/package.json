@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,7 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@benzene/http": "^0.0.3",
-    "@benzene/ws": "^0.4.2",
+    "@benzene/ws": "^0.4.3",
     "@graphql-tools/schema": "^7.1.2",
     "graphql": "^15.5.0",
     "ws": "^7.4.2"

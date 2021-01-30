@@ -34,4 +34,6 @@ wss.on("connection", (ws) => {
   graphqlWS(ws);
 });
 
-server.listen(3000);
+server.listen(3000, () => {
+  console.log(`🚀  Server ready at http://localhost:3000`);
+});

@@ -16,7 +16,7 @@ const readBody = (req) => {
 };
 
 const server = createServer(async (req, res) => {
-  if (req.url.startsWith('/graphql')) {
+  if (req.url.startsWith("/graphql")) {
     // Serve GraphQL API
     const rawBody = await readBody(req);
     const result = await graphqlHTTP({
@@ -28,8 +28,8 @@ const server = createServer(async (req, res) => {
     res.end(JSON.stringify(result.payload));
   }
   // Serve index.html
-  res.writeHead(200, { 'content-type': 'text/html' })
-  createReadStream('index.html').pipe(res)
+  res.writeHead(200, { "content-type": "text/html" });
+  createReadStream("index.html").pipe(res);
 });
 
 server.listen(3000, () => {

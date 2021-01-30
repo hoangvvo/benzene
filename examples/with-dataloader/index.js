@@ -1,10 +1,8 @@
-const express = require("express");
-const { Benzene, makeHandler } = require("@benzene/http");
-const { makeExecutableSchema } = require("@graphql-tools/schema");
-const expressPlayground = require("graphql-playground-middleware-express")
-  .default;
-const DataLoader = require("dataloader");
-const { getUser, getBatchUsers } = require("./users");
+import express from "express";
+import { Benzene, makeHandler } from "@benzene/http";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import DataLoader from "dataloader";
+import { getUser, getBatchUsers } from "./users.js";
 
 function createLoaders() {
   return {
@@ -46,7 +44,7 @@ const resolvers = {
     },
   },
   UserNoLoader: {
-    friends: (parent, variables, context) => {
+    friends: (parent) => {
       return getBatchUsers(parent.friendIds);
     },
     bestFriend: (parent) => {
@@ -54,10 +52,10 @@ const resolvers = {
     },
   },
   Query: {
-    user: (obj, variables, context) => {
+    user: (parent, variables, context) => {
       return context.loaders.users.load(variables.id);
     },
-    userNoLoader: (obj, variables) => {
+    userNoLoader: (parent, variables) => {
       return getUser(variables.id);
     },
   },
@@ -85,7 +83,6 @@ const app = express();
 
 app.use(express.json());
 
-app.get("/playground", expressPlayground({ endpoint: "/graphql" }));
 app.all("/graphql", (req, res) => {
   graphqlHTTP({
     method: req.method,
@@ -96,8 +93,9 @@ app.all("/graphql", (req, res) => {
     res.status(result.status).send(result.payload);
   });
 });
+
 app.use(express.static("public"));
 
-app.listen(4000, () => {
-  console.log("Server ready at http://localhost:4000/");
+app.listen(3000, () => {
+  console.log(`🚀  Server ready at http://localhost:3000/`);
 });

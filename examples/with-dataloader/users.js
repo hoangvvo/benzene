@@ -28,16 +28,13 @@ const users = [
   { id: "5", name: "Billy", age: 19, friendIds: [], bestFriendId: "" },
 ];
 
-const getUser = async (id) => {
+export const getUser = async (id) => {
   console.log(`get user: ${id}`);
   // Simulate delay in database queries
   await sleep(100);
   return users.find((u) => u.id === id);
 };
 
-const getBatchUsers = async (ids) => {
+export const getBatchUsers = async (ids) => {
   return await Promise.all(ids.map((id) => getUser(id)));
 };
-
-exports.getUser = getUser;
-exports.getBatchUsers = getBatchUsers;

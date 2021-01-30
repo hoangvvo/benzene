@@ -1,5 +1,6 @@
 {
   "name": "with-dataloader",
+  "type": "module",
   "private": true,
   "main": "index.js",
   "scripts": {
