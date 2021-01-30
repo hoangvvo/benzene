@@ -7,7 +7,7 @@ const authors = [
   { id: 3, firstName: "Mikhail", lastName: "Novikov" },
 ];
 
-const posts = [
+const books = [
   { id: 1, authorId: 1, title: "Introduction to GraphQL", votes: 2 },
   { id: 2, authorId: 2, title: "Welcome to Meteor", votes: 3 },
   { id: 3, authorId: 2, title: "Advanced GraphQL", votes: 1 },
@@ -18,10 +18,10 @@ const typeDefs = `
   type Author {
     id: Int!
     name: String
-    posts: [Post]
+    books: [Book]
   }
 
-  type Post {
+  type Book {
     id: Int!
     title: String
     author: Author
@@ -29,17 +29,17 @@ const typeDefs = `
   }
 
   type Query {
-    posts: [Post]
+    books: [Book]
   }
 
   type Mutation {
-    postUpvote (
-      postId: Int!
-    ): Post
+    bookUpvote (
+      bookId: Int!
+    ): Book
   }
 
   type Subscription {
-    postSubscribe: Post
+    bookSubscribe: Book
   }
 `;
 
@@ -47,25 +47,25 @@ const ee = new EventEmitter();
 
 const resolvers = {
   Query: {
-    posts: () => posts,
+    books: () => books,
   },
 
   Mutation: {
-    postUpvote: (_, { postId }) => {
-      const post = posts.find((post) => post.id === postId);
-      if (!post) {
-        throw new Error(`Couldn't find post with id ${postId}`);
+    bookUpvote: (_, { bookId }) => {
+      const book = books.find((book) => book.id === bookId);
+      if (!book) {
+        throw new Error(`Couldn't find book with id ${bookId}`);
       }
-      post.votes += 1;
-      ee.emit("POST_SUBSCRIBE", { postSubscribe: post });
-      return post;
+      book.votes += 1;
+      ee.emit("BOOK_SUBSCRIBE", { bookSubscribe: book });
+      return book;
     },
   },
 
   Subscription: {
-    postSubscribe: {
-      subscribe: async function* postSubscribe() {
-        for await (const event of on(ee, "POST_SUBSCRIBE")) {
+    bookSubscribe: {
+      subscribe: async function* bookSubscribe() {
+        for await (const event of on(ee, "BOOK_SUBSCRIBE")) {
           yield event[0];
         }
       },
@@ -73,11 +73,11 @@ const resolvers = {
   },
 
   Author: {
-    posts: (author) => posts.filter((post) => post.authorId === author.id),
+    books: (author) => books.filter((book) => book.authorId === author.id),
   },
 
-  Post: {
-    author: (post) => authors.filter((author) => author.id === post.authorId),
+  Book: {
+    author: (book) => authors.filter((author) => author.id === book.authorId),
   },
 };
 

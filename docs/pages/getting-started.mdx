@@ -2,25 +2,25 @@ import Callout from 'nextra-theme-docs/callout'
 
 # Getting Started
 
-This tutorial will take you through the process of building a GraphQL server with `@benzene/server` and `@benzene/ws`. We will build a simple posting app that can:
+This tutorial will take you through the process of building a GraphQL server with `@benzene/server` and `@benzene/ws`. We will build a simple book voting app that can:
 
-- Returns a list of posts and authors
-- Upvote a post
+- Returns a list of books and authors
+- Upvote a book
 - Synchronize votes with real-time changes
 
 Everything will be built with the bare [http](https://nodejs.org/api/http.html) module and the [ws](https://github.com/websockets/ws) library. We can adapt it to any other libraries.
 
 In this tutorial, we will use the *SDL-first* library [graphql-tools](https://github.com/ardatan/graphql-tools) for our schema. (However, we can choose *code-first* libraries likes [type-graphql](https://github.com/MichalLytek/type-graphql) and [@nexus/schema](https://github.com/graphql-nexus/schema))
 
-Check out the [source code](https://github.com/hoangvvo/benzene/tree/main/examples/benzene-votes) or follow along.
+Check out the [source code](https://github.com/hoangvvo/benzene/tree/main/examples/book-votes) or follow along.
 
 ## Setup Project
 
 Create a project and install the necessary dependencies.
 
 ```bash
-mkdir benzene-votes
-cd benzene-votes
+mkdir book-votes
+cd book-votes
 npm init -y
 npm i ws graphql @benzene/http @benzene/ws @graphql-tools/schema
 ```
@@ -42,7 +42,7 @@ const authors = [
   { id: 3, firstName: "Mikhail", lastName: "Novikov" },
 ];
 
-const posts = [
+const books = [
   { id: 1, authorId: 1, title: "Introduction to GraphQL", votes: 2 },
   { id: 2, authorId: 2, title: "Welcome to Meteor", votes: 3 },
   { id: 3, authorId: 2, title: "Advanced GraphQL", votes: 1 },
@@ -53,10 +53,10 @@ const typeDefs = `
   type Author {
     id: Int!
     name: String
-    posts: [Post]
+    books: [Book]
   }
 
-  type Post {
+  type Book {
     id: Int!
     title: String
     author: Author
@@ -64,17 +64,17 @@ const typeDefs = `
   }
 
   type Query {
-    posts: [Post]
+    books: [Book]
   }
 
   type Mutation {
-    postUpvote (
-      postId: Int!
-    ): Post
+    bookUpvote (
+      bookId: Int!
+    ): Book
   }
 
   type Subscription {
-    postSubscribe: Post
+    bookSubscribe: Book
   }
 `;
 
@@ -82,25 +82,25 @@ const ee = new EventEmitter();
 
 const resolvers = {
   Query: {
-    posts: () => posts,
+    books: () => books,
   },
 
   Mutation: {
-    postUpvote: (_, { postId }) => {
-      const post = posts.find((post) => post.id === postId);
-      if (!post) {
-        throw new Error(`Couldn't find post with id ${postId}`);
+    bookUpvote: (_, { bookId }) => {
+      const book = books.find((book) => book.id === bookId);
+      if (!book) {
+        throw new Error(`Couldn't find book with id ${bookId}`);
       }
-      post.votes += 1;
-      ee.emit("POST_SUBSCRIBE", { postSubscribe: post });
-      return post;
+      book.votes += 1;
+      ee.emit("BOOK_SUBSCRIBE", { bookSubscribe: book });
+      return book;
     },
   },
 
   Subscription: {
-    postSubscribe: {
-      subscribe: async function* postSubscribe() {
-        for await (const event of on(ee, "POST_SUBSCRIBE")) {
+    bookSubscribe: {
+      subscribe: async function* bookSubscribe() {
+        for await (const event of on(ee, "BOOK_SUBSCRIBE")) {
           yield event[0];
         }
       },
@@ -108,11 +108,11 @@ const resolvers = {
   },
 
   Author: {
-    posts: (author) => posts.filter((post) => post.authorId === author.id),
+    books: (author) => books.filter((book) => book.authorId === author.id),
   },
 
-  Post: {
-    author: (post) => authors.filter((author) => author.id === post.authorId),
+  Book: {
+    author: (book) => authors.filter((author) => author.id === book.authorId),
   },
 };
 
@@ -126,9 +126,9 @@ export default schema;
 
 We created a GraphQL schema with three functionalities:
 
-- A query to retrieve all posts, as well resolvers for *Post* and *Author* to resolve nested fields.
-- A mutation to upvote a post, which also announces the change to the `"POST_SUBSCRIBE"` event.
-- A subscription to post updates that listens to the `"POST_SUBSCRIBE"` event.
+- A query to retrieve all books, as well resolvers for *Book* and *Author* to resolve nested fields.
+- A mutation to upvote a book, which also announces the change to the `"BOOK_SUBSCRIBE"` event.
+- A subscription to book updates that listens to the `"BOOK_SUBSCRIBE"` event.
 
 <Callout emoji="💡">
   We use [events.on](https://nodejs.org/api/events.html#events_events_on_emitter_eventname_options)
@@ -144,7 +144,7 @@ import { createServer } from "http";
 import WebSocket from "ws";
 import { Benzene, parseGraphQLBody, makeHandler } from "@benzene/http";
 import { makeHandler as makeHandlerWs } from "@benzene/ws";
-import schema from "./schema";
+import schema from "./schema.js";
 
 function readBody(request) {
   return new Promise((resolve) => {
@@ -176,7 +176,9 @@ wss.on("connection", (ws) => {
   graphqlWS(ws);
 });
 
-server.listen(3000);
+server.listen(3000, () => {
+  console.log(`🚀  Server ready at http://localhost:3000`);
+});
 ```
 
 ### Parse incoming request
@@ -214,19 +216,19 @@ node server
 
 Go to the [http://localhost:3000](http://localhost:3000) and open the DevTools.
 
-First, try to query all posts:
+First, try to query all books:
 
 ```js
 await fetch("/graphql", {
   method: "POST",
   headers: { "content-type": "application/json" },
   body: JSON.stringify({
-    query: "query { posts { id, title, author { name }, votes } }",
+    query: "query { books { id, title, author { name }, votes } }",
   }),
 }).then((res) => res.json());
 ```
 
-Before we make a mutation, let's try to subscribe to our posts' changes using GraphQL Subscription over WebSockets.
+Before we make a mutation, let's try to subscribe to our books' changes using GraphQL Subscription over WebSockets.
 
 ```js
 const websocket = new WebSocket("ws://localhost:3000/graphql", "graphql-transport-ws");
@@ -234,14 +236,14 @@ websocket.send(JSON.stringify({ type: "connection_init" }));
 ```
 
 Take a look at the *WS* tab in the *Network* panel. We can see an opening WebSocket communicating with our GraphQL server.
-Let's try to subscribe to `postSubscribe`.
+Let's try to subscribe to `bookSubscribe`.
 
 ```js
 websocket.send(
   JSON.stringify({
     type: "subscribe",
     id: "1",
-    payload: { query: "subscription { postSubscribe { title, votes } }" },
+    payload: { query: "subscription { bookSubscribe { title, votes } }" },
   })
 );
 ```
@@ -252,7 +254,7 @@ Now make a request to increase the vote:
 await fetch("/graphql", {
   method: "POST",
   headers: { "content-type": "application/json" },
-  body: JSON.stringify({ query: "mutation { postUpvote(postId: 1) { id, votes } }" }),
+  body: JSON.stringify({ query: "mutation { bookUpvote(bookId: 1) { id, votes } }" }),
 }).then((res) => res.json());
 ```
 
@@ -263,7 +265,7 @@ We can also notice a message coming from the WebSocket channel:
   "id": "1",
   "payload": {
     "data": {
-      "postSubscribe": { "title": "Introduction to GraphQL", "votes": 5 }
+      "bookSubscribe": { "title": "Introduction to GraphQL", "votes": 5 }
     }
   },
   "type": "next"

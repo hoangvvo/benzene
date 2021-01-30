@@ -1,11 +1,11 @@
 {
-  "name": "benzene-votes",
+  "name": "book-votes",
   "version": "1.0.0",
   "type": "module",
-  "description": "",
+  "description": "An example showcases the use of both @benzene/http and @benzene/ws to create a book voting app with real-time updates",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
