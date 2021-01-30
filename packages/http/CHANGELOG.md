@@ -1,5 +1,11 @@
 # @benzene/http
 
+## 0.0.3
+
+### Patch Changes
+
+- 6c3aca0: Updated dependencies
+
 ## 0.0.2
 
 ### Patch Changes

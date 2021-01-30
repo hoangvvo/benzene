@@ -1,5 +1,11 @@
 # @benzene/ws
 
+## 0.4.2
+
+### Patch Changes
+
+- 6c3aca0: Updated dependencies
+
 ## 0.4.1
 
 ### Patch Changes
