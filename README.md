@@ -1,5 +1,3 @@
-> A fast and minimal JavaScript GraphQL Server
-
 <p align="center">
   <a href="https://withstereo.com">
     <img alt="Stereo" src="https://benzene.vercel.app/og.png">

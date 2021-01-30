@@ -42,9 +42,9 @@ interface WebSocket {
 
 This interface is a partial version of the [JavaScript WebSockets API](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket) since **Benzene** does not require all the methods in `WebSocket` nor all the fields in the two events.
 
-## Using in a WebSocket server
+## Usage in a WebSocket server
 
-The `graphqlWS` is to be called with a compatible WebSocket instance and it will handle everything (receive/send messages, close connections) automatically. (this is in contrast to `@benzene/http`).
+The `graphqlWS` is to be called with a [compatible WebSocket instance](#websocket-generic-interface) and it will handle everything (receive/send messages, close connections) automatically. (this is in contrast to `@benzene/http`).
 
 [ws](https://github.com/websockets/ws) is a library that implements its WebSocket class compliant to the Web API (evidently in its [API documentation](https://github.com/websockets/ws/blob/master/doc/ws.md#class-websocket)), so `@benzene/ws` will work with it naturally.
 
@@ -125,8 +125,9 @@ async function handleWs(sock: WebSocket): Promise<void> {
     }
   } catch (err) {
     if (!sock.isClosed) {
+      await sock.close(1000).catch(console.error);
       // make sure to call onclose even on error (this is by spec)
-      customSocket.onclose(ev);
+      customSocket.onclose({ code: 1000 });
     }
   }
 }

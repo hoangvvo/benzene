@@ -37,7 +37,7 @@ However, this returned function always accepts two arguments: a specific input a
 
 ### The extra argument
 
-Unlike other libraries that [store data variables in a "context" object](https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields) for convenient accesses (such as in the GraphQL context factory function), **Benzene** avoids storing those that are not needed for the GraphQL execution to achieve the best performance.
+Unlike other libraries that [store environmental variables in a "context" object](https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields) for convenient accesses (such as in the GraphQL context factory function), **Benzene** avoids storing those that are not needed for the GraphQL execution to achieve the best performance.
 
 Instead, the `extra` argument allows you to specify only what you need to store for later uses. For the best flexibility should you switch environments or frameworks, though, we recommend avoid passing in environment-specific variables (like a Request object or a WebSocket instance).
 

@@ -12,7 +12,7 @@ hey -c 100 -z 8s -D body.txt -T application/json -m POST http://localhost:4000/g
 
 ## How to use
 
-Clone the repository and go to benchmarks folder and install the dependencies.
+Clone the repository, go to benchmarks folder, and install the dependencies.
 
 ```bash
 git clone https://github.com/hoangvvo/benzene.git

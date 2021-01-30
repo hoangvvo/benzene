@@ -16,3 +16,5 @@ const GQL = new Benzene({ schema });
 const wss = new WebSocket.Server({ path: "/graphql", port: 3000 });
 wss.on("connection", makeHandler(GQL, options));
 ```
+
+Check out [examples](https://github.com/hoangvvo/benzene/tree/main/examples) for integrations with different server libraries.

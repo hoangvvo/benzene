@@ -212,7 +212,7 @@ Start the Node application using
 node server
 ```
 
-Go to the http://localhost:3000 and open the DevTools.
+Go to the [http://localhost:3000](http://localhost:3000) and open the DevTools.
 
 First, try to query all posts:
 
@@ -226,11 +226,11 @@ await fetch("/graphql", {
 }).then((res) => res.json());
 ```
 
-Before we make a mutation, let's try to subscribe to our posts' changes using GraphQL Subscription.
+Before we make a mutation, let's try to subscribe to our posts' changes using GraphQL Subscription over WebSockets.
 
 ```js
-const websocket = new WebSocket("ws://localhost:3000/graphql", "graphql-transport-ws")
-websocket.send(JSON.stringify({ type: "connection_init" }))
+const websocket = new WebSocket("ws://localhost:3000/graphql", "graphql-transport-ws");
+websocket.send(JSON.stringify({ type: "connection_init" }));
 ```
 
 Take a look at the *WS* tab in the *Network* panel. We can see an opening WebSocket communicating with our GraphQL server.
@@ -256,7 +256,7 @@ await fetch("/graphql", {
 }).then((res) => res.json());
 ```
 
-You will also notice a message coming from the WebSocket channel:
+We can also notice a message coming from the WebSocket channel:
 
 ```json
 {

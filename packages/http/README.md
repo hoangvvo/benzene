@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/hoangvvo/benzene/branch/main/graph/badge.svg?token=KUCEOC1JT2)](https://codecov.io/gh/hoangvvo/benzene)
 [![PRs Welcome](https://badgen.net/badge/PRs/welcome/ff5252)](/CONTRIBUTING.md)
 
-> Fast and simple GraphQL HTTP Server
+> Fast and simple framework-agnostic GraphQL HTTP Server
 
 ```js
 import { createServer } from "http";
@@ -35,4 +35,5 @@ createServer(async (req, res) => {
 }).listen(3000);
 ```
 
-Documentation is available at [benzene.vercel.app](https://benzene.vercel.app/)
+Documentation is available at [benzene.vercel.app](https://benzene.vercel.app/).
+Check out [examples](https://github.com/hoangvvo/benzene/tree/main/examples) for integrations with different server libraries.
