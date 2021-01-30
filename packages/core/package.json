@@ -1,5 +1,6 @@
 {
   "name": "@benzene/core",
+  "type": "module",
   "version": "0.4.1",
   "description": "Fast and minimal JavaScript GraphQL Server",
   "author": "Hoang Vo (https://hoangvvo.com)",
