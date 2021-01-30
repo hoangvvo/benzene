@@ -6,12 +6,12 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@graphql-tools/schema": "^6.0.18",
+    "@benzene/http": "^0.0.2",
+    "@graphql-tools/schema": "^7.1.2",
     "dataloader": "^2.0.0",
     "express": "^4.17.1",
-    "graphql": "^15.3.0",
-    "graphql-playground-middleware-express": "^1.7.18",
-    "@benzene/http": "^0.1.0"
+    "graphql": "^15.5.0",
+    "graphql-playground-middleware-express": "^1.7.22"
   },
   "license": "ISC"
 }

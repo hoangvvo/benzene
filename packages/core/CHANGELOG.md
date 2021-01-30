@@ -1,5 +1,11 @@
 # @benzene/core
 
+## 0.4.2
+
+### Patch Changes
+
+- e104106: Fix ESModule export
+
 ## 0.4.1
 
 ### Patch Changes

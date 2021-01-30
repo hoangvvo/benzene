@@ -1,15 +1,16 @@
 {
   "name": "with-http",
   "private": true,
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "@benzene/http": "^0.1.0",
-    "graphql": "^15.3.0",
-    "node-fetch": "^2.6.0",
-    "pokemon-graphql-schema": "^0.0.2"
+    "@benzene/http": "^0.0.2",
+    "graphql": "^15.5.0",
+    "node-fetch": "^2.6.1",
+    "pokemon-graphql-schema": "^0.0.3"
   },
   "license": "ISC"
 }

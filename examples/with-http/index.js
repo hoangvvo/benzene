@@ -1,8 +1,6 @@
-const http = require("http");
-const { Benzene, makeHandler, parseGraphQLBody } = require("@benzene/http");
-const schema = require("pokemon-graphql-schema");
-
-global.fetch = require("node-fetch");
+import { createServer } from "http";
+import { Benzene, makeHandler, parseGraphQLBody } from "@benzene/http";
+import schema from "pokemon-graphql-schema";
 
 const GQL = new Benzene({ schema });
 
@@ -16,7 +14,7 @@ const readBody = (req, done) => {
   });
 };
 
-const server = http.createServer(async (req, res) => {
+const server = createServer(async (req, res) => {
   const rawBody = await readBody(req);
   const result = await graphqlHTTP({
     method: req.method,
