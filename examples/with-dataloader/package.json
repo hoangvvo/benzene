@@ -1,5 +1,6 @@
 {
   "name": "with-dataloader",
+  "description": "Using the `dataloader` module to optimize against GraphQL N+1 problem",
   "type": "module",
   "private": true,
   "main": "index.js",

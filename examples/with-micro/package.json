@@ -1,5 +1,6 @@
 {
   "name": "with-micro",
+  "description": "Using @benzene/http with the `micro` library",
   "private": true,
   "main": "index.js",
   "scripts": {

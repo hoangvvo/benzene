@@ -1,5 +1,6 @@
 {
   "name": "with-http",
+  "description": "Using @benzene/http with Node.js `http` module",
   "private": true,
   "type": "module",
   "main": "index.js",

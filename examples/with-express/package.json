@@ -1,5 +1,6 @@
 {
   "name": "with-express",
+  "description": "Using @benzene/http with Express.js",
   "type": "module",
   "private": true,
   "scripts": {
