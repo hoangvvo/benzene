@@ -1,6 +1,6 @@
 {
   "name": "@benzene/ws",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Fast and minimal GraphQL over WebSockets server",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -30,9 +30,7 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "sideEffects": false,
   "scripts": {
     "build": "rollup -c",
@@ -40,7 +38,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@benzene/core": "^0.4.0"
+    "@benzene/core": "^0.4.1"
   },
   "peerDependencies": {
     "graphql": "^14.0.0 || ^15.0.0"

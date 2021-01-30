@@ -1,6 +1,15 @@
 # @benzene/http
 
+## 0.0.2
+
+### Patch Changes
+
+- c2fb34f: Fix ESModule Publish
+- Updated dependencies [c2fb34f]
+  - @benzene/core@0.4.1
+
 ## 0.0.1
+
 ### Patch Changes
 
 - b6b3c59: New `http` package to unify `server` and `worker`
