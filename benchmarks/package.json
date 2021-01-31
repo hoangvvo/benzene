@@ -1,15 +1,14 @@
 {
   "name": "benchmarks",
   "license": "MIT",
-  "peerDependencies": {},
   "dependencies": {
     "@benzene/http": "file:../packages/http",
-    "apollo-server": "^2.17.0",
-    "apollo-server-fastify": "^2.17.0",
-    "express-graphql": "^0.11.0",
-    "fastify": "^3.3.0",
-    "mercurius": "^6.3.0",
-    "polka": "^1.0.0-next.11"
+    "apollo-server": "^2.19.2",
+    "express-graphql": "^0.12.0",
+    "fastify": "^3.11.0",
+    "graphql-helix": "^1.2.3",
+    "mercurius": "^6.11.0",
+    "uWebSockets.js": "uNetworking/uWebSockets.js#v18.14.0"
   },
   "resolutions": {
     "graphql": "^15.3.0"

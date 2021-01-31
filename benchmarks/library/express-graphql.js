@@ -1,11 +1,7 @@
 "use strict";
 
-const polka = require("polka");
+const http = require("http");
 const { graphqlHTTP } = require("express-graphql");
-const schema = require("../utils/schema");
+const schema = require("../schema");
 
-const app = polka();
-
-app.all("/graphql", graphqlHTTP({ schema }));
-
-app.listen(4000);
+http.createServer(graphqlHTTP({ schema })).listen(4000);

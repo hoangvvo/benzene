@@ -1,23 +1,21 @@
 "use strict";
 
-const polka = require("polka");
+const { createServer } = require("http");
 const { Benzene, makeHandler, parseGraphQLBody } = require("@benzene/http");
-const schema = require("../utils/schema");
-
-const app = polka();
+const schema = require("../schema");
 
 const GQL = new Benzene({ schema });
 
 const graphqlHTTP = makeHandler(GQL);
 
-const readBody = (req, done) => {
+const rawBody = (req, done) => {
   let body = "";
   req.on("data", (chunk) => (body += chunk));
   req.on("end", () => done(body));
 };
 
-app.all("/graphql", (req, res) => {
-  readBody(req, (rawBody) => {
+createServer((req, res) => {
+  rawBody(req, (rawBody) =>
     graphqlHTTP({
       method: req.method,
       headers: req.headers,
@@ -25,8 +23,6 @@ app.all("/graphql", (req, res) => {
     }).then((result) => {
       res.writeHead(result.status, result.headers);
       res.end(JSON.stringify(result.payload));
-    });
-  });
-});
-
-app.listen(4000);
+    })
+  );
+}).listen(4000);
