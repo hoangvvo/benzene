@@ -5,7 +5,7 @@
   "private": true,
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "rollup -c && node server.js"
   },
   "keywords": [],
   "author": "",
@@ -14,7 +14,20 @@
     "@benzene/http": "^0.0.3",
     "@benzene/ws": "^0.4.3",
     "@graphql-tools/schema": "^7.1.2",
+    "@urql/exchange-graphcache": "^3.4.0",
+    "@urql/svelte": "^1.1.4",
     "graphql": "^15.5.0",
+    "graphql-ws": "^4.1.2",
+    "sirv": "^1.0.11",
     "ws": "^7.4.2"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "rollup": "^2.3.4",
+    "rollup-plugin-svelte": "^7.0.0",
+    "rollup-plugin-terser": "^7.0.0",
+    "svelte": "^3.0.0",
+    "@rollup/plugin-replace": "^2.3.4"
   }
 }

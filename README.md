@@ -12,7 +12,8 @@ Benzene is a new take on GraphQL server that gives you the control you need whil
 
 Documentation is available at [benzene.vercel.app](https://benzene.vercel.app)
 
-There is also a [Getting Started](https://benzene.vercel.app/getting-started) to get started quickly.
+There is also a [Getting Started](https://benzene.vercel.app/getting-started) section
+which shows how to build a *real-time* book voting app using both `@benzene/http` and `@benzene/ws`.
 
 There are also various [examples](examples) for integrations with different tools and frameworks.
 

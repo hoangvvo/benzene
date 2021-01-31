@@ -2,9 +2,9 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 import { on, EventEmitter } from "events";
 
 const authors = [
-  { id: 1, firstName: "Tom", lastName: "Coleman" },
-  { id: 2, firstName: "Sashko", lastName: "Stubailo" },
-  { id: 3, firstName: "Mikhail", lastName: "Novikov" },
+  { id: 1, name: "Tom Coleman" },
+  { id: 2, name: "Sashko Stubailo" },
+  { id: 3, name: "Mikhail Novikov" },
 ];
 
 const books = [
@@ -77,7 +77,7 @@ const resolvers = {
   },
 
   Book: {
-    author: (book) => authors.filter((author) => author.id === book.authorId),
+    author: (book) => authors.find((author) => author.id === book.authorId),
   },
 };
 

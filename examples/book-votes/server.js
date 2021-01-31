@@ -1,4 +1,5 @@
 import { createServer } from "http";
+import sirv from "sirv";
 import WebSocket from "ws";
 import { Benzene, parseGraphQLBody, makeHandler } from "@benzene/http";
 import { makeHandler as makeHandlerWs } from "@benzene/ws";
@@ -17,15 +18,23 @@ const GQL = new Benzene({ schema });
 const graphqlHTTP = makeHandler(GQL);
 const graphqlWS = makeHandlerWs(GQL);
 
+const assets = sirv("public");
+
 const server = createServer(async (req, res) => {
-  const rawBody = await readBody(req);
-  const result = await graphqlHTTP({
-    method: req.method,
-    headers: req.headers,
-    body: parseGraphQLBody(rawBody, req.headers["content-type"]),
-  });
-  res.writeHead(result.status, result.headers);
-  res.end(JSON.stringify(result.payload));
+  if (req.url.startsWith("/graphql")) {
+    // serve graphql
+    const rawBody = await readBody(req);
+    const result = await graphqlHTTP({
+      method: req.method,
+      headers: req.headers,
+      body: parseGraphQLBody(rawBody, req.headers["content-type"]),
+    });
+    res.writeHead(result.status, result.headers);
+    res.end(JSON.stringify(result.payload));
+  } else {
+    // serve svelte
+    assets(req, res);
+  }
 });
 
 const wss = new WebSocket.Server({ server });

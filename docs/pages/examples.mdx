@@ -53,8 +53,8 @@ export const ExamplesRenderer = () => {
         onChange={(event) => setSearch(event.currentTarget.value)}
         style={{ margin: "1rem 0 0", color: "#000" }}
         type="search"
-        class="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:ring w-full"
-        placeholder="Search"
+        className="appearance-none border rounded py-2 px-3 leading-tight focus:outline-none focus:ring w-full"
+        placeholder="Search examples"
       />
       <div style={{ height: "32rem", overflow: "auto" }}>
         {searchedExamples.map((example) => (

@@ -37,9 +37,9 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 import { on, EventEmitter } from "events";
 
 const authors = [
-  { id: 1, firstName: "Tom", lastName: "Coleman" },
-  { id: 2, firstName: "Sashko", lastName: "Stubailo" },
-  { id: 3, firstName: "Mikhail", lastName: "Novikov" },
+  { id: 1, name: "Tom Coleman" },
+  { id: 2, name: "Sashko Stubailo" },
+  { id: 3, name: "Mikhail Novikov" },
 ];
 
 const books = [
@@ -112,7 +112,7 @@ const resolvers = {
   },
 
   Book: {
-    author: (book) => authors.filter((author) => author.id === book.authorId),
+    author: (book) => authors.find((author) => author.id === book.authorId),
   },
 };
 
@@ -208,6 +208,27 @@ with libraries other than `ws`.
 
 ## Start the application
 
+### Using the Svelte + urql app
+
+Although setting up the client is not in the scope of this tutorial,
+[examples/book-votes](https://github.com/hoangvvo/benzene/tree/main/examples/book-votes)
+features one built with [svelte](https://svelte.dev/) and [urql](https://formidable.com/open-source/urql/).
+
+![book-votes-example](/book-votes-example.gif)
+
+```bash
+curl https://codeload.github.com/hoangvvo/benzene/tar.gz/main | tar -xz --strip=2 benzene-main/examples/book-votes
+cd book-votes
+npm i
+npm run start
+```
+
+Check out the [CodeSandbox demo](https://codesandbox.io/s/github/hoangvvo/benzene/tree/main/examples/book-votes)
+
+### Trying out with DevTools
+
+Without building a front-end, you can still test out the Getting Started example using DevTools.
+
 Start the Node application using
 
 ```bash
@@ -232,6 +253,7 @@ Before we make a mutation, let's try to subscribe to our books' changes using Gr
 
 ```js
 const websocket = new WebSocket("ws://localhost:3000/graphql", "graphql-transport-ws");
+// Wait a bit for WebSocket to connect and then run:
 websocket.send(JSON.stringify({ type: "connection_init" }));
 ```
 
@@ -254,11 +276,11 @@ Now make a request to increase the vote:
 await fetch("/graphql", {
   method: "POST",
   headers: { "content-type": "application/json" },
-  body: JSON.stringify({ query: "mutation { bookUpvote(bookId: 1) { id, votes } }" }),
+  body: JSON.stringify({ query: "mutation { bookUpvote(bookId: 1) { id } }" }),
 }).then((res) => res.json());
 ```
 
-We can also notice a message coming from the WebSocket channel:
+We will notice a message coming from the WebSocket channel:
 
 ```json
 {
