@@ -56,43 +56,14 @@ Also check out [benawad/node-graphql-benchmarks](https://github.com/benawad/node
 
 ## Result
 
-```
 Machine: Linux 4.19.128-microsoft-standard x86_64 | 12 vCPUs | 13GB
 Node: v15.6.0
 
-apollo-server
-  Slowest:      0.0834 secs
-  Fastest:      0.0059 secs
-  Average:      0.0349 secs
-  Requests/sec: 2852.3644
-
-benzene-http+uWebSockets
-  Slowest:      0.0173 secs
-  Fastest:      0.0002 secs
-  Average:      0.0059 secs
-  Requests/sec: 17062.2335
-
-benzene-http
-  Slowest:      0.0360 secs
-  Fastest:      0.0043 secs
-  Average:      0.0064 secs
-  Requests/sec: 15521.6924
-
-express-graphql
-  Slowest:      0.1044 secs
-  Fastest:      0.0074 secs
-  Average:      0.0405 secs
-  Requests/sec: 2463.3866
-
-graphql-helix
-  Slowest:      0.1061 secs
-  Fastest:      0.0062 secs
-  Average:      0.0437 secs
-  Requests/sec: 2280.7347
-
-mercurius
-  Slowest:      0.0256 secs
-  Fastest:      0.0025 secs
-  Average:      0.0072 secs
-  Requests/sec: 13886.6978
-```
+| Library | Requests/s | Latency |
+| --- | --- | --- |
+| benzene-http+uWebSockets | 16391.3601 | 0.0061 |
+| benzene-http | 15314.3987 | 0.0065 |
+| mercurius | 13583.7302 | 0.0074 |
+| apollo-server | 2727.6887 | 0.0366 |
+| express-graphql | 2443.0961 | 0.0408 |
+| graphql-helix | 2238.3956 | 0.0445 |

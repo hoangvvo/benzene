@@ -1,6 +1,6 @@
 # GraphQL over HTTP
 
-GraphQL over HTTP is supported by the `@benzene/http` package.
+GraphQL over HTTP is supported by the [@benzene/http](https://www.npmjs.com/package/@benzene/http) package.
 
 It implements the server according to the [official GraphQL over HTTP specification](https://github.com/graphql/graphql-over-http).
 
@@ -23,7 +23,7 @@ The [graphql-over-http spec](https://github.com/graphql/graphql-over-http) allow
 
 The most popular `content-type` in real-world GraphQL application is `application/json`, which is often parsed by framework with built-in body parser like [express](https://expressjs.com/en/4x/api.html#express.json).
 
-However, if you are dealing have the string representation of the incoming request data, you can parse it into appropriate object representation using the `parseGraphQLBody` export.
+If we are dealing have the string representation of the incoming request data, we first must parse it into appropriate object representation using the `parseGraphQLBody` export.
 
 ```js
 import { parseGraphQLBody } from "@benzene/http";
@@ -34,7 +34,7 @@ async function onRequest(req) {
 }
 ```
 
-Behind the scene, `parseGraphQLBody` will call [JSON.parse](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse) or apply special transformations based on the received content type according to the spec.
+Behind the scene, `parseGraphQLBody` will call [JSON.parse](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse) or apply special transformations based on the received content type according to `the graphql-over-http spec`.
 
 ## Handle incoming HTTP request
 
@@ -96,7 +96,7 @@ req.respond({
 });
 ```
 
-From the example above, we can see that **Benzene** gives you full control over how you send the HTTP response after the GraphQL execution. It also allows us to plug the library into any HTTP libraries without needing a binding package.
+From the example above, we can see that **Benzene** gives us full control over how we send the HTTP response after the GraphQL execution. It also allows us to plug the library into any HTTP libraries without needing a binding package.
 
 ## Passing `extra`
 

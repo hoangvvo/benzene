@@ -2,7 +2,7 @@ import Callout from 'nextra-theme-docs/callout'
 
 # Getting Started
 
-This tutorial will take you through the process of building a GraphQL server with `@benzene/server` and `@benzene/ws`. We will build a simple book voting app that can:
+This tutorial will take us through the process of building a GraphQL server with `@benzene/http` and `@benzene/ws`. We will build a simple book voting app that can:
 
 - Returns a list of books and authors
 - Upvote a book
@@ -188,7 +188,7 @@ Meanwhile, the [graphql-over-http spec](https://github.com/graphql/graphql-over-
 each must be parsed differently. We provide `parseGraphQLBody` function, which accepts the body string and the content type, to do just that.
 
 <Callout emoji="💡">
-  You do not have to do this if you use a framework or library with body parsing, like [express](https://expressjs.com/en/4x/api.html#express.json)
+  We do not have to do this if we use a framework or library with body parsing, like [express](https://expressjs.com/en/4x/api.html#express.json)
 </Callout>
 
 ### Create a Benzene instance and transport handlers
@@ -223,16 +223,14 @@ npm i
 npm run start
 ```
 
-Check out the [CodeSandbox demo](https://codesandbox.io/s/github/hoangvvo/benzene/tree/main/examples/book-votes)
-
 ### Trying out with DevTools
 
-Without building a front-end, you can still test out the Getting Started example using DevTools.
+Without building a front-end, we can still test out the Getting Started example using DevTools.
 
 Start the Node application using
 
 ```bash
-node server
+node ./server.js
 ```
 
 Go to the [http://localhost:3000](http://localhost:3000) and open the DevTools.

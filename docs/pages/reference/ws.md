@@ -1,8 +1,8 @@
 # GraphQL over WebSockets
 
-GraphQL over WebSockets is supported by the `@benzene/ws` package. It implements the upcoming [GraphQL over WebSocket Protocol](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md).
+GraphQL over WebSockets is supported by the [@benzene/ws](https://www.npmjs.com/package/@benzene/ws) package. It implements the upcoming [GraphQL over WebSocket Protocol](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md).
 
-You would need a spec-compliant client like [graphql-ws](https://github.com/enisdenjo/graphql-ws#use-the-client) to connect from the browser. ([subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws) won't work)
+We would need a spec-compliant client like [graphql-ws](https://github.com/enisdenjo/graphql-ws#use-the-client) to connect from the browser.
 
 ## Create handler function
 
@@ -109,14 +109,14 @@ Let's try to work with [Deno ws standard library](https://deno.land/std@0.84.0/w
 async function handleWs(sock: WebSocket): Promise<void> {
   const customSocket = {
     protocol: sock.protocol,
-    send: sock.send.bind(sock), // this is similar to browser API, use as it
-    close: sock.close.bind(sock), // this is similar to browser API, use as it
+    send: sock.send.bind(sock), // this is similar to browser API, use as it is
+    close: sock.close.bind(sock), // this is similar to browser API, use as it is
   };
   graphqlWS(customSocket); // at this point customSocket has onmessage and onclose
   try {
     for await (const ev of sock) {
       // note: Deno actually implement the message and close event
-      // similar to  the browser API - use as it
+      // similar to  the browser API - use as it is
       if (typeof ev === "string") {
         customSocket.onmessage(ev);
       } else if (isWebSocketCloseEvent(ev)) {
@@ -126,8 +126,6 @@ async function handleWs(sock: WebSocket): Promise<void> {
   } catch (err) {
     if (!sock.isClosed) {
       await sock.close(1000).catch(console.error);
-      // make sure to call onclose even on error (this is by spec)
-      customSocket.onclose({ code: 1000 });
     }
   }
 }

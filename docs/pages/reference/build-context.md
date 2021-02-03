@@ -1,8 +1,8 @@
 # Building Context
 
-In JavaScript GraphQL, `context` is a value that is provided to every resolver and holds important contextual information that you can access in resolvers. (See [Root fields & resolvers](https://graphql.org/learn/execution/#root-fields-resolvers))
+In JavaScript GraphQL, `context` is a value that is provided to every resolver and holds important contextual information that we can access in resolvers. (See [Root fields & resolvers](https://graphql.org/learn/execution/#root-fields-resolvers))
 
-Benzene allows you to write a context factory function that creates the context object in question. This context factory function will be used by downstream packages `@benzene/http` and `@benzene/ws`.
+Benzene allows us to write a context factory function that creates the context object in question. This context factory function will be used by downstream packages `@benzene/http` and `@benzene/ws`.
 
 ## Writing the context factory function
 
@@ -23,7 +23,7 @@ import { Benzene, makeHandler } from "@benzene/ws";
 
 const GQL = new Benzene({
   contextFn: ({ extra }) => {
-    // extra is { user: "miko", ip: "127.0.0.1" }
+    // extra is { user: "Niko", ip: "127.0.0.1" }
     return { user: extra.user }
   },
 });
@@ -41,7 +41,7 @@ function onConnection(socket, req) {
 
 ## Access the context in resolvers
 
-This context will be created using the factory function on every request. You can access it in resolvers like so:
+This context will be created using the factory function on every request. We can access it in resolvers like so:
 
 ```js
 const resolvers = {

@@ -7,6 +7,14 @@
 
 > Fast and simple framework-agnostic GraphQL HTTP Server
 
+## Installation
+
+```bash
+npm i graphql @benzene/http
+```
+
+## Usage
+
 ```js
 import { createServer } from "http";
 import { Benzene, makeHandler, parseGraphQLBody } from "@benzene/http";
@@ -35,5 +43,7 @@ createServer(async (req, res) => {
 }).listen(3000);
 ```
 
+## Documentation
+
 Documentation is available at [benzene.vercel.app](https://benzene.vercel.app/).
-Check out [examples](https://benzene.vercel.app/examples) for integrations with different server libraries.
+Check out [examples](https://benzene.vercel.app/examples) for integrations with different server libraries and tools.

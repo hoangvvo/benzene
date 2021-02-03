@@ -27,7 +27,7 @@ const GQL = new Benzene({
 
 ## Logging errors
 
-In addition to formatting errors, `formatErrorFn` can also be used to log your errors. One strategy is to define a list of expected user errors and treat other errors as unexpected ones that should be logged for debugging.
+In addition to formatting errors, `formatErrorFn` can also be used to log our errors. One strategy is to define a list of expected user errors and treat other errors as unexpected ones that should be logged for debugging.
 
 When an error is thrown in resolvers, the GraphQL executor augments it with information like its `locations` and `path`, while storing the original error in the `originalError` . (See [`GraphQLError.js`](https://github.com/graphql/graphql-js/blob/master/src/error/GraphQLError.js#L19) in `graphql-js`)
 
