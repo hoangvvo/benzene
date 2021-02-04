@@ -3,21 +3,6 @@ import { ExecutionResult } from "graphql";
 import { ConnectionInitMessage } from "./message";
 
 /**
- * Minimum compatible CloseEvent
- */
-interface CloseEvent {
-  code?: number;
-  reason?: string;
-}
-
-/**
- * Minimum compatible MessageEvent
- */
-interface MessageEvent {
-  data: any;
-}
-
-/**
  * A minimum compatible WebSocket instance
  */
 export interface WebSocket {
@@ -44,13 +29,13 @@ export interface WebSocket {
    * @param event A CloseEvent is sent to clients using WebSockets when the connection is closed
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/onclose}
    */
-  onclose: (event: CloseEvent) => void;
+  onclose(event: { code?: number; reason?: string }): void;
   /**
    * An EventHandler that is called when a message is received from the client
    * @param event Represents a message received by a target object.
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/onmessage}
    */
-  onmessage: (event: MessageEvent) => void;
+  onmessage(event: { data: any }): void;
 }
 
 /**
