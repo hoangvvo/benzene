@@ -1,5 +1,11 @@
 # @benzene/ws
 
+## 0.4.4
+
+### Patch Changes
+
+- 1fcabc6: Fix WebSocket interface
+
 ## 0.4.3
 
 ### Patch Changes
