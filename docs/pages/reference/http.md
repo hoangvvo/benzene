@@ -58,12 +58,12 @@ Regardless of frameworks and runtimes, we simply need to call it using an object
 
 ```js
 async function onRequest(req, res) {
-  const rawBody = await getRawBody()
+  const rawBody = await getRawBody(req);
   const result = await graphqlHTTP({
     method: req.method,
     body: parseGraphQLBody(rawBody, req.headers["content-type"]),
     headers: req.headers,
-    // We can omit `query` if we are sure that all GraphQL params are in the body
+    query: parseQueryString(req.url),
   })
 }
 ```
@@ -80,7 +80,7 @@ interface HTTPResponse {
 }
 ```
 
-We will use values in this object the create the respond accordingly:
+We will use values in this object the send the HTTP response accordingly:
 
 ```js
 // Node.js
@@ -100,4 +100,4 @@ From the example above, we can see that **Benzene** gives us full control over h
 
 ## Passing `extra`
 
-It is possible to pass `extra` as the second argument to `graphqlHTTP`. See [The extra argument](/reference/packages#the-extra-argument).
+It is possible to pass `extra` as the second argument to `graphqlHTTP`. See [The extra argument](/reference/handler#the-extra-argument).

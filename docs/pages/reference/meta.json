@@ -1,6 +1,6 @@
 {
   "benzene": "Benzene instance",
-  "packages": "Benzene packages",
+  "handler": "Benzene Handlers",
   "http": "GraphQL over HTTP",
   "ws": "GraphQL over WebSockets",
   "build-context": "Building Context",

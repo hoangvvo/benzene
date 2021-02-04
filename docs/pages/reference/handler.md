@@ -1,4 +1,4 @@
-# Packages
+# Benzene Handlers
 
 GraphQL is a flexible specification by being transport-agnostic: We can serve GraphQL over HTTP, WebSockets, and more. **Benzene** provides packages to work with different transports, such as `@benzene/http` and `@benzene/ws`.
 
