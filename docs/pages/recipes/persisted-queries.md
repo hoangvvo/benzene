@@ -8,11 +8,9 @@ This can be done by modifying the request before passing it to handler functions
 
 ## Automatic Persisted Queries with @benzene/extra
 
-We provide [@benzene/extra](https://www.npmjs.com/package/@benzene/extra) library that includes several utilities for a GraphQL server.
+[@benzene/extra](https://www.npmjs.com/package/@benzene/extra) includes a module to process persisted queries by taking in a body *or* query **object** and adding the query to it based on the provided object.
 
-It includes a module to process persisted queries by taking in a body *or* query **object** and adding the query to it based on the provided object.
-
-If the persisted query is not found, it will throw an error that can be used to respond. You should use `formatExecutionResult` method from the [Benzene instance](/reference/benzene) to format the result.
+If the persisted query is not found, it will throw an error that can be used to respond to the client. You should use `formatExecutionResult` method from the [Benzene instance](/reference/benzene) to format the result.
 
 ```js
 import { Benzene, makeHandler } from "@benzene/http";
