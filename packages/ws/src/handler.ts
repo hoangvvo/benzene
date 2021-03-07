@@ -1,4 +1,4 @@
-import { Benzene, isAsyncIterator, ExtractExtraType } from "@benzene/core";
+import { Benzene, ExtractExtraType, isAsyncIterator } from "@benzene/core";
 import { ExecutionResult, GraphQLError } from "graphql";
 import {
   CompleteMessage,
@@ -7,7 +7,7 @@ import {
   SubscribeMessage,
 } from "./message";
 import { GRAPHQL_TRANSPORT_WS_PROTOCOL } from "./protocol";
-import { HandlerOptions, WebSocket, ConnectionContext } from "./types";
+import { ConnectionContext, HandlerOptions, WebSocket } from "./types";
 
 /**
  * Create a handler to handle incoming WebSocket

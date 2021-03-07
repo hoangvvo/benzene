@@ -1,6 +1,5 @@
 export * from "@benzene/core";
 export { makeHandler } from "./handler";
-export { GRAPHQL_TRANSPORT_WS_PROTOCOL } from "./protocol";
 export { MessageType } from "./message";
 export type {
   CompleteMessage,
@@ -10,4 +9,5 @@ export type {
   NextMessage,
   SubscribeMessage,
 } from "./message";
+export { GRAPHQL_TRANSPORT_WS_PROTOCOL } from "./protocol";
 export type { WebSocket } from "./types";

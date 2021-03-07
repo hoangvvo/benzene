@@ -1,8 +1,8 @@
 import {
-  GraphQLArgs,
   FormattedExecutionResult,
-  GraphQLSchema,
+  GraphQLArgs,
   GraphQLObjectType,
+  GraphQLSchema,
   GraphQLString,
 } from "graphql";
 import Benzene from "../src/core";

@@ -87,7 +87,11 @@ async function subscribe(
     schema: args.schema,
   });
 
-  const jit = compileQuery(args.schema, args.document, args.operationName);
+  const jit = compileQuery(
+    args.schema,
+    args.document,
+    args.operationName || undefined
+  );
 
   if (!isCompiledQuery(jit)) return jit;
   return GQL.subscribe(

@@ -1,27 +1,27 @@
-import WebSocket from "ws";
-import { createServer, IncomingMessage, Server } from "http";
-import {
-  GraphQLError,
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLString,
-} from "graphql";
-import { EventEmitter } from "events";
-import { AddressInfo } from "net";
 import { Benzene } from "@benzene/core";
 import { Options } from "@benzene/core/src/types";
-import { makeHandler } from "../src/handler";
-import { HandlerOptions } from "../src/types";
+import { EventEmitter } from "events";
 import {
-  MessageType,
+  GraphQLError,
+  GraphQLObjectType,
+  GraphQLSchema,
+  GraphQLString,
+} from "graphql";
+import { createServer, IncomingMessage, Server } from "http";
+import { AddressInfo } from "net";
+import WebSocket from "ws";
+import { makeHandler } from "../src/handler";
+import {
   CompleteMessage,
   ConnectionAckMessage,
   ConnectionInitMessage,
   ErrorMessage,
+  MessageType,
   NextMessage,
   SubscribeMessage,
 } from "../src/message";
 import { GRAPHQL_TRANSPORT_WS_PROTOCOL } from "../src/protocol";
+import { HandlerOptions } from "../src/types";
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -65,7 +65,8 @@ function emitterAsyncIterator(
   }
 
   return {
-    next() {
+    // @ts-ignore
+    async next() {
       return listening ? pullValue() : this.return?.();
     },
     return() {
@@ -133,12 +134,7 @@ const createSchema = (ee: EventEmitter) =>
     }),
   });
 
-async function startServer(
-  handlerOptions?: Partial<HandlerOptions<any>>,
-  options?: Partial<Options<any, any>>,
-  wsOptions?: { protocols?: string },
-  extra?: any
-): Promise<{
+interface ServerUtil {
   ws: WebSocket;
   waitForMessage: (
     test?: (
@@ -159,7 +155,13 @@ async function startServer(
   ) => Promise<void>;
   doAck: () => Promise<void>;
   publish: (message?: string) => void;
-}> {
+}
+
+async function startServer(
+  handlerOptions?: Partial<HandlerOptions<any>>,
+  options?: Partial<Options<any, any>>,
+  wsOptions?: { protocols?: string }
+): Promise<ServerUtil> {
   const ee = new EventEmitter();
 
   const gql = new Benzene({ schema: createSchema(ee), ...options });
@@ -169,7 +171,6 @@ async function startServer(
   await new Promise<void>((resolve) => server.listen(0, resolve));
   const port = (server.address() as AddressInfo).port;
   // We cross test different packages
-  const graphqlWS = makeHandler(gql, handlerOptions);
   wss.on("connection", makeHandler(gql, handlerOptions));
 
   // Inspired by https://github.com/enisdenjo/graphql-ws/tree/master/src/tests/utils/tclient.ts#L28
@@ -197,7 +198,7 @@ async function startServer(
             );
           });
         },
-        async doAck() {
+        async doAck(this: ServerUtil) {
           this.send({
             type: MessageType.ConnectionInit,
           });
@@ -457,6 +458,7 @@ test("returns errors if no payload", async () => {
 
   utils.send({
     type: MessageType.Subscribe,
+    // @ts-expect-error
     payload: undefined,
     id: "1",
   });
@@ -670,8 +672,7 @@ test("Receive extra in Benzene#contextFn", async () => {
         user: extra instanceof IncomingMessage,
       }),
     },
-    undefined,
-    "Alexa"
+    undefined
   );
 
   await utils.doAck();

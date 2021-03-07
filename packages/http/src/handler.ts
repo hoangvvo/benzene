@@ -1,7 +1,7 @@
 import { Benzene, ExtractExtraType } from "@benzene/core";
 import { ExecutionResult, GraphQLError } from "graphql";
-import { getGraphQLParams } from "./utils";
 import { HandlerOptions, HTTPRequest, HTTPResponse } from "./types";
+import { getGraphQLParams } from "./utils";
 
 function createResponse(
   GQL: Benzene,
