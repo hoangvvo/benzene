@@ -1,16 +1,16 @@
 # Persisted queries
 
-*Persisted queries* is a technique to improves network performance for GraphQL by sending an ID or hash instead of a long GraphQL query string.
+*"Persisted queries"* is a technique to improves network performance for GraphQL by sending an ID or hash instead of a long GraphQL query string.
 
-While **Benzene** does not have persisted query built in, it allows flexible persisted query implementation.
+While **Benzene** does not have persisted query built-in, it allows flexible persisted query implementation.
 
 This can be done by modifying the request before passing it to handler functions.
 
 ## Automatic Persisted Queries with @benzene/extra
 
-We provides [@benzene/extra](https://www.npmjs.com/package/@benzene/extra) library that includes several utilities for a GraphQL server.
+We provide [@benzene/extra](https://www.npmjs.com/package/@benzene/extra) library that includes several utilities for a GraphQL server.
 
-It includes a module to process persisted query by taking in a body *or* query **object**.
+It includes a module to process persisted queries by taking in a body *or* query **object** and adding the query to it based on the provided object.
 
 If the persisted query is not found, it will throw an error that can be used to respond. You should use `formatExecutionResult` method from the [Benzene instance](/reference/benzene) to format the result.
 
@@ -53,7 +53,7 @@ async function onRequest(req, res) {
 
 ## Custom implementation
 
-This recipe isnot just limited to the popular [APQ](https://www.apollographql.com/docs/apollo-server/performance/apq/).
+This recipe is not just limited to the popular [APQ](https://www.apollographql.com/docs/apollo-server/performance/apq/).
 
 For example, a middleware like [relay-compiler-plus](https://github.com/yusinto/relay-compiler-plus) can be used to implement [Relay-compatible persisted query](https://relay.dev/docs/en/persisted-queries).
 
@@ -76,7 +76,7 @@ app.use("/graphql", matchQueryMiddleware(queryMapJson), (req, res) => {
 });
 ```
 
-You can also implement it yourself with something like below:
+You can also implement it yourself with something like the below:
 
 ```js
 const cache = lru();

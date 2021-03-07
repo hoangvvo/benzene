@@ -25,7 +25,7 @@ The `@benzene/http` and `@benzene/ws` packages allow us to build a full-featured
 - **Transport & Framework agnostic**. Each package features generic Request, Response, or WebSocket interfaces to easily plug into any JavaScript frameworks or runtimes.
 - **Unopinionated and observable APIs**. Benzene does not include any middleware or configurations, so we can be in total control of logging, parsing, and error handling.
 - **Unified pipeline**. Write error handling or context creation function only once. Every transport handler inherits the same [Benzene instance](https://benzene.vercel.app/reference/benzene) and takes advantage of its shared configuration.
-- **Fully extensible**. Despite not being battery-included, it can be extended with [recipes](https://benzene.vercel.app/recipes) or [@benzene/extra].
+- **Fully extensible**. Despite not being battery-included, it can be extended with *recipes* (like [Persisted queries](https://benzene.vercel.app/recipes/persisted-queries)) or [@benzene/extra](https://www.npmjs.com/package/@benzene/extra).
 
 We are taking an approach opposite to [Apollo Server](https://github.com/apollographql/apollo-server), which abstracts everything behind its `applyMiddleware` function that includes unexpected and hard-to-customized "defaults".
 While our approach requires a bit more boilerplate, we achieve an observable and customizable server integration.

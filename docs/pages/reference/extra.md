@@ -8,9 +8,9 @@ The GraphQL specification is meant to be extensible. For this reasons, there are
 
 - [Automatic persisted queries](https://www.apollographql.com/docs/apollo-server/performance/apq/)
 
-**Benzene** is written to be unopinionated, so it avoids including such extensions. However, its extensibility enables us to integrate those ourselves. This way, Benzene can stay lightweight while supporting wide ranges of use case.
+**Benzene** is written to be unopinionated, so it avoids including such extensions. However, its extensibility enables us to integrate those ourselves. This way, Benzene can stay lightweight while supporting wide ranges of use cases.
 
-Most of the modules in this package is written to be framework-agnostic, and most are usable outside of **Benzene**.
+Most of the modules in this package are written to be framework-agnostic, and most are usable outside of **Benzene**.
 
 ## Modules
 
