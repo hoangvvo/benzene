@@ -1,24 +1,24 @@
 import {
-  validateSchema,
-  validate,
-  parse,
-  getOperationAST,
-  GraphQLError,
-  GraphQLSchema,
-  ExecutionResult,
-  formatError,
-  SubscriptionArgs,
-  GraphQLArgs,
-  ExecutionArgs,
-  FormattedExecutionResult,
-} from "graphql";
-import {
+  CompiledQuery,
   compileQuery,
   isCompiledQuery,
-  CompiledQuery,
 } from "@hoangvvo/graphql-jit";
+import {
+  ExecutionArgs,
+  ExecutionResult,
+  formatError,
+  FormattedExecutionResult,
+  getOperationAST,
+  GraphQLArgs,
+  GraphQLError,
+  GraphQLSchema,
+  parse,
+  SubscriptionArgs,
+  validate,
+  validateSchema,
+} from "graphql";
 import lru, { Lru } from "tiny-lru";
-import { Options, ContextFn, QueryCache, ValueOrPromise } from "./types";
+import { ContextFn, Options, QueryCache, ValueOrPromise } from "./types";
 
 export default class Benzene<TContext = any, TExtra = any> {
   private lru: Lru<QueryCache>;
@@ -141,7 +141,6 @@ export default class Benzene<TContext = any, TExtra = any> {
     return jit.query(rootValue, contextValue, variableValues);
   }
 
-  // Reimplements graphql/subscription/subscribe but using jit
   subscribe(
     {
       contextValue,

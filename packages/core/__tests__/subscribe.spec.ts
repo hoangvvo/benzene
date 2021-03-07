@@ -5,22 +5,22 @@
  * so the part must be rewritten to include that root resolver in `subscribe` of
  * the GraphQLObject in the schema.
  */
+import { compileQuery, isCompiledQuery } from "@hoangvvo/graphql-jit";
 import { EventEmitter } from "events";
 import {
-  GraphQLObjectType,
-  GraphQLString,
+  DocumentNode,
+  ExecutionResult,
   GraphQLBoolean,
+  GraphQLError,
   GraphQLInt,
   GraphQLList,
+  GraphQLObjectType,
   GraphQLSchema,
+  GraphQLString,
   parse,
-  DocumentNode,
-  GraphQLError,
   SubscriptionArgs,
-  ExecutionResult,
 } from "graphql";
 import Benzene from "../src/core";
-import { compileQuery, isCompiledQuery } from "@hoangvvo/graphql-jit";
 
 function eventEmitterAsyncIterator(
   eventEmitter: EventEmitter,
@@ -87,7 +87,11 @@ async function subscribe(
     schema: args.schema,
   });
 
-  const jit = compileQuery(args.schema, args.document, args.operationName);
+  const jit = compileQuery(
+    args.schema,
+    args.document,
+    args.operationName || undefined
+  );
 
   if (!isCompiledQuery(jit)) return jit;
   return GQL.subscribe(
@@ -518,7 +522,7 @@ describe("Subscription Initialization Phase", () => {
     }
   });
 
-  it.skip("resolves to an error for source event stream resolver errors", async () => {
+  it("resolves to an error for source event stream resolver errors", async () => {
     // Returning an error
     const subscriptionReturningErrorSchema = emailSchemaWithResolvers(
       () => new Error("test error")
@@ -548,9 +552,9 @@ describe("Subscription Initialization Phase", () => {
       const result = await subscribe({
         schema,
         document: parse(`
-        subscription {
-          importantEmail
-        }
+          subscription {
+            importantEmail
+          }
       `),
       });
 

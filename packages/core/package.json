@@ -32,11 +32,11 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@hoangvvo/graphql-jit": "^0.6.1",
+    "@hoangvvo/graphql-jit": "^0.6.2",
     "tiny-lru": "^7.0.6"
   },
   "peerDependencies": {
-    "graphql": "^14.0.0 || ^15.0.0"
+    "graphql": ">=15"
   },
   "publishConfig": {
     "access": "public"

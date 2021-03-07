@@ -1,7 +1,7 @@
 import { Lru } from "tiny-lru";
 import Benzene from "../src/core";
-import { TestSchema } from "./utils/schema";
 import { QueryCache } from "../src/types";
+import { TestSchema } from "./utils/schema";
 
 test("saves compiled query to cache", async () => {
   const GQL = new Benzene({

@@ -1,5 +1,5 @@
-import { GraphQLSchema, DocumentNode, formatError } from "graphql";
 import { CompiledQuery } from "@hoangvvo/graphql-jit";
+import { DocumentNode, formatError, GraphQLSchema } from "graphql";
 import Benzene from "./core";
 
 export interface Options<TContext, TExtra> {

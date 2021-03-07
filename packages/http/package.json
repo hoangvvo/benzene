@@ -41,7 +41,7 @@
     "@benzene/core": "^0.4.2"
   },
   "peerDependencies": {
-    "graphql": "^14.0.0 || ^15.0.0"
+    "graphql": ">=15"
   },
   "publishConfig": {
     "access": "public"
