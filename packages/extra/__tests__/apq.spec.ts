@@ -2,11 +2,28 @@ import { sha256 } from "crypto-hash";
 import lru from "tiny-lru";
 import { makeAPQHandler } from "../src/apq";
 
-test("does nothing if it is not a supported persisted query", async () => {
+test("does nothing if input is not object or does not contain a supported persisted query", async () => {
+  const badCache = {};
+  // @ts-expect-error: It should not invoke cache in the cases below
+  const apqHTTP = makeAPQHandler({ cache: badCache });
+
   const req = {};
-  const res = await makeAPQHandler()(req);
+  const res = await apqHTTP(req);
   expect(res).toBe(req);
-  expect(req).not.toHaveProperty("query");
+  
+  const res1 = await apqHTTP(undefined);
+  expect(res1).toBeUndefined();
+
+  const res2 = await apqHTTP(null);
+  expect(res2).toBeNull();
+
+  const req3 = { extensions: { persistedQuery: { version: 2 } } };
+  const res3 = await apqHTTP(req3);
+  expect(res3).toBe(req3);
+
+  const req4 = { extensions: { persisted: "foo" } };
+  const res4 = await apqHTTP(req4);
+  expect(res4).toBe(req4);
 });
 
 test("throws PersistedQueryNotFound is query hash is not recognized", () => {
