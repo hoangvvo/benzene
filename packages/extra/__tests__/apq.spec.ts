@@ -10,7 +10,7 @@ test("does nothing if it is not a supported persisted query", async () => {
 });
 
 test("throws PersistedQueryNotFound is query hash is not recognized", () => {
-  expect(
+  return expect(
     makeAPQHandler()({
       extensions: {
         persistedQuery: {
@@ -23,7 +23,7 @@ test("throws PersistedQueryNotFound is query hash is not recognized", () => {
 });
 
 test("throws PersistedQueryNotFound is query hash is not found", () => {
-  expect(
+  return expect(
     makeAPQHandler()({
       extensions: {
         persistedQuery: {
@@ -37,13 +37,16 @@ test("throws PersistedQueryNotFound is query hash is not found", () => {
 
 test("allows custom cache", (done) => {
   const cache = {
-    get: () => done(),
+    get: () => {
+      done();
+      return "{test}";
+    },
     set: () => "",
   };
   makeAPQHandler({ cache })({
     extensions: {
       persistedQuery: {
-        sha256Hash: sha256("{test}"),
+        sha256Hash: "dummy",
         version: 1,
       },
     },
@@ -52,7 +55,7 @@ test("allows custom cache", (done) => {
 
 test("saves query by hash sent from clients", async () => {
   const cache = lru();
-  const query = "{test}"
+  const query = "{test}";
   const sha256Hash = await sha256(query);
   const request = {
     query: query,
@@ -86,7 +89,7 @@ test("saves query by hash sent from clients (query strings)", async () => {
 
   expect(result).toBe(request);
 
-  expect(cache.get(sha256Hash)).toBe('{test}');
+  expect(cache.get(sha256Hash)).toBe("{test}");
 });
 
 test("throws error if receiving mismatched hash256", async () => {
@@ -96,7 +99,7 @@ test("throws error if receiving mismatched hash256", async () => {
 
   cache.set(sha256Hash, "{test}");
 
-  expect(
+  return expect(
     makeAPQHandler()({
       query: "{test}",
       extensions: {
