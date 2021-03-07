@@ -1,7 +1,7 @@
 {
   "name": "@benzene/http",
   "type": "module",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Fast and minimal GraphQL over HTTP server",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -38,7 +38,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@benzene/core": "^0.4.2"
+    "@benzene/core": "^0.5.0"
   },
   "peerDependencies": {
     "graphql": ">=15"

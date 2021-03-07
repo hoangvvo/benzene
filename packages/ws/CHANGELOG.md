@@ -1,5 +1,16 @@
 # @benzene/ws
 
+## 0.5.0
+
+### Minor Changes
+
+- f485f9d: Require graphql@>15 and bump @hoangvvo/graphql-jit
+
+### Patch Changes
+
+- Updated dependencies [f485f9d]
+  - @benzene/core@0.5.0
+
 ## 0.4.4
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 {
   "name": "@benzene/extra",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Extra treats for GraphQL Server. Not limited to @benzene libraries!",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -29,9 +29,7 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "sideEffects": false,
   "scripts": {
     "build": "rollup -c",
