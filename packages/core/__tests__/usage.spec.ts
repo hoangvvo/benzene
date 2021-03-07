@@ -11,6 +11,7 @@ test("throws if initializing instance with no option", () => {
 test("throws if schema is invalid", () => {
   expect(() => {
     new Benzene({
+      // @ts-expect-error
       schema: new GraphQLSchema({ directives: [null] }),
     });
   }).toThrow();
