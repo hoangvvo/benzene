@@ -1,0 +1,22 @@
+{
+  "name": "with-nextjs",
+  "description": "Using @benzene/http with Next.js to build a Pokemon API",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@benzene/http": "^0.0.3",
+    "graphql": "^15.5.0",
+    "next": "^10.0.8",
+    "pokemon-graphql-schema": "^0.0.3",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "urql": "^2.0.1"
+  },
+  "resolutions": {
+    "graphql": "15.5.0"
+  },
+  "license": "MIT"
+}

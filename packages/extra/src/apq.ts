@@ -7,7 +7,9 @@ export function makeAPQHandler(options?: {
   cache?: Pick<KeyValueStore, "get" | "set">;
 }) {
   const cache = options?.cache || lru(1024);
-  return async function apqHTTP(bodyOrQuery: Record<string, string | object> | null | undefined) {
+  return async function apqHTTP(
+    bodyOrQuery: Record<string, string | object> | null | undefined
+  ) {
     if (!bodyOrQuery || typeof bodyOrQuery !== "object") return bodyOrQuery;
     const extensions: Record<string, any> =
       typeof bodyOrQuery.extensions === "string"

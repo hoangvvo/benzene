@@ -1,6 +1,6 @@
-import { createServer } from "http";
-import { createReadStream } from "fs";
 import { Benzene, makeHandler, parseGraphQLBody } from "@benzene/http";
+import { createReadStream } from "fs";
+import { createServer } from "http";
 import schema from "pokemon-graphql-schema";
 
 const GQL = new Benzene({ schema });

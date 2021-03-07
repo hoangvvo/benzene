@@ -1,8 +1,8 @@
-import express from "express";
 import { Benzene, makeHandler } from "@benzene/http";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import DataLoader from "dataloader";
-import { getUser, getBatchUsers } from "./users.js";
+import express from "express";
+import { getBatchUsers, getUser } from "./users.js";
 
 function createLoaders() {
   return {

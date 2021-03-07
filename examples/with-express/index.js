@@ -1,5 +1,5 @@
-import express from "express";
 import { Benzene, makeHandler } from "@benzene/http";
+import express from "express";
 import expressPlayground from "graphql-playground-middleware-express";
 import schema from "pokemon-graphql-schema";
 
