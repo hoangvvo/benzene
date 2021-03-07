@@ -1,0 +1,72 @@
+<html>
+  <head>
+    <title>Automatic Persisted Queries with @benzene/extra</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.min.css"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body style="max-width: 860px; padding: 1rem; margin: 0 auto;">
+    <script type="module">
+      import { h, Component, render } from 'https://unpkg.com/preact?module';
+      import htm from 'https://unpkg.com/htm?module';
+      import { createClient, dedupExchange, fetchExchange, cacheExchange } from 'https://cdn.skypack.dev/@urql/core';
+      import { persistedFetchExchange } from 'https://cdn.skypack.dev/@urql/exchange-persisted-fetch';
+
+      const client = createClient({
+        url: "/graphql",
+        exchanges: [
+          dedupExchange,
+          cacheExchange,
+          persistedFetchExchange({
+            preferGetForPersistedQueries: true,
+          }),
+          fetchExchange,
+        ],
+        fetch(input, init) {
+          console.log(input);
+          return window.fetch(input, init)
+        }
+      });
+    
+      window.client = client;
+
+      // Initialize htm with Preact
+      const html = htm.bind(h);
+
+      const query = () => {
+        client.query(`{pokemon(id: "1"){id,name}}`).toPromise();
+      }
+    
+      function App (props) {
+        return html`<div>
+          <h1>Automatic Persisted Queries</h1>
+          <p>
+            The button below will fetch a persisted query to the GraphQL Server.
+            If the server does not recognize the persisted query, it will ask the client
+            to send a pair of hash and query to persist. Future persisted queries can
+            then be carried out with only a hash.
+          </p>
+          <p>
+            Open the DevTool before sending the query and look at the Network tab to see how it plays out.
+          </p>
+          <button onClick=${query}>Send Query</button>
+          <p>
+            See${" "}
+            <a href="https://benzene.vercel.app/recipes/persisted-queries#automatic-persisted-queries-with-benzeneextra">
+              Automatic Persisted Queries with @benzene/extra
+            </a>${" "}
+            and${" "}
+            <a href="https://github.com/hoangvvo/benzene/blob/main/examples/book-votes/server.js">
+              the source code
+            </a>${" "}
+            to learn more.
+          </p>
+        </div>`;
+      }
+    
+      render(html`<${App} name="World" />`, document.body);
+    </script>
+  </body>
+</html>
