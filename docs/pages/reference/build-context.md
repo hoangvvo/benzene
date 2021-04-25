@@ -33,7 +33,7 @@ const graphqlWS = makeHandler(GQL);
 function onConnection(socket, req) {
   const extra = {
     user: "Niko",
-    ip: req.connection.remoteAddress,
+    ip: req.socket.remoteAddress,
   };
   graphqlWS(socket, extra);
 }
