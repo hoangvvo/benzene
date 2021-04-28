@@ -681,6 +681,43 @@ test("Receive extra in Benzene#contextFn", async () => {
   });
 });
 
+test("Receive nullable extra in Benzene#contextFn", async () => {
+  const schema = new GraphQLSchema({
+    query: new GraphQLObjectType({
+      name: "Query",
+      fields: {
+        test: {
+          type: GraphQLString,
+          resolve: (_obj, _args, context) => context,
+        },
+      },
+    }),
+  });
+
+  expect(
+    await makeHandler(
+      new Benzene<unknown, unknown>({
+        schema,
+        contextFn: ({ extra }) => extra,
+      })
+    )({
+      method: "GET",
+      query: {
+        query: "{ test }",
+      },
+      headers: {},
+    })
+  ).toEqual({
+    status: 200,
+    headers: { "content-type": "application/json" },
+    payload: {
+      data: {
+        test: null,
+      },
+    },
+  });
+});
+
 // Custom validate function
 // Custom validation rules
 // Custom execute
