@@ -3,7 +3,7 @@ import { FormattedExecutionResult } from "graphql";
 // @ts-ignore
 export interface HandlerOptions<TExtra> {}
 
-type Headers = Record<string, string | undefined>;
+type Headers = Record<string, string | string[] | undefined>;
 
 /**
  * The generic HTTP Request object
