@@ -381,7 +381,7 @@ test("receive connection context and extra in onConnect", async () => {
   const utils = await startServer({
     // see startServer - makeHandler(socket, request) request is extra
     onConnect: async (ctx) => ctx.extra === "foo",
-  }, "foo");
+  }, undefined, undefined, "foo");
 
   utils.send({ type: MessageType.ConnectionInit });
 
