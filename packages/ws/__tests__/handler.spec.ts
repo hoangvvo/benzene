@@ -7,7 +7,7 @@ import {
   GraphQLSchema,
   GraphQLString,
 } from "graphql";
-import { createServer, IncomingMessage, Server } from "http";
+import { createServer, Server } from "http";
 import { AddressInfo } from "net";
 import WebSocket from "ws";
 import { makeHandler } from "../src/handler";
@@ -380,8 +380,8 @@ test("receive connectionParams in onConnect", async () => {
 test("receive connection context and extra in onConnect", async () => {
   const utils = await startServer({
     // see startServer - makeHandler(socket, request) request is extra
-    onConnect: async (ctx) => ctx.extra instanceof IncomingMessage,
-  });
+    onConnect: async (ctx) => ctx.extra === "foo",
+  }, "foo");
 
   utils.send({ type: MessageType.ConnectionInit });
 
