@@ -160,7 +160,8 @@ interface ServerUtil {
 async function startServer(
   handlerOptions?: Partial<HandlerOptions<any>>,
   options?: Partial<Options<any, any>>,
-  wsOptions?: { protocols?: string }
+  wsOptions?: { protocols?: string },
+  extra?: any
 ): Promise<ServerUtil> {
   const ee = new EventEmitter();
 
@@ -171,7 +172,10 @@ async function startServer(
   await new Promise<void>((resolve) => server.listen(0, resolve));
   const port = (server.address() as AddressInfo).port;
   // We cross test different packages
-  wss.on("connection", makeHandler(gql, handlerOptions));
+  const graphqlWS = makeHandler(gql, handlerOptions);
+  wss.on("connection", (socket) => {
+    graphqlWS(socket, extra);
+  });
 
   // Inspired by https://github.com/enisdenjo/graphql-ws/tree/master/src/tests/utils/tclient.ts#L28
   return new Promise((resolve) => {
@@ -669,7 +673,54 @@ test("Receive extra in Benzene#contextFn", async () => {
     undefined,
     {
       contextFn: async ({ extra }) => ({
-        user: extra instanceof IncomingMessage,
+        user: extra === "foo"
+      }),
+    },
+    undefined,
+    "foo"
+  );
+
+  await utils.doAck();
+
+  await utils.send({
+    id: "1",
+    payload: {
+      query: `
+          subscription {
+            notificationAdded {
+              user
+            }
+          }
+          `,
+    },
+    type: MessageType.Subscribe,
+  });
+
+  await wait(50);
+
+  utils.publish();
+
+  await utils.waitForMessage((message) => {
+    expect(message).toEqual({
+      id: "1",
+      payload: {
+        data: {
+          notificationAdded: {
+            user: "true",
+          },
+        },
+      },
+      type: MessageType.Next,
+    });
+  });
+});
+
+test("Receive nullable extra in Benzene#contextFn", async () => {
+  const utils = await startServer(
+    undefined,
+    {
+      contextFn: async ({ extra }) => ({
+        user: extra === undefined,
       }),
     },
     undefined
