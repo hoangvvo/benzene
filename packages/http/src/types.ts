@@ -11,7 +11,7 @@ type Headers = Record<string, string | string[] | undefined>;
 export interface HTTPRequest {
   method: string;
   query?: Record<string, string | string[]>;
-  body?: Record<string, any>;
+  body?: Record<string, any> | null;
   headers: Headers;
 }
 
