@@ -49,7 +49,7 @@ export interface ConnectionContext<TExtra> {
   // Whether the server has received connection init request from the client
   connectionInitReceived: boolean;
   // The "extra" variable
-  extra: TExtra;
+  extra?: TExtra;
 }
 
 export interface HandlerOptions<TExtra> {
