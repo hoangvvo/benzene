@@ -154,7 +154,7 @@ export function makeHandler<TBenzene extends Benzene>(
    * @param socket The WebSocket connection {@link https://developer.mozilla.org/en-US/docs/Web/API/WebSocket}
    * @param extra An extra field to store anything that needs to persist throughout connection, accessible in callbacks
    */
-  return function graphqlWS(socket: WebSocket, extra: TExtra) {
+  return function graphqlWS(socket: WebSocket, extra?: TExtra) {
     if (
       socket.protocol === undefined ||
       socket.protocol.indexOf(GRAPHQL_TRANSPORT_WS_PROTOCOL) === -1

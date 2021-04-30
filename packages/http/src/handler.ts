@@ -33,7 +33,7 @@ export function makeHandler<TBenzene extends Benzene>(
    */
   return async function graphqlHTTP(
     request: HTTPRequest,
-    extra: TExtra
+    extra?: TExtra
   ): Promise<HTTPResponse> {
     const params = getGraphQLParams(request);
 
