@@ -1,5 +1,13 @@
 # @benzene/http
 
+## 0.1.1
+
+### Patch Changes
+
+- 2e81f28: Add `string[]` support to `Headers` type
+- f2dd1a8: Match `HTTPRequest.body` type to `parseGraphQLBody` return type
+- 05944c6: Make `extra` optional on `graphqlHTTP` and `graphqlWS`
+
 ## 0.1.0
 
 ### Minor Changes
