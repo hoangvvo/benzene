@@ -1,5 +1,7 @@
 import { GraphQLSchema } from "graphql";
 import Benzene from "../src/core";
+import { makeCompileQuery } from "../src/runtimes/js";
+import { SimpleSchema } from "./utils/schema";
 
 test("throws if initializing instance with no option", () => {
   expect(() => {
@@ -11,8 +13,14 @@ test("throws if initializing instance with no option", () => {
 test("throws if schema is invalid", () => {
   expect(() => {
     new Benzene({
-      // @ts-expect-error
       schema: new GraphQLSchema({ directives: [null] }),
     });
   }).toThrow();
+});
+
+test("defaults to graphql-js makeCompileQuery()", () => {
+  // @ts-ignore
+  expect(new Benzene({ schema: SimpleSchema }).compileQuery.toString()).toEqual(
+    makeCompileQuery().toString()
+  );
 });

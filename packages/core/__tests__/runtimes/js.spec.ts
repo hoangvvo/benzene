@@ -1,7 +1,7 @@
 import { execute, parse, subscribe } from "graphql";
 import { makeCompileQuery } from "../../src/runtimes/js";
 import { GraphQLCompiled } from "../../src/types";
-import { SimpleSchema } from "./schema";
+import { SimpleSchema } from "../utils/schema";
 
 const compileQuery = makeCompileQuery();
 
