@@ -25,6 +25,14 @@ export interface Options<TContext, TExtra> {
    * @param ctx An object contains the "extra" variable supplied by downstream packages
    */
   contextFn?: ContextFn<TContext, TExtra>;
+  /**
+   * A custom function called for each DocumentNode to create an "compiled" object that allows
+   * its execution and subscription.
+   * @param schema GraphQL schema
+   * @param document DocumentNode
+   * @param operationName An optional operation name for multi-operation query
+   * @returns {object} An object that has the functions `execute`, `subscribe`, and optionally `stringify`
+   */
   compileQuery?: CompileQuery;
 }
 

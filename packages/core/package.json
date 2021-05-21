@@ -21,7 +21,9 @@
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    }
+    },
+    "./runtimes/jit": "./dist/runtimes/jit.js",
+    "./runtimes/js": "./dist/runtimes/js.js"
   },
   "files": ["dist"],
   "sideEffects": false,
