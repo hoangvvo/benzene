@@ -1,6 +1,6 @@
 # Runtimes
 
-**Benzene** supports GraphQL execution using customizable runtimes.
+**Benzene** supports GraphQL execution using a customizable runtime.
 
 ## Configuration
 
@@ -38,7 +38,7 @@ const GQL = new Benzene({
 });
 ```
 
-It accepts a function that is called with the schema, document node, and optionally operation name and returns either:
+The function should accept a function that is called with the schema, document node, and optionally operation name and returns either:
 
 - an object with three functions `execute`, `subscribe`, and optionally `stringify`.
 - GraphQL execution result in case of error
@@ -83,7 +83,7 @@ interface GraphQLCompiled {
 
 `@benzene/core` is bundled two of the implementations, [`graphql-js`](https://github.com/graphql/graphql-js) and [`graphql-jit`](https://github.com/zalando-incubator/graphql-jit).
 
-The modules are ESModule bundled, so the importing process may be different from the usual. If you do not use ESModule (even when using `import` with TypeScript), you must import from `"@benzene/core/dist/runtimes/x.cjs"`. Otherwise, you can import from `"@benzene/core/runtimes/x"`.
+The modules are ESModule bundled, so the importing process may be different from the usual. If you do not use ESModule (even when using `import` with TypeScript), you **must** import from `"@benzene/core/dist/runtimes/x.cjs"`. Otherwise, you can import from `"@benzene/core/runtimes/x"`.
 
 ### graphql-js
 
