@@ -22,15 +22,13 @@ export function makeCompileQuery(): CompileQuery {
           args.variableValues
         );
       },
-
-      subscribe: jit.subscribe
-        ? (args) =>
-            jit.subscribe!(
-              args.rootValue,
-              args.contextValue,
-              args.variableValues
-            )
-        : undefined,
+      subscribe(args) {
+        return jit.subscribe!(
+          args.rootValue,
+          args.contextValue,
+          args.variableValues
+        );
+      },
     };
   };
 }

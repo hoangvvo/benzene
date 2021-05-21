@@ -8,8 +8,11 @@ test("saves compiled query to cache", async () => {
     schema: TestSchema,
   });
   const lru: Lru<QueryCache> = (GQL as any).lru;
-  await GQL.getCached(`{ test }`);
-  expect(lru.has("{ test }")).toBe(true);
+  const cached = (await GQL.getCached(`{ test }`)) as QueryCache;
+  expect(typeof cached.document).toBe("object");
+  expect(typeof cached.compiled).toBe("object");
+  expect(typeof cached.operation).toBe("string");
+  expect(lru.get("{ test }")).toBe(cached);
 });
 
 test("uses compiled query from cache", async () => {
@@ -29,11 +32,37 @@ test("uses compiled query from cache", async () => {
   const result = await GQL.graphql({ source: "{ test }" });
   expect(result).toEqual({ data: { test: "Goodbye" } });
 });
-test("does not cache bad query", async () => {
+
+test("returns and does not cache syntax-errored query", async () => {
   const GQL = new Benzene({
     schema: TestSchema,
   });
   const lru: Lru<QueryCache> = (GQL as any).lru;
-  await GQL.getCached("{ baddd }");
+  const result = await GQL.getCached("{{");
+  expect(result).toEqual({
+    errors: [
+      {
+        message: 'Syntax Error: Expected Name, found "{".',
+        locations: [{ line: 1, column: 2 }],
+      },
+    ],
+  });
+  expect(lru.has("{{")).toBe(false);
+});
+
+test("returns and does not cache invalid query", async () => {
+  const GQL = new Benzene({
+    schema: TestSchema,
+  });
+  const lru: Lru<QueryCache> = (GQL as any).lru;
+  const result = await GQL.getCached("{ baddd }");
+  expect(result).toEqual({
+    errors: [
+      {
+        message: 'Cannot query field "baddd" on type "QueryRoot".',
+        locations: [{ line: 1, column: 3 }],
+      },
+    ],
+  });
   expect(lru.has("{ baddd }")).toBe(false);
 });
