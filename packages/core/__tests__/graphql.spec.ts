@@ -6,8 +6,8 @@ import {
   GraphQLString,
 } from "graphql";
 import Benzene from "../src/core";
-import createCompileQueryJit from "../src/runtimes/jit";
-import createCompileQueryJs from "../src/runtimes/js";
+import { makeCompileQuery as makeCompileQueryJit } from "../src/runtimes/jit";
+import { makeCompileQuery as makeCompileQueryJs } from "../src/runtimes/js";
 import { CompileQuery } from "../src/types";
 import { TestSchema } from "./utils/schema";
 
@@ -156,9 +156,9 @@ function testWithCompileQuery(compileQuery: CompileQuery) {
 }
 
 describe("graphql-js", () => {
-  testWithCompileQuery(createCompileQueryJs());
+  testWithCompileQuery(makeCompileQueryJs());
 });
 
 describe("graphql-jit", () => {
-  testWithCompileQuery(createCompileQueryJit());
+  testWithCompileQuery(makeCompileQueryJit());
 });

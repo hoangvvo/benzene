@@ -5,7 +5,7 @@ import { CompileQuery } from "../types";
  * Create a compileQuery function using graphql-js
  * @returns CompileQuery
  */
-export default function createCompileQuery(): CompileQuery {
+export function makeCompileQuery(): CompileQuery {
   return function compileQuery(schema) {
     return {
       execute(args) {

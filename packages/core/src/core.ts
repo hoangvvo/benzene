@@ -13,7 +13,7 @@ import {
   validateSchema,
 } from "graphql";
 import lru, { Lru } from "tiny-lru";
-import createCompileQueryJS from "./runtimes/js";
+import { makeCompileQuery } from "../src/runtimes/js";
 import {
   CompileQuery,
   ContextFn,
@@ -43,7 +43,7 @@ export default class Benzene<TContext = any, TExtra = any> {
       throw schemaValidationErrors;
     }
     this.schema = options.schema;
-    this.compileQuery = options.compileQuery || createCompileQueryJS();
+    this.compileQuery = options.compileQuery || makeCompileQuery();
   }
 
   public getCached(
