@@ -17,7 +17,6 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "fuse.js": "^6.4.6",
     "markdown-to-jsx": "^7.1.2",
     "next": "^10.2.2",
     "nextra": "^0.4.5",
