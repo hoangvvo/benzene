@@ -1,9 +1,4 @@
 import {
-  CompiledQuery,
-  compileQuery,
-  isCompiledQuery,
-} from "@hoangvvo/graphql-jit";
-import {
   ExecutionArgs,
   ExecutionResult,
   formatError,
@@ -18,13 +13,23 @@ import {
   validateSchema,
 } from "graphql";
 import lru, { Lru } from "tiny-lru";
-import { ContextFn, Options, QueryCache, ValueOrPromise } from "./types";
+import createCompileQueryJS from "./runtimes/js";
+import {
+  CompileQuery,
+  ContextFn,
+  GraphQLCompiled,
+  Maybe,
+  Options,
+  QueryCache,
+  ValueOrPromise,
+} from "./types";
 
 export default class Benzene<TContext = any, TExtra = any> {
   private lru: Lru<QueryCache>;
   public schema: GraphQLSchema;
   formatErrorFn: typeof formatError;
   contextFn?: ContextFn<TContext, TExtra>;
+  private compileQuery: CompileQuery;
 
   constructor(options: Options<TContext, TExtra>) {
     if (!options) throw new TypeError("GQL must be initialized with options");
@@ -38,15 +43,15 @@ export default class Benzene<TContext = any, TExtra = any> {
       throw schemaValidationErrors;
     }
     this.schema = options.schema;
+    this.compileQuery = options.compileQuery || createCompileQueryJS();
   }
 
-  // This API is internal even if it is defined as public
-  public getCachedGQL(
+  public getCompiled(
     query: string,
-    operationName?: string | null
+    operationName?: Maybe<string>
   ): QueryCache | ExecutionResult {
     const key = query + (operationName ? `:${operationName}` : "");
-    const cached = this.lru.get(key);
+    let cached = this.lru.get(key);
 
     if (cached) {
       return cached;
@@ -77,23 +82,22 @@ export default class Benzene<TContext = any, TExtra = any> {
           ],
         };
 
-      const jit = compileQuery(
-        this.schema,
-        document,
-        operationName || undefined
-      );
+      const compiled = this.compileQuery(this.schema, document, operationName);
 
-      if (!isCompiledQuery(jit)) return jit;
+      // Could not compile query since its result is ExecutionResult
+      if (!("execute" in compiled)) return compiled;
 
       // Cache the compiled query
       // TODO: We are not caching multi document query right now
-      this.lru.set(key, {
+      cached = {
         document,
-        jit,
+        compiled,
         operation,
-      });
+      };
 
-      return { operation, jit, document };
+      this.lru.set(key, cached);
+
+      return cached;
     }
   }
 
@@ -113,7 +117,7 @@ export default class Benzene<TContext = any, TExtra = any> {
   }: Partial<GraphQLArgs> & {
     source: string;
   }): Promise<FormattedExecutionResult> {
-    const cachedOrResult = this.getCachedGQL(source, operationName);
+    const cachedOrResult = this.getCompiled(source, operationName);
     return this.formatExecutionResult(
       "document" in cachedOrResult
         ? await this.execute(
@@ -122,33 +126,39 @@ export default class Benzene<TContext = any, TExtra = any> {
               contextValue,
               variableValues,
               rootValue,
+              operationName,
             },
-            cachedOrResult.jit
+            cachedOrResult.compiled
           )
         : cachedOrResult
     );
   }
 
-  // Reimplements graphql/execution/execute but using jit
   execute(
-    {
-      contextValue,
-      variableValues,
-      rootValue,
-    }: Partial<Omit<SubscriptionArgs, "schema">>,
-    jit: CompiledQuery
+    args: Pick<
+      ExecutionArgs,
+      | "document"
+      | "contextValue"
+      | "variableValues"
+      | "rootValue"
+      | "operationName"
+    >,
+    compiled: GraphQLCompiled
   ): ValueOrPromise<ExecutionResult> {
-    return jit.query(rootValue, contextValue, variableValues);
+    return compiled.execute(args);
   }
 
   subscribe(
-    {
-      contextValue,
-      variableValues,
-      rootValue,
-    }: Partial<Omit<ExecutionArgs, "schema">>,
-    jit: CompiledQuery
+    args: Pick<
+      SubscriptionArgs,
+      | "document"
+      | "contextValue"
+      | "variableValues"
+      | "rootValue"
+      | "operationName"
+    >,
+    compiled: GraphQLCompiled
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
-    return jit.subscribe!(rootValue, contextValue, variableValues);
+    return compiled.subscribe!(args);
   }
 }

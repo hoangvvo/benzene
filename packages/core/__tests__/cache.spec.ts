@@ -8,7 +8,7 @@ test("saves compiled query to cache", async () => {
     schema: TestSchema,
   });
   const lru: Lru<QueryCache> = (GQL as any).lru;
-  await GQL.getCachedGQL(`{ test }`);
+  await GQL.getCompiled(`{ test }`);
   expect(lru.has("{ test }")).toBe(true);
 });
 
@@ -18,8 +18,8 @@ test("uses compiled query from cache", async () => {
   });
   const lru: Lru<QueryCache> = (GQL as any).lru;
   lru.set("{ test }", {
-    jit: {
-      query: () => ({ data: { test: "Goodbye" } }),
+    compiled: {
+      execute: () => ({ data: { test: "Goodbye" } }),
       stringify: JSON.stringify,
     },
     operation: "query",
@@ -34,6 +34,6 @@ test("does not cache bad query", async () => {
     schema: TestSchema,
   });
   const lru: Lru<QueryCache> = (GQL as any).lru;
-  await GQL.getCachedGQL("{ baddd }");
+  await GQL.getCompiled("{ baddd }");
   expect(lru.has("{ baddd }")).toBe(false);
 });
