@@ -1,5 +1,11 @@
 # @benzene/ws
 
+## 0.5.1
+
+### Patch Changes
+
+- 05944c6: Make `extra` optional on `graphqlHTTP` and `graphqlWS`
+
 ## 0.5.0
 
 ### Minor Changes
