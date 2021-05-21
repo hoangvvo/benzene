@@ -46,7 +46,7 @@ export default class Benzene<TContext = any, TExtra = any> {
     this.compileQuery = options.compileQuery || createCompileQueryJS();
   }
 
-  public getCompiled(
+  public getCached(
     query: string,
     operationName?: Maybe<string>
   ): QueryCache | ExecutionResult {
@@ -117,7 +117,7 @@ export default class Benzene<TContext = any, TExtra = any> {
   }: Partial<GraphQLArgs> & {
     source: string;
   }): Promise<FormattedExecutionResult> {
-    const cachedOrResult = this.getCompiled(source, operationName);
+    const cachedOrResult = this.getCached(source, operationName);
     return this.formatExecutionResult(
       "document" in cachedOrResult
         ? await this.execute(

@@ -43,7 +43,7 @@ export function makeHandler<TBenzene extends Benzene>(
       });
     }
 
-    const cachedOrResult = GQL.getCachedGQL(params.query, params.operationName);
+    const cachedOrResult = GQL.getCached(params.query, params.operationName);
 
     if (!("document" in cachedOrResult)) {
       return createResponse(GQL, 400, cachedOrResult);
@@ -77,8 +77,9 @@ export function makeHandler<TBenzene extends Benzene>(
             ? await GQL.contextFn({ extra })
             : undefined,
           variableValues: params.variables,
+          operationName: params.operationName,
         },
-        cachedOrResult.jit
+        cachedOrResult.compiled
       )
     );
   };

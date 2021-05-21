@@ -575,7 +575,7 @@ describe("Error handling functionality", () => {
         errors: [
           {
             message:
-              'Variable "$who" got invalid value ["John", "Jane"]; Expected type String; String cannot represent a non string value: ["John", "Jane"]',
+              'Variable "$who" got invalid value ["John", "Jane"]; String cannot represent a non string value: ["John", "Jane"]',
             locations: [{ line: 1, column: 16 }],
             path: undefined,
           },
