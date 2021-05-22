@@ -28,3 +28,6 @@ jobs:
       run: |
         yarn build
         yarn test:ci
+    - uses: codecov/codecov-action@v1
+      with:
+        files: ./coverage-final.json
