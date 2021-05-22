@@ -1,6 +1,6 @@
 import {
   compileQuery as jitCompileQuery,
-  isCompiledQuery,
+  isCompiledQuery as jitIsCompiledQuery,
 } from "@hoangvvo/graphql-jit";
 import { CompileQuery } from "../types";
 
@@ -12,7 +12,7 @@ export function makeCompileQuery(): CompileQuery {
   return function compileQuery(schema, document, operationName) {
     const jit = jitCompileQuery(schema, document, operationName || undefined);
 
-    if (!isCompiledQuery(jit)) return jit;
+    if (!jitIsCompiledQuery(jit)) return jit;
 
     return {
       execute(args) {

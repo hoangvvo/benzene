@@ -1,8 +1,8 @@
 export { default as Benzene } from "./core";
 export type {
+  CompiledQuery,
   CompileQuery,
   ExtractExtraType,
-  GraphQLCompiled,
   GraphQLParams,
   ValueOrPromise,
 } from "./types";

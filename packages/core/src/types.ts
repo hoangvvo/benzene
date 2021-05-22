@@ -50,7 +50,7 @@ export interface GraphQLParams {
 export interface QueryCache {
   operation: string;
   document: DocumentNode;
-  compiled: GraphQLCompiled;
+  compiled: CompiledQuery;
 }
 
 export type ContextFn<TContext, TExtra> = (contextInput: {
@@ -67,9 +67,9 @@ export type CompileQuery = (
   schema: GraphQLSchema,
   document: DocumentNode,
   operationName?: Maybe<string>
-) => GraphQLCompiled | ExecutionResult;
+) => CompiledQuery | ExecutionResult;
 
-export interface GraphQLCompiled {
+export interface CompiledQuery {
   execute(
     args: Pick<
       ExecutionArgs,
