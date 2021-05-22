@@ -15,9 +15,9 @@ import {
 import lru, { Lru } from "tiny-lru";
 import { makeCompileQuery } from "../src/runtimes/js";
 import {
+  CompiledQuery,
   CompileQuery,
   ContextFn,
-  GraphQLCompiled,
   Maybe,
   Options,
   QueryCache,
@@ -43,6 +43,11 @@ export default class Benzene<TContext = any, TExtra = any> {
       throw schemaValidationErrors;
     }
     this.schema = options.schema;
+    if (!options.compileQuery) {
+      console.warn(`The default GraphQL implementation of Benzene has been changed from graphql-jit to graphql-js.
+To remove this message, explicitly specify the desired runtime.
+Learn more at: https://benzene.vercel.app/reference/runtimes#built-in-implementations.`);
+    }
     this.compileQuery = options.compileQuery || makeCompileQuery();
   }
 
@@ -143,7 +148,7 @@ export default class Benzene<TContext = any, TExtra = any> {
       | "rootValue"
       | "operationName"
     >,
-    compiled: GraphQLCompiled
+    compiled: CompiledQuery
   ): ValueOrPromise<ExecutionResult> {
     return compiled.execute(args);
   }
@@ -157,7 +162,7 @@ export default class Benzene<TContext = any, TExtra = any> {
       | "rootValue"
       | "operationName"
     >,
-    compiled: GraphQLCompiled
+    compiled: CompiledQuery
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
     return compiled.subscribe!(args);
   }

@@ -4,7 +4,7 @@
 
 ## Configuration
 
-Benzene's GraphQL runtime can be configured using the `compileQuery` option. By default, it will use [`graphql-jit` implementation](#graphql-jit).
+Benzene's GraphQL runtime can be configured using the `compileQuery` option. By default, it will use [`graphql-js` implementation](#graphql-js).
 
 ```js
 const GQL = new Benzene({
@@ -50,9 +50,9 @@ type CompileQuery = (
   schema: GraphQLSchema,
   document: DocumentNode,
   operationName?: Maybe<string>
-) => GraphQLCompiled | ExecutionResult;
+) => CompiledQuery | ExecutionResult;
 
-interface GraphQLCompiled {
+interface CompiledQuery {
   execute(
     args: Pick<
       ExecutionArgs,
