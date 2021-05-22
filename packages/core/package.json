@@ -22,8 +22,14 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./runtimes/jit": "./dist/runtimes/jit.js",
-    "./runtimes/js": "./dist/runtimes/js.js"
+    "./runtimes/jit": {
+      "import": "./dist/runtimes/jit.js",
+      "require": "./dist/runtimes/jit.cjs"
+    },
+    "./runtimes/js": {
+      "import": "./dist/runtimes/js.js",
+      "require": "./dist/runtimes/js.cjs"
+    }
   },
   "files": ["dist"],
   "sideEffects": false,
