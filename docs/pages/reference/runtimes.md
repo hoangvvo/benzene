@@ -38,7 +38,7 @@ const GQL = new Benzene({
 });
 ```
 
-The function should accept a function that is called with the schema, document node, and optionally operation name and returns either:
+The function will be called with the schema, document node, and optionally operation name and returns either:
 
 - an object with three functions `execute`, `subscribe`, and optionally `stringify`.
 - GraphQL execution result in case of error
@@ -83,17 +83,23 @@ interface GraphQLCompiled {
 
 `@benzene/core` is bundled two of the implementations, [`graphql-js`](https://github.com/graphql/graphql-js) and [`graphql-jit`](https://github.com/zalando-incubator/graphql-jit).
 
-The modules are ESModule bundled, so the importing process may be different from the usual. If you do not use ESModule (even when using `import` with TypeScript), you **must** import from `"@benzene/core/dist/runtimes/x.cjs"`. Otherwise, you can import from `"@benzene/core/runtimes/x"`.
+The modules are ESModule bundled, so the importing process may be different from the usual:
+
+- If your Node version supports ESModule, import from `"@benzene/core/runtimes/x"`
+- Otherwise, import from `"@benzene/core/dist/runtimes/x.cjs"`
+
+
+If your Node version supports ESModule (even when using `import` with TypeScript), you **must** import from `"@benzene/core/dist/runtimes/x.cjs"`. Otherwise, you can import from `"@benzene/core/runtimes/x"`.
 
 ### graphql-js
 
 `graphql-js` is the original implementation of GraphQL for JavaScript, which offers the latest features and best stability.
 
 ```js
-// "type": "module" in package.json
+// ESModule import
 import { makeCompileQuery } from "@benzene/core/runtimes/js";
-// otherwise (even in TypeScript with import)
-const { makeCompileQuery } = require("@benzene/core/dist/runtimes/js.cjs");
+// Legacy import
+import { makeCompileQuery } from "@benzene/core/dist/runtimes/js.cjs";
 
 const GQL = new Benzene({
   compileQuery: makeCompileQuery(),
@@ -105,10 +111,10 @@ const GQL = new Benzene({
 `graphql-jit` is a new implementation of GraphQL for JavaScript, that offers significant performance improvement (up to 10x) compared to the former.
 
 ```js
-// "type": "module" in package.json
+// ESModule import
 import { makeCompileQuery } from "@benzene/core/runtimes/jit";
-// otherwise (even in TypeScript with import)
-const { makeCompileQuery } = require("@benzene/core/dist/runtimes/jit.cjs");
+// Legacy import
+import { makeCompileQuery } from "@benzene/core/dist/runtimes/jit.cjs";
 
 const GQL = new Benzene({
   compileQuery: makeCompileQuery(),
