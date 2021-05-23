@@ -1,3 +1,5 @@
+import Callout from 'nextra-theme-docs/callout'
+
 # Runtime
 
 **Benzene** supports GraphQL execution using a customizable runtime.
@@ -28,7 +30,7 @@ const GQL = new Benzene({
 });
 ```
 
-This is preferred if your application is looking for the latest features while supporting environments, such as [Cloudflare Worker](https://workers.cloudflare.com/), which does not allow runtime evaluation required by other implementations.
+This is also preferred if your application is deployed in specific environments, such as [Cloudflare Worker](https://workers.cloudflare.com/), which does not allow runtime evaluation required by other implementations.
 
 ### graphql-jit
 
@@ -46,6 +48,10 @@ const GQL = new Benzene({
 ```
 
 Check out [benchmarks](/benchmarks) so see how using this runtime can benefit your application.
+
+<Callout emoji="💡">
+  Your environment must support [evaluation/code generation from strings](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval) for this to work.
+</Callout>
 
 ## Custom Configuration
 
