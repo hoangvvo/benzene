@@ -19,7 +19,7 @@ A `Benzene` instance will be instantiated with an `options` object, containing t
 - `schema`: (required) A [GraphQLSchema](https://graphql.org/graphql-js/type/#graphqlschema) instance.
 - `formatErrorFn`: A function to format errors. See [Error Handling](./error-handling).
 - `contextFn`: A function to build resolvers context per query. See [Building Context](./build-context).
-- `compileQuery`: A custom query compilation function. See [Runtimes](./runtimes).
+- `compileQuery`: A custom query compilation function. See [Runtime](./runtime).
 
 ### The GraphQL Schema
 

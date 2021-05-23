@@ -206,6 +206,24 @@ with libraries other than `ws`.
   Benzene class is exported from both `@benzene/ws` and `@benzene/http`
 </Callout>
 
+### Optional: Use a different runtime
+
+**Benzene** supports different implementations of GraphQL. If you are looking for a more performant GraphQL server,
+take a look at the [runtime](/reference/runtime) documentation. Below is an example using `graphql-jit` more than 2x performance improvement.
+
+```js
+// ESModule import
+import { makeCompileQuery } from "@benzene/core/runtimes/jit";
+// Legacy import
+import { makeCompileQuery } from "@benzene/core/dist/runtimes/jit.cjs";
+
+const GQL = new Benzene({
+  compileQuery: makeCompileQuery(),
+});
+```
+
+Also, check out the [benchmarks](/benchmarks) section to learn more about the difference.
+
 ## Start the application
 
 ### Using the Svelte + urql app
