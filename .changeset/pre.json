@@ -8,6 +8,7 @@
     "@benzene/ws": "0.5.1"
   },
   "changesets": [
+    "green-mugs-occur",
     "rare-spiders-hang"
   ]
 }

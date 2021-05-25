@@ -1,5 +1,13 @@
 # @benzene/ws
 
+## 0.6.0-next.1
+
+### Patch Changes
+
+- Build files at root
+- Updated dependencies [undefined]
+  - @benzene/core@0.6.0-next.1
+
 ## 0.6.0-next.0
 
 ### Minor Changes
