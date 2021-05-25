@@ -25,7 +25,10 @@
   "module": "./index.js",
   "types": "./index.d.ts",
   "exports": {
-    ".": "./index.js"
+    ".": {
+      "export": "./index.js",
+      "require": "./index.cjs"
+    }
   },
   "files": ["*.d.ts", "*.cjs", "index.js"],
   "sideEffects": false,

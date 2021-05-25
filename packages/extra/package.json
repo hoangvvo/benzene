@@ -23,7 +23,10 @@
   "main": "./index.cjs",
   "types": "./index.d.ts",
   "exports": {
-    ".": "./index.js"
+    ".": {
+      "import": "./index.js",
+      "require": "./index.cjs"
+    }
   },
   "files": ["*.d.ts", "*.cjs", "index.js"],
   "sideEffects": false,

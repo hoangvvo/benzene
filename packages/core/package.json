@@ -16,9 +16,18 @@
   "main": "./index.cjs",
   "types": "./index.d.ts",
   "exports": {
-    ".": "./index.js",
-    "./runtimes/jit": "./runtimes/jit.js",
-    "./runtimes/js": "./runtimes/js.js"
+    ".": {
+      "import": "./index.js",
+      "require": "./index.cjs"
+    },
+    "./runtimes/jit": {
+      "import": "./runtimes/jit.js",
+      "require": "./runtimes/jit.cjs"
+    },
+    "./runtimes/js": {
+      "import": "./runtimes/js.js",
+      "require": "./runtimes/js.cjs"
+    }
   },
   "files": ["*.d.ts", "*.cjs", "index.js", "runtimes"],
   "sideEffects": false,
