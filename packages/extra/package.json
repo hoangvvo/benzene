@@ -25,6 +25,7 @@
   "exports": {
     ".": "./index.js"
   },
+  "files": ["*.d.ts", "*.cjs", "index.js"],
   "sideEffects": false,
   "scripts": {
     "build": "rollup -c",

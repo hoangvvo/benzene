@@ -20,7 +20,7 @@
     "./runtimes/jit": "./runtimes/jit.js",
     "./runtimes/js": "./runtimes/js.js"
   },
-  "files": ["*.d.ts", "index.js", "runtimes"],
+  "files": ["*.d.ts", "*.cjs", "index.js", "runtimes"],
   "sideEffects": false,
   "scripts": {
     "build": "rollup -c",
