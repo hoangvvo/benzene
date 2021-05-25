@@ -1,5 +1,11 @@
 # @benzene/core
 
+## 0.6.0-next.0
+
+### Minor Changes
+
+- 055eda0: allow custom compileQuery implementation
+
 ## 0.5.0
 
 ### Minor Changes

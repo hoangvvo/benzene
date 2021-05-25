@@ -1,5 +1,16 @@
 # @benzene/http
 
+## 0.2.0-next.0
+
+### Minor Changes
+
+- 055eda0: allow custom compileQuery implementation
+
+### Patch Changes
+
+- Updated dependencies [055eda0]
+  - @benzene/core@0.6.0-next.0
+
 ## 0.1.1
 
 ### Patch Changes
