@@ -9,7 +9,7 @@ import Benzene from "../src/core";
 import { makeCompileQuery as makeCompileQueryJit } from "../src/runtimes/jit";
 import { makeCompileQuery as makeCompileQueryJs } from "../src/runtimes/js";
 import { CompileQuery } from "../src/types";
-import { TestSchema } from "./utils/schema";
+import { TestSchema } from "./_schema";
 
 function testWithCompileQuery(compileQuery: CompileQuery) {
   const GQL = new Benzene({ schema: TestSchema, compileQuery });

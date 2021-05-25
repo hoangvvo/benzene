@@ -1,7 +1,7 @@
 import { Lru } from "tiny-lru";
 import Benzene from "../src/core";
 import { QueryCache } from "../src/types";
-import { TestSchema } from "./utils/schema";
+import { TestSchema } from "./_schema";
 
 test("saves compiled query to cache", async () => {
   const GQL = new Benzene({
@@ -21,6 +21,7 @@ test("uses compiled query from cache", async () => {
   });
   const lru: Lru<QueryCache> = (GQL as any).lru;
   lru.set("{ test }", {
+    // @ts-ignore
     compiled: {
       execute: () => ({ data: { test: "Goodbye" } }),
       stringify: JSON.stringify,
