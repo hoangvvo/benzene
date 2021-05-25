@@ -47,7 +47,7 @@ const GQL = new Benzene({
 });
 ```
 
-Check out [benchmarks](/benchmarks) so see how using this runtime can benefit your application.
+Check out the [benchmarks](/benchmarks) so see how using this runtime can benefit your application.
 
 <Callout emoji="💡">
   Your environment must support [evaluation/code generation from strings](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval) for this to work.
