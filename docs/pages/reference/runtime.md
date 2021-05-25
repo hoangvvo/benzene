@@ -10,7 +10,7 @@ Benzene's GraphQL runtime can be configured with the `compileQuery` option. By d
 
 `@benzene/core` currently bundles two implementations, [`graphql-js`](https://github.com/graphql/graphql-js) and [`graphql-jit`](https://github.com/zalando-incubator/graphql-jit).
 
-The modules are ESModule bundled, so the importing process may be different from the usual:
+The modules are ESModule bundled, so the importing process may be different than usual:
 
 - If your Node version supports ESModule, import from `"@benzene/core/runtimes/x"`
 - Otherwise, import from `"@benzene/core/dist/runtimes/x.cjs"`
