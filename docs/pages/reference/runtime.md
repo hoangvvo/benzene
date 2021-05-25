@@ -91,7 +91,7 @@ const GQL = new Benzene({
 
 The function will be called with the schema, document node, and optionally operation name and returns either:
 
-- an object with three functions `execute`, `subscribe`, and optionally `stringify`.
+- An object with three functions `execute`, `subscribe`, and optionally `stringify`.
 - GraphQL execution result in case of error
 
 The signatures of `execute` and `subscribe` are the same as those (non-positional ones) from `graphql-js` (A difference being that it does not contain `schema` in the argument).
