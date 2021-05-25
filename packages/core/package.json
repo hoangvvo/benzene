@@ -13,29 +13,17 @@
     "url": "https://github.com/hoangvvo/benzene/issues"
   },
   "homepage": "https://benzen.vercel.app/",
-  "source": "src/index.ts",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./index.cjs",
+  "types": "./index.d.ts",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./runtimes/jit": {
-      "import": "./dist/runtimes/jit.js",
-      "require": "./dist/runtimes/jit.cjs"
-    },
-    "./runtimes/js": {
-      "import": "./dist/runtimes/js.js",
-      "require": "./dist/runtimes/js.cjs"
-    }
+    ".": "./index.js",
+    "./runtimes/jit": "./runtimes/jit.js",
+    "./runtimes/js": "./runtimes/js.js"
   },
-  "files": ["dist"],
+  "files": ["*.d.ts", "index.js", "runtimes"],
   "sideEffects": false,
   "scripts": {
     "build": "rollup -c",
-    "clean": "npx rimraf dist",
     "test": "jest"
   },
   "license": "MIT",

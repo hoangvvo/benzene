@@ -5,11 +5,11 @@ const buildNestedModule = (name) => ({
   input: `src/${name}.ts`,
   output: [
     {
-      file: `dist/${name}.cjs`,
+      file: `./${name}.cjs`,
       format: "cjs",
     },
     {
-      file: `dist/${name}.js`,
+      file: `./${name}.js`,
       format: "es",
     },
   ],
@@ -21,6 +21,6 @@ export default [
   buildNestedModule("runtimes/js"),
   buildNestedModule("runtimes/jit"),
   merge(config, {
-    external: ["@benzene/core", "@hoangvvo/graphql-jit", "tiny-lru"],
+    external: ["@benzene/core", "@hoangvvo/graphql-jit", "tiny-lru", "./runtimes/js", "./runtimes/jit"],
   }),
 ];

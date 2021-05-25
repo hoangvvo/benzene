@@ -13,7 +13,7 @@ import {
   validateSchema,
 } from "graphql";
 import lru, { Lru } from "tiny-lru";
-import { makeCompileQuery } from "../src/runtimes/js";
+import { makeCompileQuery } from "./runtimes/js";
 import {
   CompiledQuery,
   CompileQuery,

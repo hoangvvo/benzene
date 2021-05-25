@@ -22,20 +22,14 @@
   },
   "homepage": "https://benzene.vercel.app/",
   "license": "MIT",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./index.cjs",
+  "types": "./index.d.ts",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
+    ".": "./index.js"
   },
-  "files": ["dist"],
   "sideEffects": false,
   "scripts": {
     "build": "rollup -c",
-    "clean": "npx rimraf dist",
     "test": "jest"
   },
   "dependencies": {

@@ -4,11 +4,11 @@ export default {
   input: "src/index.ts",
   output: [
     {
-      file: "dist/index.cjs",
+      file: "./index.cjs",
       format: "cjs",
     },
     {
-      dir: "dist",
+      dir: ".",
       format: "es",
     },
   ],

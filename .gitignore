@@ -108,3 +108,8 @@ dist
 package-lock.json
 yarn.lock
 !/yarn.lock
+
+# Build files at root
+packages/**/*.js
+packages/**/*.cjs
+packages/**/*.d.ts

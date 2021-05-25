@@ -26,5 +26,5 @@
     "prettier/prettier": "error",
     "no-unused-vars": "off"
   },
-  "ignorePatterns": ["packages/*/dist/**"]
+  "ignorePatterns": ["packages/**/*.js", "packages/**/*.cjs", "packages/**/*.d.ts"]
 }

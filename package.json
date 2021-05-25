@@ -5,7 +5,6 @@
   ],
   "scripts": {
     "build": "yarn workspaces run build",
-    "clean": "yarn workspaces run clean",
     "lint": "eslint packages/*/src/**/*.{js,ts}",
     "test": "jest",
     "test:ci": "jest --ci --coverage"

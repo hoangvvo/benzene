@@ -13,7 +13,7 @@ Benzene's GraphQL runtime can be configured with the `compileQuery` option. By d
 The modules are ESModule bundled, so the importing process may be different than usual:
 
 - If your Node version supports ESModule, import from `"@benzene/core/runtimes/x"`
-- Otherwise, import from `"@benzene/core/dist/runtimes/x.cjs"`
+- Otherwise, import from `"@benzene/core/runtimes/x.cjs"`
 
 ### graphql-js
 
@@ -23,7 +23,7 @@ The modules are ESModule bundled, so the importing process may be different than
 // ESModule import
 import { makeCompileQuery } from "@benzene/core/runtimes/js";
 // Legacy import
-import { makeCompileQuery } from "@benzene/core/dist/runtimes/js.cjs";
+import { makeCompileQuery } from "@benzene/core/runtimes/js.cjs";
 
 const GQL = new Benzene({
   compileQuery: makeCompileQuery(),
@@ -40,7 +40,7 @@ This is also preferred if your application is deployed in specific environments,
 // ESModule import
 import { makeCompileQuery } from "@benzene/core/runtimes/jit";
 // Legacy import
-import { makeCompileQuery } from "@benzene/core/dist/runtimes/jit.cjs";
+import { makeCompileQuery } from "@benzene/core/runtimes/jit.cjs";
 
 const GQL = new Benzene({
   compileQuery: makeCompileQuery(),
