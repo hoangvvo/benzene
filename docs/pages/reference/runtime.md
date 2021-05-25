@@ -30,7 +30,7 @@ const GQL = new Benzene({
 });
 ```
 
-This is also preferred if your application is deployed in specific environments, such as [Cloudflare Worker](https://workers.cloudflare.com/), which does not allow runtime evaluation required by other implementations.
+This is also preferred if your application is deployed in specific environments, such as [Cloudflare Workers](https://workers.cloudflare.com/), which does not allow runtime evaluation required by other implementations.
 
 ### graphql-jit
 
