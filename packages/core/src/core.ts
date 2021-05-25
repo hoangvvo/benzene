@@ -164,6 +164,6 @@ Learn more at: https://benzene.vercel.app/reference/runtimes#built-in-implementa
     >,
     compiled: CompiledQuery
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
-    return compiled.subscribe!(args);
+    return compiled.subscribe(args);
   }
 }

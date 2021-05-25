@@ -81,7 +81,7 @@ export interface CompiledQuery {
     >
   ): ValueOrPromise<ExecutionResult>;
 
-  subscribe?(
+  subscribe(
     args: Pick<
       SubscriptionArgs,
       | "document"
