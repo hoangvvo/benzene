@@ -4,7 +4,7 @@ import Callout from 'nextra-theme-docs/callout'
 
 **Benzene** supports GraphQL execution using a customizable runtime.
 
-Benzene's GraphQL runtime can be configured using the `compileQuery` option. By default, it will use [`graphql-js` implementation](#graphql-js).
+Benzene's GraphQL runtime can be configured with the `compileQuery` option. By default, it will use [`graphql-js`](#graphql-js) implementation.
 
 ## Built-in implementations
 
