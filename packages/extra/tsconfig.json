@@ -2,12 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist",
-    "paths": {
-      "@benzene/core": [
-        "../core"
-      ]
-    },
+    "outDir": "dist"
   },
   "include": ["src"]
 }
