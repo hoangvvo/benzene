@@ -1,7 +1,7 @@
 {
   "name": "@benzene/extra",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2-next.0",
   "description": "Extra treats for GraphQL Server. Not limited to @benzene libraries!",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -20,21 +20,22 @@
   },
   "homepage": "https://benzene.vercel.app/",
   "license": "MIT",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "rollup -c",
-    "clean": "npx rimraf dist",
-    "test": "jest"
+    "test": "jest",
+    "clean": "npx rimraf dist"
   },
   "publishConfig": {
     "access": "public"

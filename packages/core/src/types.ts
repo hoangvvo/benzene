@@ -1,5 +1,11 @@
-import { CompiledQuery } from "@hoangvvo/graphql-jit";
-import { DocumentNode, formatError, GraphQLSchema } from "graphql";
+import {
+  DocumentNode,
+  ExecutionArgs,
+  ExecutionResult,
+  formatError,
+  GraphQLSchema,
+  SubscriptionArgs,
+} from "graphql";
 import Benzene from "./core";
 
 export interface Options<TContext, TExtra> {
@@ -19,6 +25,15 @@ export interface Options<TContext, TExtra> {
    * @param ctx An object contains the "extra" variable supplied by downstream packages
    */
   contextFn?: ContextFn<TContext, TExtra>;
+  /**
+   * A custom function called for each DocumentNode to create an "compiled" object that allows
+   * its execution and subscription.
+   * @param schema GraphQL schema
+   * @param document DocumentNode
+   * @param operationName An optional operation name for multi-operation query
+   * @returns {object} An object that has the functions `execute`, `subscribe`, and optionally `stringify`
+   */
+  compileQuery?: CompileQuery;
 }
 
 /**
@@ -26,16 +41,16 @@ export interface Options<TContext, TExtra> {
  */
 export interface GraphQLParams {
   // https://github.com/graphql/graphql-over-http/blob/master/spec/GraphQLOverHTTP.md#request-parameters
-  query?: string | null;
-  variables?: Record<string, any> | null;
-  operationName?: string | null;
-  extensions?: Record<string, any> | null;
+  query?: Maybe<string>;
+  variables?: Maybe<Record<string, any>>;
+  operationName?: Maybe<string>;
+  extensions?: Maybe<Record<string, any>>;
 }
 
 export interface QueryCache {
   operation: string;
   document: DocumentNode;
-  jit: CompiledQuery;
+  compiled: CompiledQuery;
 }
 
 export type ContextFn<TContext, TExtra> = (contextInput: {
@@ -47,3 +62,37 @@ export type ValueOrPromise<T> = T | Promise<T>;
 export type ExtractExtraType<Type> = Type extends Benzene<any, infer TExtra>
   ? TExtra
   : never;
+
+export type CompileQuery = (
+  schema: GraphQLSchema,
+  document: DocumentNode,
+  operationName?: Maybe<string>
+) => CompiledQuery | ExecutionResult;
+
+export interface CompiledQuery {
+  execute(
+    args: Pick<
+      ExecutionArgs,
+      | "document"
+      | "contextValue"
+      | "variableValues"
+      | "rootValue"
+      | "operationName"
+    >
+  ): ValueOrPromise<ExecutionResult>;
+
+  subscribe(
+    args: Pick<
+      SubscriptionArgs,
+      | "document"
+      | "contextValue"
+      | "variableValues"
+      | "rootValue"
+      | "operationName"
+    >
+  ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult>;
+
+  stringify?(result: ExecutionResult): string;
+}
+
+export type Maybe<T> = null | undefined | T;

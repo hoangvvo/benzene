@@ -1,5 +1,6 @@
 {
   "benzene": "Benzene instance",
+  "runtime": "Runtime",
   "handler": "Benzene Handlers",
   "http": "GraphQL over HTTP",
   "ws": "GraphQL over WebSockets",

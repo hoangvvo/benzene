@@ -378,10 +378,15 @@ test("receive connectionParams in onConnect", async () => {
 });
 
 test("receive connection context and extra in onConnect", async () => {
-  const utils = await startServer({
-    // see startServer - makeHandler(socket, request) request is extra
-    onConnect: async (ctx) => ctx.extra === "foo",
-  }, undefined, undefined, "foo");
+  const utils = await startServer(
+    {
+      // see startServer - makeHandler(socket, request) request is extra
+      onConnect: async (ctx) => ctx.extra === "foo",
+    },
+    undefined,
+    undefined,
+    "foo"
+  );
 
   utils.send({ type: MessageType.ConnectionInit });
 
@@ -462,7 +467,6 @@ test("returns errors if no payload", async () => {
 
   utils.send({
     type: MessageType.Subscribe,
-    // @ts-expect-error
     payload: undefined,
     id: "1",
   });
@@ -509,7 +513,7 @@ test("returns errors on syntax error", async () => {
   });
 });
 
-test("format errors using formatErrorFn", async () => {
+test("formats errors using formatErrorFn", async () => {
   const utils = await startServer(
     {},
     {
@@ -600,7 +604,85 @@ test("resolves subscriptions and send updates", async () => {
   });
 });
 
-test("resolves queries and mutations (single result operation)", async () => {
+test("resolves subscriptions with operation name and send updates", async () => {
+  const utils = await startServer();
+
+  await utils.doAck();
+
+  const query = `
+  subscription test {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+
+  subscription testt {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+
+  subscription testtt {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+`;
+
+  utils.send({
+    id: "1",
+    payload: {
+      query,
+    },
+    type: MessageType.Subscribe,
+  });
+
+  await utils.waitForMessage((message) => {
+    expect(message).toEqual({
+      type: MessageType.Error,
+      id: "1",
+      payload: [
+        {
+          message:
+            "Must provide operation name if query contains multiple operations.",
+        },
+      ],
+    });
+  });
+
+  await utils.send({
+    id: "1",
+    payload: {
+      query,
+      operationName: "test",
+    },
+    type: MessageType.Subscribe,
+  });
+
+  await wait(50);
+
+  utils.publish();
+
+  await utils.waitForMessage((message) => {
+    expect(message).toEqual({
+      type: MessageType.Next,
+      id: "1",
+      payload: {
+        data: {
+          notificationAdded: {
+            message: "Hello World",
+            dummy: "Hello World",
+          },
+        },
+      },
+    });
+  });
+});
+
+test("resolves queries and mutations", async () => {
   // We can also add a Query test just to be sure but Mutation one only should be sufficient
   const utils = await startServer();
 
@@ -608,7 +690,67 @@ test("resolves queries and mutations (single result operation)", async () => {
 
   utils.send({
     id: "1",
-    payload: { query: `query { test }` },
+    payload: {
+      query: `query test { test }`,
+    },
+    type: MessageType.Subscribe,
+  });
+
+  await utils.waitForMessage((message) => {
+    expect(message).toEqual({
+      type: MessageType.Next,
+      id: "1",
+      payload: { data: { test: "test" } },
+    });
+  });
+
+  await utils.waitForMessage((message) => {
+    expect(message).toEqual({
+      id: "1",
+      type: MessageType.Complete,
+    });
+  });
+});
+
+test("resolves queries and mutations with operation name", async () => {
+  // We can also add a Query test just to be sure but Mutation one only should be sufficient
+  const utils = await startServer();
+
+  await utils.doAck();
+
+  const query = `
+  query test { test }
+  query testt { test }
+  query testtt { test }
+`;
+
+  utils.send({
+    id: "1",
+    payload: {
+      query,
+    },
+    type: MessageType.Subscribe,
+  });
+
+  await utils.waitForMessage((message) => {
+    expect(message).toEqual({
+      type: MessageType.Error,
+      id: "1",
+      payload: [
+        {
+          message:
+            "Must provide operation name if query contains multiple operations.",
+        },
+      ],
+    });
+  });
+
+  utils.send({
+    id: "1",
+    payload: {
+      query,
+      operationName: "test",
+    },
     type: MessageType.Subscribe,
   });
 
@@ -673,7 +815,7 @@ test("Receive extra in Benzene#contextFn", async () => {
     undefined,
     {
       contextFn: async ({ extra }) => ({
-        user: extra === "foo"
+        user: extra === "foo",
       }),
     },
     undefined,

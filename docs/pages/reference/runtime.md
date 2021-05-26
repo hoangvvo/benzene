@@ -1,0 +1,122 @@
+import Callout from 'nextra-theme-docs/callout'
+
+# Runtime
+
+**Benzene** supports GraphQL execution using a customizable runtime.
+
+Benzene's GraphQL runtime can be configured with the `compileQuery` option. By default, it will use [`graphql-js`](#graphql-js) implementation.
+
+## Built-in implementations
+
+`@benzene/core` currently bundles with only [`graphql-js`](https://github.com/graphql/graphql-js) implementation. [`graphql-jit`](https://github.com/zalando-incubator/graphql-jit) implementation can be installed from `@benzene/jit` package.
+
+### graphql-js
+
+`graphql-js` is the original implementation of GraphQL for JavaScript, which offers the latest features and best stability.
+
+```js
+import { makeCompileQuery } from "@benzene/core";
+// OR: import { makeCompileQuery } from "@benzene/http";
+// OR: import { makeCompileQuery } from "@benzene/ws";
+
+const GQL = new Benzene({
+  compileQuery: makeCompileQuery(),
+});
+```
+
+This is also preferred if your application is deployed in specific environments, such as [Cloudflare Workers](https://workers.cloudflare.com/), which does not allow runtime evaluation required by other implementations.
+
+### graphql-jit
+
+`graphql-jit` is a new implementation of GraphQL for JavaScript, that offers significant performance improvement (up to 10x) compared to the former.
+
+```js
+import { makeCompileQuery } from "@benzene/jit";
+
+const GQL = new Benzene({
+  compileQuery: makeCompileQuery(),
+});
+```
+
+Check out the [benchmarks](/benchmarks) to see how using this runtime can benefit your application.
+
+<Callout emoji="💡">
+  Your environment must support [evaluation/code generation from strings](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval) for this to work.
+</Callout>
+
+## Custom Configuration
+
+You can define your own runtime by creating a `compileQuery` function like below:
+
+```js
+const GQL = new Benzene({
+  compileQuery(schema, document, operationName) {
+    // Return the compiled result
+    return {
+      execute({
+        document,
+        contextValue,
+        variableValues,
+        rootValue,
+        operationName,
+      }) {
+        // return execution result
+      },
+      susbcribe({
+        document,
+        contextValue,
+        variableValues,
+        rootValue,
+        operationName,
+      }) {
+        // return subscription result
+      },
+    };
+    // OR: in case of error, return an execution result
+    return {
+      errors: [new GraphQLError("Compilation failed")],
+    };
+  },
+});
+```
+
+The function will be called with the schema, document node, and optionally operation name and returns either:
+
+- An object with three functions `execute`, `subscribe`, and optionally `stringify`.
+- GraphQL execution result in case of error
+
+The signatures of `execute` and `subscribe` are the same as those (non-positional ones) from `graphql-js` (a difference being that it does not contain `schema` in the argument).
+
+```ts
+type CompileQuery = (
+  schema: GraphQLSchema,
+  document: DocumentNode,
+  operationName?: Maybe<string>
+) => CompiledQuery | ExecutionResult;
+
+interface CompiledQuery {
+  execute(
+    args: Pick<
+      ExecutionArgs,
+      | "document"
+      | "contextValue"
+      | "variableValues"
+      | "rootValue"
+      | "operationName"
+    >
+  ): ValueOrPromise<ExecutionResult>;
+
+  subscribe?(
+    args: Pick<
+      SubscriptionArgs,
+      | "document"
+      | "contextValue"
+      | "variableValues"
+      | "rootValue"
+      | "operationName"
+    >
+  ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult>;
+
+  stringify?(result: ExecutionResult): string;
+}
+```

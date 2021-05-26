@@ -40,9 +40,10 @@ Run benchmarks:
 The following can be used as `<library>`:
 
 - [`apollo-server`](https://github.com/apollographql/apollo-server)
+- `benzene-jit-http` ([`@benzene/http`](https://github.com/hoangvvo/benzene/tree/main/packages/http) with [JIT runtime](https://benzene.vercel.app/reference/runtime#graphql-jit))
 - `benzene-http` ([`@benzene/http`](https://github.com/hoangvvo/benzene/tree/main/packages/http))
 - [`express-graphql`](https://github.com/graphql/express-graphql)
-- [`mercurius`](https://github.com/mercurius-js/mercurius)
+- [`mercurius`](https://github.com/mercurius-js/mercurius) (with JIT)
 
 To run all benchmarks at once:
 
@@ -56,14 +57,14 @@ Also check out [benawad/node-graphql-benchmarks](https://github.com/benawad/node
 
 ## Result
 
-Machine: Linux 4.19.128-microsoft-standard x86_64 | 12 vCPUs | 13GB
-Node: v15.6.0
+Machine: Linux 5.11.0-17-generic x86_64 | 12 vCPUs | 16GB
+Node: v16.0.0
 
 | Library | Requests/s | Latency |
 | --- | --- | --- |
-| benzene-http+uWebSockets | 16391.3601 | 0.0061 |
-| benzene-http | 15314.3987 | 0.0065 |
-| mercurius | 13583.7302 | 0.0074 |
-| apollo-server | 2727.6887 | 0.0366 |
-| express-graphql | 2443.0961 | 0.0408 |
-| graphql-helix | 2238.3956 | 0.0445 |
+| benzene-jit-http | 24212.8719 | 0.0041 |
+| mercurius | 21452.4651 | 0.0047 |
+| benzene-http | 11180.8484 | 0.0089 |
+| apollo-server | 3228.3084 | 0.0309 |
+| express-graphql | 2644.2127 | 0.0377 |
+| graphql-helix | 2413.2614 | 0.0413 |

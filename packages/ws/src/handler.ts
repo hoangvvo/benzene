@@ -95,7 +95,7 @@ export function makeHandler<TBenzene extends Benzene>(
         new GraphQLError("Must provide query string."),
       ]);
     }
-    const cachedOrResult = GQL.getCachedGQL(
+    const cachedOrResult = GQL.getCached(
       message.payload.query,
       message.payload.operationName
     );
@@ -119,11 +119,11 @@ export function makeHandler<TBenzene extends Benzene>(
       sendRes(
         socket,
         message.id,
-        await GQL.execute(execArg, cachedOrResult.jit)
+        await GQL.execute(execArg, cachedOrResult.compiled)
       );
     } else {
       try {
-        const result = await GQL.subscribe(execArg, cachedOrResult.jit);
+        const result = await GQL.subscribe(execArg, cachedOrResult.compiled);
 
         if (!isAsyncIterator(result)) {
           // If it is not an async iterator, it must be an
