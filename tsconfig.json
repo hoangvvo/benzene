@@ -12,7 +12,7 @@
       "@benzene/jit": ["./packages/jit/src"],
       "@benzene/jit/*": ["./packages/jit/src/*"],
       "@benzene/ws": ["./packages/ws/src"],
-      "@benzene/ws/*": ["./packages/ws/src/*"],
+      "@benzene/ws/*": ["./packages/ws/src/*"]
     }
   }
 }
