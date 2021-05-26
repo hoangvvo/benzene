@@ -1,8 +1,4 @@
-import merge from "deepmerge";
-import { getExternals } from "../../build-utils";
-import config from "../../rollup.config";
+import { buildConfig } from "../../build-utils";
 import packageJson from "./package.json";
 
-export default merge(config, {
-  external: getExternals(packageJson),
-});
+export default buildConfig({ packageJson });

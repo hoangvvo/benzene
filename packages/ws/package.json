@@ -23,7 +23,10 @@
   "homepage": "https://benzene.vercel.app/",
   "license": "MIT",
   "main": "./dist/index.js",
-  "exports": "./dist/index.js",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
