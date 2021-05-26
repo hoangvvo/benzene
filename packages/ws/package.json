@@ -33,7 +33,7 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "rollup -c",
+    "build": "tsc --emitDeclarationOnly --project tsconfig.build.json && rollup -c",
     "test": "jest",
     "clean": "npx rimraf dist"
   },

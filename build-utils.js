@@ -10,37 +10,24 @@ const getExternals = (packageJson) => {
 export const buildConfig = ({ packageJson }) => {
   const external = getExternals(packageJson);
   if (!external.includes("graphql")) external.push("graphql");
-  return [
-    {
-      input: "src/index.ts",
-      output: [
-        {
-          dir: "dist",
-          format: "es",
-        },
-      ],
-      plugins: [
-        typescript({
-          tsconfig: "./tsconfig.build.json",
-        }),
-      ],
-      external,
-    },
-    {
-      input: "src/index.ts",
-      output: [
-        {
-          file: "dist/index.cjs",
-          format: "cjs",
-        },
-      ],
-      plugins: [
-        typescript({
-          tsconfig: "./tsconfig.build.json",
-          declaration: false,
-        }),
-      ],
-      external,
-    },
-  ];
+  return {
+    input: "src/index.ts",
+    output: [
+      {
+        dir: "dist",
+        format: "es",
+      },
+      {
+        file: "dist/index.cjs",
+        format: "cjs",
+      },
+    ],
+    plugins: [
+      typescript({
+        tsconfig: "./tsconfig.build.json",
+        declaration: false,
+      }),
+    ],
+    external,
+  };
 };
