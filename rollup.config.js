@@ -8,7 +8,6 @@ export default {
       format: "es",
     },
   ],
-  external: ["graphql"],
   plugins: [
     typescript({
       tsconfig: "./tsconfig.build.json",
