@@ -1,16 +1,11 @@
 # @benzene/core
 
-## 0.6.0-next.1
-
-### Patch Changes
-
-- Build files at root
-
-## 0.6.0-next.0
+## 0.6.0
 
 ### Minor Changes
 
-- 055eda0: allow custom compileQuery implementation
+- afd5f1c: Update TS Config and drop support for Node 10
+- d300586: allow custom compileQuery implementation
 
 ## 0.5.0
 

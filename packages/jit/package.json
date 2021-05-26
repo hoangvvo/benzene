@@ -1,7 +1,7 @@
 {
   "name": "@benzene/jit",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "GraphQL JIT implementation for @benzene/core",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -25,9 +25,7 @@
     "require": "./dist/index.cjs"
   },
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "sideEffects": false,
   "scripts": {
     "build": "tsc --emitDeclarationOnly --project tsconfig.build.json && rollup -c",
