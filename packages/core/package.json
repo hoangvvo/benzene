@@ -13,18 +13,11 @@
     "url": "https://github.com/hoangvvo/benzene/issues"
   },
   "homepage": "https://benzen.vercel.app/",
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
   "files": [
-    "*.d.ts",
-    "*.cjs",
-    "index.js"
+    "dist"
   ],
   "sideEffects": false,
   "scripts": {
@@ -41,5 +34,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": "^12.0.0 || ^14.0.0 || >=16.0.0"
   }
 }
