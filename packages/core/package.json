@@ -29,7 +29,8 @@
   "sideEffects": false,
   "scripts": {
     "build": "rollup -c",
-    "test": "jest"
+    "test": "jest",
+    "clean": "npx rimraf dist"
   },
   "license": "MIT",
   "dependencies": {

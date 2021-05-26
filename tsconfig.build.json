@@ -10,7 +10,8 @@
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "noEmit": true
   },
   "exclude": [
     "node_modules",

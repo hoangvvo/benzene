@@ -7,7 +7,8 @@
     "build": "yarn workspaces run build",
     "lint": "eslint packages/*/src/**/*.{js,ts}",
     "test": "jest",
-    "test:ci": "jest --ci --coverage"
+    "test:ci": "jest --ci --coverage",
+    "clean": "yarn workspaces run clean"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
