@@ -62,9 +62,9 @@ Node: v16.0.0
 
 | Library | Requests/s | Latency |
 | --- | --- | --- |
-| benzene-jit-http | 24212.8719 | 0.0041 |
-| mercurius | 21452.4651 | 0.0047 |
-| benzene-http | 11180.8484 | 0.0089 |
-| apollo-server | 3228.3084 | 0.0309 |
-| express-graphql | 2644.2127 | 0.0377 |
-| graphql-helix | 2413.2614 | 0.0413 |
+| benzene-jit-http | 24789.2541 | 0.004 |
+| mercurius | 21658.6016 | 0.0046 |
+| benzene-http | 11627.693 | 0.0086 |
+| apollo-server | 3348.3177 | 0.0298 |
+| express-graphql | 2625.843 | 0.038 |
+| graphql-helix | 2386.6439 | 0.0418 |
