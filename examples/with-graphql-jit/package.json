@@ -1,15 +1,16 @@
 {
-  "name": "with-micro",
-  "description": "Using @benzene/http with the `micro` library",
+  "name": "with-graphql-jit",
+  "description": "Using @benzene/jit to integrate graphql-jit for better performance",
   "private": true,
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "micro"
+    "start": "node index.js"
   },
   "dependencies": {
     "@benzene/http": "^0.2.0",
+    "@benzene/jit": "^0.1.0",
     "graphql": "^15.5.0",
-    "micro": "^9.3.4",
     "pokemon-graphql-schema": "^0.0.3"
   },
   "license": "ISC"

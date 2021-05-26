@@ -7,7 +7,7 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@benzene/http": "^0.0.3",
+    "@benzene/http": "^0.2.0",
     "express": "^4.17.1",
     "graphql": "^15.5.0",
     "graphql-playground-middleware-express": "^1.7.22",

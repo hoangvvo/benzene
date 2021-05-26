@@ -65,9 +65,7 @@ export default function Home() {
                 <summary>Types</summary>
                 <ul>
                   {pokemon.types.map((type) => (
-                    <li key={type.type.name}>
-                      {type.type.name}
-                    </li>
+                    <li key={type.type.name}>{type.type.name}</li>
                   ))}
                 </ul>
               </details>

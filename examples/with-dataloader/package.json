@@ -8,8 +8,8 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@benzene/http": "^0.0.3",
-    "@graphql-tools/schema": "^7.1.2",
+    "@benzene/http": "^0.2.0",
+    "@graphql-tools/schema": "^7.1.5",
     "dataloader": "^2.0.0",
     "express": "^4.17.1",
     "graphql": "^15.5.0",

@@ -7,13 +7,13 @@
     "start": "next start"
   },
   "dependencies": {
-    "@benzene/http": "^0.0.3",
+    "@benzene/http": "^0.2.0",
     "graphql": "^15.5.0",
-    "next": "^10.0.8",
+    "next": "^10.2.3",
     "pokemon-graphql-schema": "^0.0.3",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "urql": "^2.0.1"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "urql": "^2.0.3"
   },
   "resolutions": {
     "graphql": "15.5.0"

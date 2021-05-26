@@ -8,8 +8,8 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "@benzene/extra": "^0.0.1",
-    "@benzene/http": "^0.0.3",
+    "@benzene/extra": "^0.1.0",
+    "@benzene/http": "^0.2.0",
     "@polka/url": "^1.0.0-next.11",
     "graphql": "^15.5.0",
     "pokemon-graphql-schema": "^0.0.3"
