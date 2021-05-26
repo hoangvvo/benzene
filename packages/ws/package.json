@@ -22,23 +22,22 @@
   },
   "homepage": "https://benzene.vercel.app/",
   "license": "MIT",
-  "main": "./index.cjs",
-  "types": "./index.d.ts",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "export": "./index.js",
-      "require": "./index.cjs"
+      "export": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
-    "*.d.ts",
-    "*.cjs",
-    "index.js"
+    "dist"
   ],
   "sideEffects": false,
   "scripts": {
     "build": "rollup -c",
-    "test": "jest"
+    "test": "jest",
+    "clean": "npx rimraf dist"
   },
   "dependencies": {
     "@benzene/core": "^0.6.0-next.1"
