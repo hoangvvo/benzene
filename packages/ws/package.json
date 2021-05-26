@@ -47,10 +47,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "devDependencies": {
-    "@rollup/plugin-typescript": "^8.1.0",
-    "deepmerge": "^4.2.2",
-    "tslib": "^2.1.0"
   }
 }

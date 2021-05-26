@@ -40,6 +40,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@benzene/core": "^0.6.0-next.1",
     "@hoangvvo/graphql-jit": "^0.6.2"
   }
 }
