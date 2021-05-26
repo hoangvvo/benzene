@@ -13,12 +13,12 @@
     "url": "https://github.com/hoangvvo/benzene/issues"
   },
   "homepage": "https://benzen.vercel.app/",
-  "main": "./index.cjs",
-  "types": "./index.d.ts",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./index.js",
-      "require": "./index.cjs"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
