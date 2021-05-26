@@ -7,18 +7,21 @@
     "build": "yarn workspaces run build",
     "lint": "eslint packages/*/src/**/*.{js,ts}",
     "test": "jest",
-    "test:ci": "jest --ci --coverage"
+    "test:ci": "jest --ci --coverage",
+    "clean": "yarn workspaces run clean"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
     "@babel/preset-typescript": "^7.12.7",
     "@changesets/cli": "^2.13.0",
+    "@rollup/plugin-typescript": "^8.2.1",
     "@types/jest": "^26.0.20",
     "@types/ws": "^7.4.4",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
     "babel-jest": "^26.6.3",
+    "deepmerge": "^4.2.2",
     "eslint": "^7.18.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-prettier": "^3.3.1",
