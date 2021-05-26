@@ -1,24 +1,18 @@
 {
+  "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "lib": [
-      "es2020"
-    ],
-    "module": "ESNext",
-    "target": "es2019",
-    "strict": true,
-    "declaration": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "moduleResolution": "Node"
-  },
-  "include": [
-    "packages"
-  ],
-  "exclude": [
-    "node_modules",
-    "packages/*/dist"
-  ]
+    "baseUrl": ".",
+    "paths": {
+      "@benzene/core": ["./packages/core/src"],
+      "@benzene/core/*": ["./packages/core/src/*"],
+      "@benzene/extra": ["./packages/extra/src"],
+      "@benzene/extra/*": ["./packages/extra/src/*"],
+      "@benzene/http": ["./packages/http/src"],
+      "@benzene/http/*": ["./packages/http/src/*"],
+      "@benzene/jit": ["./packages/jit/src"],
+      "@benzene/jit/*": ["./packages/jit/src/*"],
+      "@benzene/ws": ["./packages/ws/src"],
+      "@benzene/ws/*": ["./packages/ws/src/*"],
+    }
+  }
 }

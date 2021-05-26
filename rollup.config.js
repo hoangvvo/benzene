@@ -13,5 +13,9 @@ export default {
     },
   ],
   external: ["graphql"],
-  plugins: [typescript()],
+  plugins: [
+    typescript({
+      tsconfig: "./tsconfig.build.json",
+    }),
+  ],
 };

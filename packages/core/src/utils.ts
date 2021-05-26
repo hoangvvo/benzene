@@ -1,5 +1,5 @@
 import { execute, subscribe } from "graphql";
-import { CompileQuery } from "../types";
+import { CompileQuery } from "./types";
 
 export function isAsyncIterator<T = unknown>(
   val: unknown
