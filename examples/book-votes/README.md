@@ -16,9 +16,6 @@ Install it and run:
 ```bash
 npm install
 npm run start
-# or
-yarn
-yarn start
 ```
 
 [Try it on CodeSandbox](https://codesandbox.io/s/github/hoangvvo/benzene/tree/main/examples/book-votes)

@@ -32,19 +32,19 @@ The steps to submit a PR are:
 
 1. [Fork](https://help.github.com/articles/fork-a-repo/) this repository to your own GitHub account and then [clone](https://help.github.com/articles/cloning-a-repository/) it to your local device.
 
-2. Install all dependencies and dev dependencies by `yarn`. Please do not use `npm` to respect lock file.
+2. Install all dependencies and dev dependencies by `npm i`.
 
 3. Make changes and commit. Use the present tense and imperative mood ("Add feature" instead of "Adds feature" or "Added feature").
 
-4. Make sure your code is linted by running `yarn lint --fix`. 
+4. Make sure your code is linted by running `npm run lint -- --fix`. 
 
 5. If a change is not documentation-related, please add a tests if possible.
 
 6. Build and run tests
 
 ```bash
-yarn build
-yarn test
+npm run build
+npm test
 ```
 
 7. [Create a pull request](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork)
@@ -54,7 +54,7 @@ yarn test
 This project uses [changesets](https://github.com/atlassian/changesets). Every PR should include changes and their scopes for versioning. This can be done by:
 
 ```bash
-yarn changeset
+npx changeset
 ```
 
 Answer all the prompted questions and commit to created files in `.changeset` folder.
@@ -68,7 +68,7 @@ This section is done by maintainer only.
 Run `changeset version` to bump all packages' versions and update `CHANGELOG` files:
 
 ```bash
-yarn changeset version
+npx changeset version
 ```
 
 Commit the changes:
@@ -80,6 +80,6 @@ git commit -a -m 'Version Packages'
 Publish to `npm` and push the changes (with tags) to `main`.
 
 ```bash
-yarn changeset publish
+npx changeset publish
 git push && git push --tags
 ```
