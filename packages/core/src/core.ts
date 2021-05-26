@@ -13,7 +13,6 @@ import {
   validateSchema,
 } from "graphql";
 import lru, { Lru } from "tiny-lru";
-import { makeCompileQuery } from "./runtimes/js";
 import {
   CompiledQuery,
   CompileQuery,
@@ -23,6 +22,7 @@ import {
   QueryCache,
   ValueOrPromise,
 } from "./types";
+import { makeCompileQuery } from "./utils";
 
 export default class Benzene<TContext = any, TExtra = any> {
   private lru: Lru<QueryCache>;

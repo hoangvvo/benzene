@@ -5,6 +5,7 @@
  * so the part must be rewritten to include that root resolver in `subscribe` of
  * the GraphQLObject in the schema.
  */
+import { makeCompileQuery as makeCompileQueryJit } from "@benzene/jit";
 import { EventEmitter } from "events";
 import {
   DocumentNode,
@@ -20,9 +21,8 @@ import {
   SubscriptionArgs,
 } from "graphql";
 import Benzene from "../src/core";
-import { makeCompileQuery as makeCompileQueryJit } from "../src/runtimes/jit";
-import { makeCompileQuery as makeCompileQueryJs } from "../src/runtimes/js";
 import { CompileQuery } from "../src/types";
+import { makeCompileQuery as makeCompileQueryJs } from "../src/utils";
 
 function eventEmitterAsyncIterator(
   eventEmitter: EventEmitter,

@@ -1,28 +1,55 @@
-import { isAsyncIterator } from "../src/utils";
+import { execute, parse, subscribe } from "graphql";
+import { CompiledQuery } from "../src/types";
+import { isAsyncIterator, makeCompileQuery } from "../src/utils";
+import { SimpleSchema } from "./_schema";
 
-test("isAsyncIterator returns false if value is not", () => {
-  expect(isAsyncIterator(undefined)).toBe(false);
-  expect(isAsyncIterator(null)).toBe(false);
-  expect(isAsyncIterator(true)).toBe(false);
-  expect(isAsyncIterator(1)).toBe(false);
-  expect(isAsyncIterator("")).toBe(false);
-  expect(isAsyncIterator({})).toBe(false);
-  expect(isAsyncIterator([])).toBe(false);
+describe("isAsyncIterator", () => {
+  test("returns false if value is not", () => {
+    expect(isAsyncIterator(undefined)).toBe(false);
+    expect(isAsyncIterator(null)).toBe(false);
+    expect(isAsyncIterator(true)).toBe(false);
+    expect(isAsyncIterator(1)).toBe(false);
+    expect(isAsyncIterator("")).toBe(false);
+    expect(isAsyncIterator({})).toBe(false);
+    expect(isAsyncIterator([])).toBe(false);
+  });
+
+  test("returns true if value is", () => {
+    expect(
+      isAsyncIterator({
+        [Symbol.asyncIterator]() {
+          return this;
+        },
+      })
+    ).toBe(true);
+
+    async function* asyncGeneratorFunc() {}
+
+    expect(isAsyncIterator(asyncGeneratorFunc())).toBe(true);
+
+    // But async generator function itself is not iterable
+    expect(isAsyncIterator(asyncGeneratorFunc)).toBe(false);
+  });
 });
 
-test("isAsyncIterator returns true if value is", () => {
-  expect(
-    isAsyncIterator({
-      [Symbol.asyncIterator]() {
-        return this;
-      },
-    })
-  ).toBe(true);
+describe("makeCompileQuery", () => {
+  const compileQuery = makeCompileQuery();
 
-  async function* asyncGeneratorFunc() {}
+  test("returns execute function that calls `execute` from graphql-js`", () => {
+    const document = parse(`query { foo }`);
+    const compiled = compileQuery(SimpleSchema, document) as CompiledQuery;
+    expect(compiled.execute({ document })).toEqual(
+      execute({ document, schema: SimpleSchema })
+    );
+  });
 
-  expect(isAsyncIterator(asyncGeneratorFunc())).toBe(true);
-
-  // But async generator function itself is not iterable
-  expect(isAsyncIterator(asyncGeneratorFunc)).toBe(false);
+  test("returns subscribe function that calls `subscribe` from graphql-js`", async () => {
+    const document = parse(`subscription { bar }`);
+    const compiled = compileQuery(SimpleSchema, document) as CompiledQuery;
+    // @ts-ignore
+    expect((await compiled.subscribe!({ document })).next()).toEqual(
+      // @ts-ignore
+      (await subscribe({ document, schema: SimpleSchema })).next()
+    );
+  });
 });

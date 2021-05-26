@@ -1,8 +1,8 @@
+import { CompileQuery } from "@benzene/core";
 import {
   compileQuery as jitCompileQuery,
   isCompiledQuery as jitIsCompiledQuery,
 } from "@hoangvvo/graphql-jit";
-import { CompileQuery } from "../types";
 
 /**
  * Create a compileQuery function using graphql-jit

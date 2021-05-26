@@ -1,3 +1,4 @@
+import { makeCompileQuery as makeCompileQueryJit } from "@benzene/jit";
 import {
   FormattedExecutionResult,
   GraphQLArgs,
@@ -6,9 +7,8 @@ import {
   GraphQLString,
 } from "graphql";
 import Benzene from "../src/core";
-import { makeCompileQuery as makeCompileQueryJit } from "../src/runtimes/jit";
-import { makeCompileQuery as makeCompileQueryJs } from "../src/runtimes/js";
 import { CompileQuery } from "../src/types";
+import { makeCompileQuery as makeCompileQueryJs } from "../src/utils";
 import { TestSchema } from "./_schema";
 
 function testWithCompileQuery(compileQuery: CompileQuery) {

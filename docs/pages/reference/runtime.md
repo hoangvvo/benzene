@@ -8,22 +8,16 @@ Benzene's GraphQL runtime can be configured with the `compileQuery` option. By d
 
 ## Built-in implementations
 
-`@benzene/core` currently bundles two implementations, [`graphql-js`](https://github.com/graphql/graphql-js) and [`graphql-jit`](https://github.com/zalando-incubator/graphql-jit).
-
-The modules are ESModule bundled, so the importing process may be different than usual:
-
-- If your Node version supports ESModule, import from `"@benzene/core/runtimes/x"`
-- Otherwise, import from `"@benzene/core/runtimes/x.cjs"`
+`@benzene/core` currently bundles with only [`graphql-js`](https://github.com/graphql/graphql-js) implementation. [`graphql-jit`](https://github.com/zalando-incubator/graphql-jit) implementation can be installed from `@benzene/jit` package.
 
 ### graphql-js
 
 `graphql-js` is the original implementation of GraphQL for JavaScript, which offers the latest features and best stability.
 
 ```js
-// ESModule import
-import { makeCompileQuery } from "@benzene/core/runtimes/js";
-// Legacy import
-import { makeCompileQuery } from "@benzene/core/runtimes/js.cjs";
+import { makeCompileQuery } from "@benzene/core";
+// OR: import { makeCompileQuery } from "@benzene/http";
+// OR: import { makeCompileQuery } from "@benzene/ws";
 
 const GQL = new Benzene({
   compileQuery: makeCompileQuery(),
@@ -37,10 +31,7 @@ This is also preferred if your application is deployed in specific environments,
 `graphql-jit` is a new implementation of GraphQL for JavaScript, that offers significant performance improvement (up to 10x) compared to the former.
 
 ```js
-// ESModule import
-import { makeCompileQuery } from "@benzene/core/runtimes/jit";
-// Legacy import
-import { makeCompileQuery } from "@benzene/core/runtimes/jit.cjs";
+import { makeCompileQuery } from "@benzene/jit";
 
 const GQL = new Benzene({
   compileQuery: makeCompileQuery(),

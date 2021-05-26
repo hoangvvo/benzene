@@ -209,13 +209,10 @@ with libraries other than `ws`.
 ### Optional: Use a different runtime
 
 **Benzene** supports different implementations of GraphQL. If you are looking for a more performant GraphQL server,
-take a look at the [runtime](/reference/runtime) documentation. Below is an example using `graphql-jit` more than 2x performance improvement.
+take a look at the [runtime](/reference/runtime) documentation. Below is an example using `graphql-jit` (from the `@benzene/jit` package) more than 2x performance improvement.
 
 ```js
-// ESModule import
-import { makeCompileQuery } from "@benzene/core/runtimes/jit";
-// Legacy import
-import { makeCompileQuery } from "@benzene/core/runtimes/jit.cjs";
+import { makeCompileQuery } from "@benzene/jit";
 
 const GQL = new Benzene({
   compileQuery: makeCompileQuery(),

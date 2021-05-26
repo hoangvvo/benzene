@@ -6,4 +6,4 @@ export type {
   GraphQLParams,
   ValueOrPromise,
 } from "./types";
-export { isAsyncIterator } from "./utils";
+export { isAsyncIterator, makeCompileQuery } from "./utils";

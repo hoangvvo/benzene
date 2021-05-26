@@ -19,21 +19,12 @@
     ".": {
       "import": "./index.js",
       "require": "./index.cjs"
-    },
-    "./runtimes/jit": {
-      "import": "./runtimes/jit.js",
-      "require": "./runtimes/jit.cjs"
-    },
-    "./runtimes/js": {
-      "import": "./runtimes/js.js",
-      "require": "./runtimes/js.cjs"
     }
   },
   "files": [
     "*.d.ts",
     "*.cjs",
-    "index.js",
-    "runtimes"
+    "index.js"
   ],
   "sideEffects": false,
   "scripts": {
@@ -42,7 +33,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@hoangvvo/graphql-jit": "^0.6.2",
     "tiny-lru": "^7.0.6"
   },
   "peerDependencies": {

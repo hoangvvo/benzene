@@ -1,11 +1,11 @@
+import { CompiledQuery } from "@benzene/core";
+import { SimpleSchema } from "@benzene/core/__tests__/_schema";
 import {
   CompiledQuery as CompiledQueryJit,
   compileQuery as compileQueryJit,
 } from "@hoangvvo/graphql-jit";
 import { parse } from "graphql";
-import { makeCompileQuery } from "../../src/runtimes/jit";
-import { CompiledQuery } from "../../src/types";
-import { SimpleSchema } from "../_schema";
+import { makeCompileQuery } from "../src/makeCompileQuery";
 
 const compileQuery = makeCompileQuery();
 

@@ -2,7 +2,7 @@
 
 const { createServer } = require("http");
 const { Benzene, makeHandler, parseGraphQLBody } = require("@benzene/http");
-const { makeCompileQuery } = require("@benzene/core/runtimes/js");
+const { makeCompileQuery } = require("@benzene/core");
 const schema = require("../schema");
 
 const GQL = new Benzene({ schema, compileQuery: makeCompileQuery() });

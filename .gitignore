@@ -113,3 +113,4 @@ yarn.lock
 packages/**/*.js
 packages/**/*.cjs
 packages/**/*.d.ts
+!rollup.config.js
