@@ -1,4 +1,4 @@
-import { parseGraphQLBody } from "../src/utils";
+import { parseGraphQLBody } from "@benzene/http/src/utils";
 
 test("parses application/json", () => {
   expect(

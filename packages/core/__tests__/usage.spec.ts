@@ -1,6 +1,6 @@
+import Benzene from "@benzene/core/src/core";
+import { makeCompileQuery } from "@benzene/core/src/utils";
 import { GraphQLSchema } from "graphql";
-import Benzene from "../src/core";
-import { makeCompileQuery } from "../src/utils";
 import { SimpleSchema } from "./_schema";
 
 test("throws if initializing instance with no option", () => {
@@ -13,6 +13,7 @@ test("throws if initializing instance with no option", () => {
 test("throws if schema is invalid", () => {
   expect(() => {
     new Benzene({
+      // @ts-ignore
       schema: new GraphQLSchema({ directives: [null] }),
     });
   }).toThrow();
@@ -27,6 +28,6 @@ test("defaults to graphql-js makeCompileQuery() with warning", () => {
   expect(console.warn)
     .toHaveBeenCalledWith(`The default GraphQL implementation of Benzene has been changed from graphql-jit to graphql-js.
 To remove this message, explicitly specify the desired runtime.
-Learn more at: https://benzene.vercel.app/reference/runtimes#built-in-implementations.`);
+Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementations.`);
   consoleSpy.mockClear();
 });

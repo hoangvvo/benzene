@@ -1,4 +1,4 @@
-import { CompiledQuery } from "@benzene/core";
+import { CompiledQuery } from "@benzene/core/src";
 import { SimpleSchema } from "@benzene/core/__tests__/_schema";
 import {
   CompiledQuery as CompiledQueryJit,
