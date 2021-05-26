@@ -1,5 +1,16 @@
 # @benzene/ws
 
+## 0.6.0-next.2
+
+### Minor Changes
+
+- afd5f1c: Update TS Config and drop support for Node 10
+
+### Patch Changes
+
+- Updated dependencies [afd5f1c]
+  - @benzene/core@0.6.0-next.2
+
 ## 0.6.0-next.1
 
 ### Patch Changes

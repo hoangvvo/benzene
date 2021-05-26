@@ -1,7 +1,7 @@
 {
   "name": "@benzene/ws",
   "type": "module",
-  "version": "0.6.0-next.1",
+  "version": "0.6.0-next.2",
   "description": "Fast and minimal GraphQL over WebSockets server",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -28,9 +28,7 @@
     "require": "./dist/index.cjs"
   },
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "sideEffects": false,
   "scripts": {
     "build": "tsc --emitDeclarationOnly --project tsconfig.build.json && rollup -c",
@@ -38,7 +36,7 @@
     "clean": "npx rimraf dist"
   },
   "dependencies": {
-    "@benzene/core": "^0.6.0-next.1"
+    "@benzene/core": "^0.6.0-next.2"
   },
   "peerDependencies": {
     "graphql": ">=15"
