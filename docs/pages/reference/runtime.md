@@ -8,7 +8,7 @@ Benzene's GraphQL runtime can be configured with the `compileQuery` option. By d
 
 ## Built-in implementations
 
-`@benzene/core` currently bundles with only [`graphql-js`](https://github.com/graphql/graphql-js) implementation. [`graphql-jit`](https://github.com/zalando-incubator/graphql-jit) implementation can be installed from `@benzene/jit` package.
+`@benzene/core` currently bundles with only [`graphql-js`](https://github.com/graphql/graphql-js) implementation. [`graphql-jit`](https://github.com/zalando-incubator/graphql-jit) implementation can be installed from [@benzene/jit](https://www.npmjs.com/package/@benzene/jit) package.
 
 ### graphql-js
 
@@ -28,7 +28,13 @@ This is also preferred if your application is deployed in specific environments,
 
 ### graphql-jit
 
-`graphql-jit` is a new implementation of GraphQL for JavaScript, that offers significant performance improvement (up to 10x) compared to the former.
+`graphql-jit` is a new implementation of GraphQL for JavaScript, that offers significant performance improvement (up to 10x) compared to the former. You should first install it with:
+
+```bash
+npm i @benzene/jit
+```
+
+Then set it to `compileQuery` like so:
 
 ```js
 import { makeCompileQuery } from "@benzene/jit";
