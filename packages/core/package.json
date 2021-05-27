@@ -1,9 +1,14 @@
 {
   "name": "@benzene/core",
   "type": "module",
-  "version": "0.6.0-next.1",
-  "description": "Fast and minimal JavaScript GraphQL Server",
+  "version": "0.6.0",
+  "description": "Fast, minimal, agnostic GraphQL Library",
   "author": "Hoang Vo (https://hoangvvo.com)",
+  "keywords": [
+    "graphql",
+    "performance",
+    "agnostic"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hoangvvo/benzene.git",
@@ -13,23 +18,18 @@
     "url": "https://github.com/hoangvvo/benzene/issues"
   },
   "homepage": "https://benzen.vercel.app/",
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
   },
-  "files": [
-    "*.d.ts",
-    "*.cjs",
-    "index.js"
-  ],
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
   "sideEffects": false,
   "scripts": {
-    "build": "rollup -c",
-    "test": "jest"
+    "build": "tsc --emitDeclarationOnly --project tsconfig.build.json && rollup -c",
+    "test": "jest",
+    "clean": "npx rimraf dist"
   },
   "license": "MIT",
   "dependencies": {
@@ -40,5 +40,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": "^12.0.0 || ^14.0.0 || >=16.0.0"
   }
 }

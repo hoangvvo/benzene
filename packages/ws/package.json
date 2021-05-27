@@ -1,8 +1,8 @@
 {
   "name": "@benzene/ws",
   "type": "module",
-  "version": "0.6.0-next.1",
-  "description": "Fast and minimal GraphQL over WebSockets server",
+  "version": "0.6.0",
+  "description": "Fast, minimal, agnostic GraphQL over WebSockets",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
     "graphql",
@@ -22,30 +22,29 @@
   },
   "homepage": "https://benzene.vercel.app/",
   "license": "MIT",
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
   "exports": {
-    ".": {
-      "export": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
   },
-  "files": [
-    "dist"
-  ],
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
   "sideEffects": false,
   "scripts": {
-    "build": "rollup -c",
+    "build": "tsc --emitDeclarationOnly --project tsconfig.build.json && rollup -c",
     "test": "jest",
     "clean": "npx rimraf dist"
   },
   "dependencies": {
-    "@benzene/core": "^0.6.0-next.1"
+    "@benzene/core": "^0.6.0"
   },
   "peerDependencies": {
     "graphql": ">=15"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": "^12.0.0 || ^14.0.0 || >=16.0.0"
   }
 }

@@ -1,5 +1,5 @@
 // theme.config.js
-const description = "Benzene: A fast and minimal JavaScript GraphQL Server";
+const description = "Fast, minimal, agnostic GraphQL Library";
 
 export default {
   repository: "https://github.com/hoangvvo/benzene", // project repo
@@ -29,13 +29,13 @@ export default {
   logo: (
     <>
       <span
-        style={{ color: "hsl(349deg 100% 59%)" }}
+        style={{ color: "#00a99d" }}
         className="font-bold p-2 text-lg"
       >
         Benzene
       </span>
       <span className="text-sm text-gray-600">
-        The fast and minimal GraphQL Server
+        {description}
       </span>
     </>
   ),

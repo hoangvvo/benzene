@@ -1,6 +1,6 @@
+import Benzene from "@benzene/core/src/core";
+import { QueryCache } from "@benzene/core/src/types";
 import { Lru } from "tiny-lru";
-import Benzene from "../src/core";
-import { QueryCache } from "../src/types";
 import { TestSchema } from "./_schema";
 
 test("saves compiled query to cache", async () => {

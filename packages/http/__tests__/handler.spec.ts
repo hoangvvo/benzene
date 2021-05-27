@@ -1,7 +1,7 @@
 // Adapted from https://github.com/graphql/express-graphql/blob/master/src/__tests__/http-test.ts
-import { Benzene } from "@benzene/core";
+import Benzene from "@benzene/core/src/core";
+import { makeHandler } from "@benzene/http/src/handler";
 import { GraphQLObjectType, GraphQLSchema, GraphQLString } from "graphql";
-import { makeHandler } from "../src/handler";
 
 const QueryRootType = new GraphQLObjectType({
   name: "QueryRoot",

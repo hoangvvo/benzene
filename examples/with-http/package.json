@@ -8,7 +8,7 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@benzene/http": "^0.0.3",
+    "@benzene/http": "^0.2.0",
     "graphql": "^15.5.0",
     "pokemon-graphql-schema": "^0.0.3"
   },

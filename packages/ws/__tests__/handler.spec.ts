@@ -1,5 +1,17 @@
-import { Benzene } from "@benzene/core";
+import Benzene from "@benzene/core/src/core";
 import { Options } from "@benzene/core/src/types";
+import { makeHandler } from "@benzene/ws/src/handler";
+import {
+  CompleteMessage,
+  ConnectionAckMessage,
+  ConnectionInitMessage,
+  ErrorMessage,
+  MessageType,
+  NextMessage,
+  SubscribeMessage,
+} from "@benzene/ws/src/message";
+import { GRAPHQL_TRANSPORT_WS_PROTOCOL } from "@benzene/ws/src/protocol";
+import { HandlerOptions } from "@benzene/ws/src/types";
 import { EventEmitter } from "events";
 import {
   GraphQLError,
@@ -10,18 +22,6 @@ import {
 import { createServer, Server } from "http";
 import { AddressInfo } from "net";
 import WebSocket from "ws";
-import { makeHandler } from "../src/handler";
-import {
-  CompleteMessage,
-  ConnectionAckMessage,
-  ConnectionInitMessage,
-  ErrorMessage,
-  MessageType,
-  NextMessage,
-  SubscribeMessage,
-} from "../src/message";
-import { GRAPHQL_TRANSPORT_WS_PROTOCOL } from "../src/protocol";
-import { HandlerOptions } from "../src/types";
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -467,6 +467,7 @@ test("returns errors if no payload", async () => {
 
   utils.send({
     type: MessageType.Subscribe,
+    // @ts-ignore
     payload: undefined,
     id: "1",
   });

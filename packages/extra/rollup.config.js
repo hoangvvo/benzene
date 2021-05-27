@@ -1,6 +1,4 @@
-import merge from "deepmerge";
-import config from "../../rollup.config";
+import { buildConfig } from "../../build-utils";
+import packageJson from "./package.json";
 
-export default merge(config, {
-  external: ["crypto-hash", "tiny-lru"],
-});
+export default buildConfig({ packageJson });

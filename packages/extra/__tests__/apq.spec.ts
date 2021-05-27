@@ -1,6 +1,6 @@
+import { makeAPQHandler } from "@benzene/extra/src/apq";
 import { sha256 } from "crypto-hash";
 import lru from "tiny-lru";
-import { makeAPQHandler } from "../src/apq";
 
 test("does nothing if input is not object or does not contain a supported persisted query", async () => {
   const badCache = {};
@@ -10,7 +10,7 @@ test("does nothing if input is not object or does not contain a supported persis
   const req = {};
   const res = await apqHTTP(req);
   expect(res).toBe(req);
-  
+
   const res1 = await apqHTTP(undefined);
   expect(res1).toBeUndefined();
 

@@ -1,7 +1,7 @@
 {
   "name": "@benzene/jit",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "GraphQL JIT implementation for @benzene/core",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -19,20 +19,16 @@
   },
   "homepage": "https://benzene.vercel.app/",
   "license": "MIT",
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
   },
-  "files": [
-    "dist"
-  ],
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
   "sideEffects": false,
   "scripts": {
-    "build": "rollup -c",
+    "build": "tsc --emitDeclarationOnly --project tsconfig.build.json && rollup -c",
     "test": "jest",
     "clean": "npx rimraf dist"
   },
@@ -40,7 +36,10 @@
     "access": "public"
   },
   "dependencies": {
-    "@benzene/core": "^0.6.0-next.1",
+    "@benzene/core": "^0.6.0",
     "@hoangvvo/graphql-jit": "^0.6.2"
+  },
+  "engines": {
+    "node": "^12.0.0 || ^14.0.0 || >=16.0.0"
   }
 }

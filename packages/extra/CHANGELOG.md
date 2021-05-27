@@ -1,10 +1,10 @@
 # @benzene/extra
 
-## 0.0.2-next.0
+## 0.1.0
 
-### Patch Changes
+### Minor Changes
 
-- Build files at root
+- afd5f1c: Update TS Config and drop support for Node 10
 
 ## 0.0.1
 
