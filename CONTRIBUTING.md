@@ -32,7 +32,7 @@ The steps to submit a PR are:
 
 1. [Fork](https://help.github.com/articles/fork-a-repo/) this repository to your own GitHub account and then [clone](https://help.github.com/articles/cloning-a-repository/) it to your local device.
 
-2. Install all dependencies and dev dependencies by `npm i`.
+2. Install all dependencies and dev dependencies by `npm i` **from root directory**. To install a dependency to a package, use `npm i x -w packages/y` instead of `npm i` from inside each package.
 
 3. Make changes and commit. Use the present tense and imperative mood ("Add feature" instead of "Adds feature" or "Added feature").
 
