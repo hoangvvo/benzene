@@ -13,7 +13,6 @@ addEventListener("fetch", (event) => {
  */
 async function handleRequest(request) {
   const url = new URL(request.url);
-  console.log(url.pathname);
   if (url.pathname.startsWith("/graphql")) {
     // Serve GraphQL API
     const headers = Object.fromEntries(request.headers);
@@ -25,7 +24,7 @@ async function handleRequest(request) {
       query: Object.fromEntries(url.searchParams),
     });
     return new Response(JSON.stringify(result.payload), {
-      headers: result.headers,
+      headers: new Headers(result.headers),
       status: result.status,
     });
   }
