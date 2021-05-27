@@ -1,17 +1,37 @@
-import Markdown from 'markdown-to-jsx'
-import { useSSG } from 'nextra/ssg'
-
-export const getStaticProps = ({ params }) => {
-  return fetch('https://raw.githubusercontent.com/hoangvvo/benzene/main/README.md')
-    .then(res => res.text())
-    .then(text => ({ props: { ssg: text } }))
-}
-
-export const BenchmarksRenderer = ({}) => {
-  const text = useSSG()
-  return <Markdown>{text}</Markdown>
-}
-
 # Benzene
 
-<BenchmarksRenderer/>
+![benzene](/og.png)
+
+**Benzene** is a fast and minimal JavaScript GraphQL Server. In Chemistry, it is a building block chemical. In JavaScript, it is the building block for your next API.
+
+## Overview
+
+```js
+import express from "express";
+import { Benzene, makeHandler } from "@benzene/http";
+
+const app = express();
+
+const GQL = new Benzene();
+
+const graphqlHTTP = makeHandler(GQL);
+
+app.use("/graphql", async (req, res) => {
+  const result = await graphqlHTTP({
+    method: req.method,
+    query: req.query,
+    body: req.body,
+    headers: req.headers,
+  });
+  res.header(result.headers);
+  res.status(result.status).send(result.payload);
+});
+
+app.listen(4000);
+```
+
+In this example, we create a GraphQL handler `graphqlHTTP` using a [Benzene instance](/reference/benzene). The instance will also be used in other libraries like `@benzene/ws`, allowing us to unify pipelines like error formatting in one place.
+
+`graphqlHTTP` accepts a generic request object containing `method`, `query`, `body`, and `headers` and returns a generic response object containing `status`, `headers`, and `payload`. This allows it to work with any frameworks (or even runtimes).
+
+As we can see, `graphqlHTTP` does nothing but executing the GraphQL request as it is, giving us full control in aspects like [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) or body parsing.

@@ -2,7 +2,10 @@ import { Benzene, makeHandler, parseGraphQLBody } from "@benzene/http";
 import { makeCompileQuery } from "@benzene/jit";
 import { createReadStream } from "fs";
 import { createServer } from "http";
-import schema from "pokemon-graphql-schema";
+import { schema } from "pokemon-graphql-schema";
+import fetch from "undici-fetch";
+
+globalThis.fetch = fetch;
 
 const GQL = new Benzene({ schema, compileQuery: makeCompileQuery() });
 

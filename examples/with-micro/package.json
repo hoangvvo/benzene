@@ -10,7 +10,8 @@
     "@benzene/http": "^0.2.0",
     "graphql": "^15.5.0",
     "micro": "^9.3.4",
-    "pokemon-graphql-schema": "^0.0.3"
+    "pokemon-graphql-schema": "^0.1.3",
+    "undici-fetch": "^0.2.0"
   },
   "license": "ISC"
 }
