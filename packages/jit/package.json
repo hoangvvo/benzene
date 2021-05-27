@@ -36,6 +36,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@benzene/core": "^0.6.0",
     "@hoangvvo/graphql-jit": "^0.6.2"
   },
   "engines": {

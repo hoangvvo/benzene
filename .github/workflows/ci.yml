@@ -21,13 +21,16 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: yarn install
+    - name: Install npm v7
+      run: npm i -g npm@latest
+    - name: Install dependencies
+      run: npm install
     - name: Lint
-      run: yarn lint
+      run: npm run lint
     - name: Build & Test
       run: |
-        yarn build
-        yarn test:ci
+        npm run build
+        npm run test:ci
     - uses: codecov/codecov-action@v1
       with:
         files: ./coverage/lcov.info

@@ -36,7 +36,7 @@ There are also various [examples](examples) for integrations with different tool
 
 ## Contributing
 
-Please see my [contributing.md](CONTRIBUTING.md).
+This repository uses the new [npm v7 workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces). Please see [contributing.md](CONTRIBUTING.md).
 
 ## License
 
