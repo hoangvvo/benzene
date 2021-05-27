@@ -1,5 +1,7 @@
 # deno example
 
+An example using `@benzene/http` with [Deno](https://deno.land/).
+
 ## How to use
 
 Download the example
