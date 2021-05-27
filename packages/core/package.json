@@ -2,8 +2,13 @@
   "name": "@benzene/core",
   "type": "module",
   "version": "0.6.0",
-  "description": "Fast and minimal JavaScript GraphQL Server",
+  "description": "Fast, minimal, agnostic GraphQL Library",
   "author": "Hoang Vo (https://hoangvvo.com)",
+  "keywords": [
+    "graphql",
+    "performance",
+    "agnostic"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hoangvvo/benzene.git",
