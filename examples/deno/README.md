@@ -12,9 +12,7 @@ cd deno
 Run it:
 
 ```bash
-deno run --unstable --allow-net server.ts
+deno run --unstable --allow-net mod.ts
 ```
 
-## Plans
-
-We are planning to publish **Benzene** to [deno.land/x](https://deno.land/x) but sticking with [Skypack](https://www.skypack.dev/) for now.
+Also check out [deno_deploy](/examples/deno_deploy)
