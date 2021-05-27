@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://withstereo.com">
+  <a href="https://benzene.vercel.app/">
     <img alt="Stereo" src="https://benzene.vercel.app/og.png">
   </a>
 </p>
@@ -24,38 +24,6 @@ The `@benzene/http` and `@benzene/ws` packages allow us to build a full-featured
 
 We are taking an approach opposite to [Apollo Server](https://github.com/apollographql/apollo-server), which abstracts everything behind its `applyMiddleware` function that includes unexpected and hard-to-customized "defaults".
 While our approach requires a bit more boilerplate, we achieve an observable and customizable server integration.
-
-## Overview
-
-```js
-import express from "express";
-import { Benzene, makeHandler } from "@benzene/http";
-
-const app = express();
-
-const GQL = new Benzene();
-
-const graphqlHTTP = makeHandler(GQL);
-
-app.use("/graphql", async (req, res) => {
-  const result = await graphqlHTTP({
-    method: req.method,
-    query: req.query,
-    body: req.body,
-    headers: req.headers,
-  });
-  res.header(result.headers);
-  res.status(result.status).send(result.payload);
-});
-
-app.listen(4000);
-```
-
-In this example, we create a GraphQL handler `graphqlHTTP` using a [Benzene instance](/reference/benzene). The instance will also be used in other libraries like [@benzene/ws](https://www.npmjs.com/package/@benzene/ws), allowing us to unify pipelines like error formatting in one place.
-
-`graphqlHTTP` accepts a generic request object containing `method`, `query`, `body`, and `headers` and returns a generic response object containing `status`, `headers`, and `payload`. This allows it to work anywhere: [Node.js](https://nodejs.org/), [Deno](https://deno.land/), [CloudFlare Workers](https://workers.cloudflare.com/), [AWS Lambda](https://aws.amazon.com/lambda/), and more.
-
-Also, `graphqlHTTP` does nothing but executing the GraphQL request as it is, giving us full control in aspects like [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) or body parsing.
 
 ## Documentation
 

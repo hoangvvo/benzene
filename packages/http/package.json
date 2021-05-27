@@ -2,9 +2,10 @@
   "name": "@benzene/http",
   "type": "module",
   "version": "0.2.0",
-  "description": "Fast and minimal GraphQL over HTTP server",
+  "description": "Fast, minimal, agnostic GraphQL over HTTP",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
+    "api",
     "graphql",
     "http",
     "server",

@@ -2,7 +2,7 @@
   "name": "@benzene/ws",
   "type": "module",
   "version": "0.6.0",
-  "description": "Fast and minimal GraphQL over WebSockets server",
+  "description": "Fast, minimal, agnostic GraphQL over WebSockets",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
     "graphql",
