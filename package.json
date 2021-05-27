@@ -4,11 +4,11 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm workspaces run build",
+    "build": "npm run build --workspaces",
     "lint": "eslint packages/*/src/**/*.{js,ts}",
     "test": "jest",
     "test:ci": "jest --ci --coverage",
-    "clean": "yarn workspaces run clean"
+    "clean": "npm run clean --workspaces"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
