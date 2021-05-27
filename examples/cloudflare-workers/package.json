@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "name": "cloudflare-workers",
+  "version": "0.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write '**/*.{js,css,json,md}'"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@benzene/http": "^0.2.0",
+    "graphql": "^15.5.0",
+    "pokemon-graphql-schema": "^0.1.3"
+  }
+}
