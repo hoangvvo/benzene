@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://withstereo.com">
+  <a href="https://benzene.vercel.app/">
     <img alt="Stereo" src="https://benzene.vercel.app/og.png">
   </a>
 </p>
