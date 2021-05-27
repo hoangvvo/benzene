@@ -23,5 +23,5 @@
   "rules": {
     "no-unused-vars": "off"
   },
-  "ignorePatterns": ["packages/*/dist/**"]
+  "ignorePatterns": ["packages/*/dist/**", "examples/deno/**"]
 }
