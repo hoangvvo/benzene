@@ -1,5 +1,7 @@
 # with-http example
 
+This example demonstrates using `@benzene/http` with Node.js [http](https://nodejs.org/api/http.html).
+
 ## How to use
 
 Download the example:

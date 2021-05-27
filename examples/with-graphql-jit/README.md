@@ -1,5 +1,7 @@
 # with-graphql-jit example
 
+This example demonstrates using [graphql-jit](https://github.com/zalando-incubator/graphql-jit) to improve GraphQL performance via `@benzene/jit`.
+
 ## How to use
 
 Download the example:

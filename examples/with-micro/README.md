@@ -1,5 +1,7 @@
 # with-micro example
 
+This example demonstrates using `@benzene/http` with [micro](https://github.com/vercel/micro).
+
 ## How to use
 
 Download the example:

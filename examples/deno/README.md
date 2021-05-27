@@ -1,6 +1,6 @@
 # deno example
 
-An example using `@benzene/http` with [Deno](https://deno.land/).
+This example demonstrates using `@benzene/http` with [Deno](https://deno.land/).
 
 ## How to use
 

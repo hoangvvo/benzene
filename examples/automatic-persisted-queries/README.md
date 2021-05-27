@@ -1,5 +1,7 @@
 # automatic-persisted-queries example
 
+This example demonstrates how to improve GraphQL performance by using [automatic persisted queries](https://www.apollographql.com/docs/apollo-server/performance/apq/) via `@benzene/extra`
+
 ## How to use
 
 Download the example:

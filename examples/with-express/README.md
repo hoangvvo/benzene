@@ -1,5 +1,7 @@
 # with-express example
 
+This example demonstates using `@benzene/http` with [Express.js](https://expressjs.com/).
+
 ## How to use
 
 Download the example:

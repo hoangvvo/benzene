@@ -1,5 +1,7 @@
 # with-dataloader example
 
+This example demonstrates how to use [dataloader](https://github.com/graphql/dataloader) to avoid N+1 problem.
+
 ## How to use
 
 Download the example:
