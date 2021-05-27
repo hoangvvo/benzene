@@ -1,7 +1,10 @@
 import { Benzene, makeHandler } from "@benzene/http";
 import express from "express";
 import expressPlayground from "graphql-playground-middleware-express";
-import schema from "pokemon-graphql-schema";
+import { schema } from "pokemon-graphql-schema";
+import fetch from "undici-fetch";
+
+globalThis.fetch = fetch;
 
 const GQL = new Benzene({ schema });
 

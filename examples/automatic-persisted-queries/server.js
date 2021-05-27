@@ -3,7 +3,7 @@ import { Benzene, makeHandler, parseGraphQLBody } from "@benzene/http";
 import parse from "@polka/url";
 import { createReadStream } from "fs";
 import { createServer } from "http";
-import schema from "pokemon-graphql-schema";
+import { schema } from "pokemon-graphql-schema";
 
 const apqHTTP = makeAPQHandler();
 

@@ -1,6 +1,9 @@
 const { text, send } = require("micro");
 const { Benzene, makeHandler, parseGraphQLBody } = require("@benzene/http");
-const schema = require("pokemon-graphql-schema");
+const { schema } = require("pokemon-graphql-schema");
+const fetch = require("undici-fetch");
+
+globalThis.fetch = fetch;
 
 const GQL = new Benzene({ schema });
 
