@@ -1,5 +1,5 @@
 // theme.config.js
-const description = "Fast, minimal, agnostic GraphQL Library";
+const description = "Fast, minimal, agnostic GraphQL Libraries";
 
 export default {
   repository: "https://github.com/hoangvvo/benzene", // project repo
@@ -28,15 +28,10 @@ export default {
   footerEditOnGitHubLink: true, // will link to the docs repo
   logo: (
     <>
-      <span
-        style={{ color: "#00a99d" }}
-        className="font-bold p-2 text-lg"
-      >
+      <span style={{ color: "#00a99d" }} className="font-bold p-2 text-lg">
         Benzene
       </span>
-      <span className="text-sm text-gray-600">
-        {description}
-      </span>
+      <span className="text-sm text-gray-600">{description}</span>
     </>
   ),
   head: (

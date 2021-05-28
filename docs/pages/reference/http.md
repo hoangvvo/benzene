@@ -47,6 +47,8 @@ interface HTTPRequest {
   body?: Record<string, any>;
   headers: Headers;
 }
+
+type Headers = Record<string, string | string[] | undefined>;
 ```
 
 Regardless of frameworks and runtimes, we simply need to call it using an object with:
@@ -68,7 +70,7 @@ async function onRequest(req, res) {
 }
 ```
 
-## Respond GraphQL execution result
+## Respond with GraphQL result
 
 `graphqlHTTP` will resolve into a generic response object:
 
@@ -80,7 +82,7 @@ interface HTTPResponse {
 }
 ```
 
-We will use values in this object the send the HTTP response accordingly:
+We will use values in this object the send back the HTTP response:
 
 ```js
 // Node.js

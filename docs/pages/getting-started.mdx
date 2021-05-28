@@ -8,9 +8,9 @@ This tutorial will take us through the process of building a GraphQL server with
 - Upvote a book
 - Synchronize votes with real-time changes
 
-Everything will be built with the bare [http](https://nodejs.org/api/http.html) module and the [ws](https://github.com/websockets/ws) library. We can adapt it to any other libraries.
+Everything will be built with the bare [http](https://nodejs.org/api/http.html) module and the [ws](https://github.com/websockets/ws) library. However, we can adapt it to any other libraries.
 
-In this tutorial, we will use the *SDL-first* library [graphql-tools](https://github.com/ardatan/graphql-tools) for our schema. (However, we can choose *code-first* libraries likes [type-graphql](https://github.com/MichalLytek/type-graphql) and [@nexus/schema](https://github.com/graphql-nexus/schema))
+In this tutorial, we will use the *SDL-first* library [graphql-tools](https://github.com/ardatan/graphql-tools) for our schema. (We can also choose *code-first* libraries likes [type-graphql](https://github.com/MichalLytek/type-graphql) and [@nexus/schema](https://github.com/graphql-nexus/schema))
 
 Check out the [source code](https://github.com/hoangvvo/benzene/tree/main/examples/book-votes) or follow along.
 
@@ -193,24 +193,24 @@ each must be parsed differently. We provide `parseGraphQLBody` function, which a
 
 ### Create a Benzene instance and transport handlers
 
-After creating a [Benzene instance](/reference/benzene), we create HTTP and WebSocket handler by supplying the it to the `makeHandler` functions from
+After creating a [Benzene instance](/reference/benzene), we create the HTTP and WebSocket handlers by supplying it to the `makeHandler` functions from
 `@benzene/http` and `@benzene/ws`.
 
 `@benzene/http` is then called with a generic request object and returns a generic response object with `status`, `headers`, and `payload` so we can respond
-as we wish. This allows us to work with any frameworks or runtimes.
+as we wish. This allows us to work with any frameworks or runtimes. Check out [Examples](/examples) for more integrations.
 
 Similarly, `@benzene/ws` is called with any [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)-like instance, so we can use it
 with libraries other than `ws`.
 
 <Callout emoji="📦">
-  Benzene class is exported from both `@benzene/ws` and `@benzene/http`
+  The same Benzene class is exported from both `@benzene/ws` and `@benzene/http`
 </Callout>
 
 ### Optional: Use a different runtime
 
 **Benzene** supports different implementations of GraphQL. If you are looking for a more performant GraphQL server,
 take a look at the [runtime](/reference/runtime) documentation.
-Below is an example using `graphql-jit` (from the [@benzene/jit](https://www.npmjs.com/package/@benzene/jit) package) more than 2x performance improvement.
+Below is an example using `graphql-jit` (from the [@benzene/jit](https://www.npmjs.com/package/@benzene/jit) package) to achieve more than 2x performance gain.
 
 ```js
 import { makeCompileQuery } from "@benzene/jit";
@@ -220,7 +220,7 @@ const GQL = new Benzene({
 });
 ```
 
-Also, check out the [benchmarks](/benchmarks) section to learn more about the difference.
+Also, check out the [benchmarks](/benchmarks) section to learn more about the difference in performance.
 
 ## Start the application
 

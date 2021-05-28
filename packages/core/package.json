@@ -2,7 +2,7 @@
   "name": "@benzene/core",
   "type": "module",
   "version": "0.6.0",
-  "description": "Fast, minimal, agnostic GraphQL Library",
+  "description": "Fast, minimal, agnostic GraphQL Libraries",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
     "graphql",
@@ -17,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/hoangvvo/benzene/issues"
   },
-  "homepage": "https://benzen.vercel.app/",
+  "homepage": "https://benzene.vercel.app/",
   "main": "./dist/index.js",
   "exports": {
     "import": "./dist/index.js",

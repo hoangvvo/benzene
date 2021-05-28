@@ -37,9 +37,9 @@ Regardless of packages, the returned function always accepts two arguments: a sp
 
 ### The extra argument
 
-Unlike other libraries that [store environmental variables in a "context" object](https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields) for convenient accesses (such as in the GraphQL context factory function), **Benzene** avoids storing those that are not needed for the GraphQL execution to achieve the best performance.
+Unlike other libraries that [store middleware specific variables in a "context" object](https://www.apollographql.com/docs/apollo-server/api/apollo-server/#middleware-specific-context-fields) for convenience, **Benzene** avoids storing those that are not needed for the GraphQL execution to achieve the best performance.
 
-Instead, the `extra` argument allows us to specify only what we need to store for later uses. For the best flexibility, though, we recommend avoid passing in environment-specific variables (like a Request object or a WebSocket instance).
+Instead, the `extra` argument allows us to specify only what we need to store for later uses. For the best flexibility, though, we recommend avoid passing in runtime/framework-specific variables (like a Request object or a WebSocket instance).
 
 ```js
 function onRequest(request) {
