@@ -1,40 +1,13 @@
 // Adapted from https://github.com/graphql/express-graphql/blob/master/src/__tests__/http-test.ts
 import Benzene from "@benzene/core/src/core";
+import { SimpleSchema, TestSchema } from "@benzene/core/__tests__/_schema";
 import { makeHandler } from "@benzene/http/src/handler";
-import { GraphQLObjectType, GraphQLSchema, GraphQLString } from "graphql";
-
-const QueryRootType = new GraphQLObjectType({
-  name: "QueryRoot",
-  fields: {
-    test: {
-      type: GraphQLString,
-      args: {
-        who: { type: GraphQLString },
-      },
-      resolve: (_root, args: { who?: string }) =>
-        "Hello " + (args.who ?? "World"),
-    },
-    thrower: {
-      type: GraphQLString,
-      resolve() {
-        throw new Error("Throws!");
-      },
-    },
-  },
-});
-
-const TestSchema = new GraphQLSchema({
-  query: QueryRootType,
-  mutation: new GraphQLObjectType({
-    name: "MutationRoot",
-    fields: {
-      writeTest: {
-        type: QueryRootType,
-        resolve: () => ({}),
-      },
-    },
-  }),
-});
+import {
+  GraphQLError,
+  GraphQLObjectType,
+  GraphQLSchema,
+  GraphQLString,
+} from "graphql";
 
 const GQL = new Benzene({ schema: TestSchema });
 
@@ -641,7 +614,7 @@ test("creates GraphQL context using Benzene#contextFn", async () => {
   });
 });
 
-test("Receive extra in Benzene#contextFn", async () => {
+test("Receives extra in Benzene#contextFn", async () => {
   const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
       name: "Query",
@@ -681,7 +654,7 @@ test("Receive extra in Benzene#contextFn", async () => {
   });
 });
 
-test("Receive nullable extra in Benzene#contextFn", async () => {
+test("Receives nullable extra in Benzene#contextFn", async () => {
   const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
       name: "Query",
@@ -715,6 +688,95 @@ test("Receive nullable extra in Benzene#contextFn", async () => {
         test: null,
       },
     },
+  });
+});
+
+describe("options.onParams", () => {
+  const GQL = new Benzene<unknown, unknown>({
+    schema: SimpleSchema,
+  });
+  test("Overrides options.onParams if it returns a GraphQLParams object", async () => {
+    expect(
+      await makeHandler(GQL, {
+        onParams(params) {
+          return {
+            ...params,
+            query: "{ foo }",
+          };
+        },
+      })({
+        method: "GET",
+        query: {}, // query.query is intentionally empty
+        headers: {},
+      })
+    ).toEqual({
+      status: 200,
+      headers: { "content-type": "application/json" },
+      payload: {
+        data: {
+          foo: "FooValue",
+        },
+      },
+    });
+  });
+
+  describe("Responds early if it returns an ExecutionResult", () => {
+    test("With status equals to extensions.status", async () => {
+      expect(
+        await makeHandler(GQL, {
+          onParams() {
+            return {
+              errors: [new GraphQLError("TestError")],
+              extensions: { status: 401 },
+            };
+          },
+        })({ method: "GET", query: {}, headers: {} })
+      ).toEqual({
+        status: 401,
+        headers: { "content-type": "application/json" },
+        payload: {
+          errors: [{ message: "TestError" }],
+        },
+      });
+    });
+
+    test("With status equals to 400 otherwise", async () => {
+      expect(
+        await makeHandler(GQL, {
+          onParams() {
+            return {
+              errors: [new GraphQLError("TestError")],
+            };
+          },
+        })({ method: "GET", query: {}, headers: {} })
+      ).toEqual({
+        status: 400,
+        headers: { "content-type": "application/json" },
+        payload: {
+          errors: [{ message: "TestError" }],
+        },
+      });
+    });
+  });
+
+  test("Does nothing if it does not return a value", async () => {
+    expect(
+      await makeHandler(GQL, {
+        onParams() {},
+      })({
+        method: "GET",
+        query: { query: "{ foo }" }, // query.query is intentionally empty
+        headers: {},
+      })
+    ).toEqual({
+      status: 200,
+      headers: { "content-type": "application/json" },
+      payload: {
+        data: {
+          foo: "FooValue",
+        },
+      },
+    });
   });
 });
 
