@@ -37,7 +37,7 @@ export const SimpleSchema = new GraphQLSchema({
   query: new GraphQLObjectType({
     name: "Query",
     fields: {
-      bar: {
+      foo: {
         type: GraphQLString,
         resolve: function fooResolve() {
           return "FooValue";
