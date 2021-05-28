@@ -41,11 +41,7 @@ export function makeHandler<TBenzene extends Benzene>(
       const onParamsResult = options.onParams(params);
       if (onParamsResult) {
         if (isExecutionResult(onParamsResult)) {
-          return createResponse(
-            GQL,
-            onParamsResult.extensions?.status || 400,
-            onParamsResult
-          );
+          return createResponse(GQL, 200, onParamsResult);
         }
         params = onParamsResult;
       }

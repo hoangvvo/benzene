@@ -720,42 +720,21 @@ describe("options.onParams", () => {
     });
   });
 
-  describe("Responds early if it returns an ExecutionResult", () => {
-    test("With status equals to extensions.status", async () => {
-      expect(
-        await makeHandler(GQL, {
-          onParams() {
-            return {
-              errors: [new GraphQLError("TestError")],
-              extensions: { status: 401 },
-            };
-          },
-        })({ method: "GET", query: {}, headers: {} })
-      ).toEqual({
-        status: 401,
-        headers: { "content-type": "application/json" },
-        payload: {
-          errors: [{ message: "TestError" }],
+  test("Responds early if it returns an ExecutionResult", async () => {
+    expect(
+      await makeHandler(GQL, {
+        onParams() {
+          return {
+            errors: [new GraphQLError("TestError")],
+          };
         },
-      });
-    });
-
-    test("With status equals to 400 otherwise", async () => {
-      expect(
-        await makeHandler(GQL, {
-          onParams() {
-            return {
-              errors: [new GraphQLError("TestError")],
-            };
-          },
-        })({ method: "GET", query: {}, headers: {} })
-      ).toEqual({
-        status: 400,
-        headers: { "content-type": "application/json" },
-        payload: {
-          errors: [{ message: "TestError" }],
-        },
-      });
+      })({ method: "GET", query: {}, headers: {} })
+    ).toEqual({
+      status: 200,
+      headers: { "content-type": "application/json" },
+      payload: {
+        errors: [{ message: "TestError" }],
+      },
     });
   });
 
