@@ -1,5 +1,13 @@
 # @benzene/http
 
+## 0.3.1
+
+### Patch Changes
+
+- cce8d67: Fix broken releases
+- Updated dependencies [cce8d67]
+  - @benzene/core@0.7.1
+
 ## 0.3.0
 
 ### Minor Changes
