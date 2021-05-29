@@ -38,7 +38,7 @@ export function makeHandler<TBenzene extends Benzene>(
     let params = getGraphQLParams(request);
 
     if (options.onParams) {
-      const onParamsResult = options.onParams(params);
+      const onParamsResult = await options.onParams(params);
       if (onParamsResult) {
         if (isExecutionResult(onParamsResult)) {
           return createResponse(GQL, 200, onParamsResult);

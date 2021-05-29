@@ -720,6 +720,31 @@ describe("options.onParams", () => {
     });
   });
 
+  test("Overrides options.onParams if it returns a promise of GraphQLParams object", async () => {
+    expect(
+      await makeHandler(GQL, {
+        onParams(params) {
+          return Promise.resolve({
+            ...params,
+            query: "{ foo }",
+          });
+        },
+      })({
+        method: "GET",
+        query: {}, // query.query is intentionally empty
+        headers: {},
+      })
+    ).toEqual({
+      status: 200,
+      headers: { "content-type": "application/json" },
+      payload: {
+        data: {
+          foo: "FooValue",
+        },
+      },
+    });
+  });
+
   test("Responds early if it returns an ExecutionResult", async () => {
     expect(
       await makeHandler(GQL, {

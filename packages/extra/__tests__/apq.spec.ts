@@ -1,34 +1,31 @@
+import { Benzene } from "@benzene/core/src";
+import { SimpleSchema } from "@benzene/core/__tests__/_schema";
 import { makeAPQHandler } from "@benzene/extra/src/apq";
+import { makeHandler } from "@benzene/http/src/handler";
 import { sha256 } from "crypto-hash";
 import lru from "tiny-lru";
 
-test("does nothing if input is not object or does not contain a supported persisted query", async () => {
+test("does nothing if inputs does not contain a supported persisted query", async () => {
   const badCache = {};
   // @ts-expect-error: It should not invoke cache in the cases below
-  const apqHTTP = makeAPQHandler({ cache: badCache });
+  const apq = makeAPQHandler({ cache: badCache });
 
   const req = {};
-  const res = await apqHTTP(req);
+  const res = await apq(req);
   expect(res).toBe(req);
 
-  const res1 = await apqHTTP(undefined);
-  expect(res1).toBeUndefined();
-
-  const res2 = await apqHTTP(null);
-  expect(res2).toBeNull();
-
   const req3 = { extensions: { persistedQuery: { version: 2 } } };
-  const res3 = await apqHTTP(req3);
+  const res3 = await apq(req3);
   expect(res3).toBe(req3);
 
   const req4 = { extensions: { persisted: "foo" } };
-  const res4 = await apqHTTP(req4);
+  const res4 = await apq(req4);
   expect(res4).toBe(req4);
 });
 
-test("throws PersistedQueryNotFound is query hash is not recognized", () => {
+test("returns result with PersistedQueryNotFound if query hash is not recognized", async () => {
   return expect(
-    makeAPQHandler()({
+    await makeAPQHandler()({
       extensions: {
         persistedQuery: {
           sha256Hash: sha256("{test}"),
@@ -36,20 +33,15 @@ test("throws PersistedQueryNotFound is query hash is not recognized", () => {
         },
       },
     })
-  ).rejects.toThrowError("PersistedQueryNotFound");
-});
-
-test("throws PersistedQueryNotFound is query hash is not found", () => {
-  return expect(
-    makeAPQHandler()({
-      extensions: {
-        persistedQuery: {
-          sha256Hash: sha256("{test}"),
-          version: 1,
-        },
+  ).toEqual({
+    errors: [
+      {
+        message: "PersistedQueryNotFound",
+        extensions: { code: "PERSISTED_QUERY_NOT_FOUND" },
+        status: 200,
       },
-    })
-  ).rejects.toThrowError("PersistedQueryNotFound");
+    ],
+  });
 });
 
 test("allows custom cache", (done) => {
@@ -84,32 +76,11 @@ test("saves query by hash sent from clients", async () => {
     },
   };
   const result = await makeAPQHandler({ cache })(request);
-  expect(result).toBe(request);
+  expect(result).toBe(request); // Return the original params
   expect(cache.get(sha256Hash)).toBe(query);
 });
 
-test("saves query by hash sent from clients (query strings)", async () => {
-  const cache = lru();
-  const sha256Hash = await sha256("{test}");
-
-  const request = {
-    query: "{test}",
-    extensions: JSON.stringify({
-      persistedQuery: {
-        sha256Hash,
-        version: 1,
-      },
-    }),
-  };
-
-  const result = await makeAPQHandler({ cache })(request);
-
-  expect(result).toBe(request);
-
-  expect(cache.get(sha256Hash)).toBe("{test}");
-});
-
-test("throws error if receiving mismatched hash256", async () => {
+test("return result with error if receiving mismatched hash256", async () => {
   const sha256Hash = await sha256("{test}");
 
   const cache = lru();
@@ -117,7 +88,7 @@ test("throws error if receiving mismatched hash256", async () => {
   cache.set(sha256Hash, "{test}");
 
   return expect(
-    makeAPQHandler()({
+    await makeAPQHandler()({
       query: "{test}",
       extensions: {
         persistedQuery: {
@@ -126,7 +97,9 @@ test("throws error if receiving mismatched hash256", async () => {
         },
       },
     })
-  ).rejects.toThrowError("provided sha does not match query");
+  ).toEqual({
+    errors: [{ message: "provided sha does not match query", status: 400 }],
+  });
 });
 
 test("adds query if hash is found in cache", async () => {
@@ -147,30 +120,82 @@ test("adds query if hash is found in cache", async () => {
 
   const result = await makeAPQHandler({ cache })(request);
 
-  expect(result).toBe(request);
-
-  expect(request.query).toBe("{test}");
+  // @ts-ignore
+  expect(result.query).toBe("{test}");
 });
 
-test("adds query if hash is found in cache (query strings)", async () => {
-  const sha256Hash = await sha256("{test}");
+const GQL = new Benzene({ schema: SimpleSchema });
 
-  const request = {
-    extensions: JSON.stringify({
-      persistedQuery: {
-        sha256Hash,
-        version: 1,
+describe("usage with @benzene/http", () => {
+  it("returns result with PersistedQueryNotFound if query hash is not recognized", async () => {
+    expect(
+      await makeHandler(GQL, {
+        onParams(params) {
+          return makeAPQHandler()(params);
+        },
+      })({
+        headers: {},
+        method: "GET",
+        query: {
+          extensions: JSON.stringify({
+            persistedQuery: {
+              sha256Hash: "dummy",
+              version: 1,
+            },
+          }),
+        },
+      })
+    ).toEqual({
+      headers: {
+        "content-type": "application/json",
       },
-    }),
-  } as any;
+      payload: {
+        errors: [
+          {
+            message: "PersistedQueryNotFound",
+            extensions: { code: "PERSISTED_QUERY_NOT_FOUND" },
+            location: undefined,
+            path: undefined,
+          },
+        ],
+      },
+      status: 200,
+    });
+  });
 
-  const cache = lru();
+  it("adds query if hash is found in cache", async () => {
+    const sha256Hash = await sha256("{foo}");
 
-  cache.set(sha256Hash, "{test}");
+    const cache = lru();
+    cache.set(sha256Hash, "{foo}");
 
-  const result = await makeAPQHandler({ cache })(request);
-
-  expect(result).toBe(request);
-
-  expect(request.query).toBe("{test}");
+    expect(
+      await makeHandler(GQL, {
+        onParams(params) {
+          return makeAPQHandler({ cache })(params);
+        },
+      })({
+        headers: {},
+        method: "GET",
+        query: {
+          extensions: JSON.stringify({
+            persistedQuery: {
+              sha256Hash,
+              version: 1,
+            },
+          }),
+        },
+      })
+    ).toEqual({
+      headers: {
+        "content-type": "application/json",
+      },
+      payload: {
+        data: {
+          foo: "FooValue",
+        },
+      },
+      status: 200,
+    });
+  });
 });

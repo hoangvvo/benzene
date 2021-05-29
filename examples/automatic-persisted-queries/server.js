@@ -5,11 +5,15 @@ import { createReadStream } from "fs";
 import { createServer } from "http";
 import { schema } from "pokemon-graphql-schema";
 
-const apqHTTP = makeAPQHandler();
+const apq = makeAPQHandler();
 
 const GQL = new Benzene({ schema });
 
-const graphqlHTTP = makeHandler(GQL);
+const graphqlHTTP = makeHandler(GQL, {
+  onParams(params) {
+    return apq(params);
+  },
+});
 
 const readBody = (req) => {
   return new Promise((resolve) => {
@@ -22,24 +26,13 @@ const readBody = (req) => {
 const server = createServer(async (req, res) => {
   if (req.url.startsWith("/graphql")) {
     // Serve GraphQL API
-    const { query } = parse(req, true); // parse query string
+    // parse query string
+    const { query } = parse(req, true);
+    // parse body
     const body = parseGraphQLBody(
       await readBody(req),
       req.headers["content-type"]
-    ); // parse body
-    try {
-      await apqHTTP(body || query);
-    } catch (err) {
-      // It may throw `HTTPError` object from `@benzene/extra`
-      // It may be `PersistedQueryNotFound`, which asks the client
-      // to send back a pair of query and hash to persist
-      const result = GQL.formatExecutionResult({
-        errors: [err],
-      });
-      return res
-        .writeHead(err.status, { "content-type": "application/json" })
-        .end(JSON.stringify(result));
-    }
+    );
     const result = await graphqlHTTP({
       method: req.method,
       headers: req.headers,
