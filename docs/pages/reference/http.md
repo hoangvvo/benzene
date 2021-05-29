@@ -14,10 +14,20 @@ import schema from "./schema";
 
 const GQL = new Benzene({ schema });
 
-const graphqlHTTP = makeHandler(GQL);
+const graphqlHTTP = makeHandler(GQL, options);
 ```
 
-## Body parsing
+## Configuration
+
+`makeHandler` allows a custom `options` param, containing the following field:
+
+- `onParams`: A function that is called when `GraphQLParams` is resolved from request query and body. Can be used to override the `GraphQLParams` or returns an early response. See [Override GraphQLParams](#override-graphqlparams).
+
+## Request handling
+
+Being framework-agnostic, `@benzene/http` does not automatically handle the request and response for us. However, it is easy to do so using your framework-specific APIs.
+
+### Body parsing
 
 The [graphql-over-http spec](https://github.com/graphql/graphql-over-http) allows different incoming [Content-Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type), each must be parsed differently.
 
@@ -36,7 +46,7 @@ async function onRequest(req) {
 
 Behind the scene, `parseGraphQLBody` will call [JSON.parse](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse) or apply special transformations based on the received content type according to `the graphql-over-http spec`.
 
-## Handle incoming HTTP request
+### Handle incoming HTTP request
 
 `graphqlHTTP` is a framework-agnostic function that accepts a generic request object with the following shape:
 
@@ -70,7 +80,9 @@ async function onRequest(req, res) {
 }
 ```
 
-## Respond with GraphQL result
+A [`GraphQLParams`](/reference/terminology#graphqlparams) will constructed using values from `body` and `query`.
+
+### Respond with GraphQL result
 
 `graphqlHTTP` will resolve into a generic response object:
 
@@ -103,3 +115,53 @@ From the example above, we can see that **Benzene** gives us full control over h
 ## Passing `extra`
 
 It is possible to pass `extra` as the second argument to `graphqlHTTP`. See [The extra argument](/reference/handler#the-extra-argument).
+
+## Override GraphQLParams
+
+It is possible to override the [GraphQLParams](/reference/terminology#graphqlparams) by setting a function to `options.onParams`.
+
+The function will receive the params resolved from the request query and body, which you can override by returning a new one. If a value is not returned from `onParams`, the original `params` is used.
+
+```js
+makeHandler(GQL, {
+  onParams(params) {
+    return {
+      query: "query Foo { myGraphQLQuery }",
+      variables: {
+        someVariable: "foo",
+      },
+      operationName: "Foo",
+      extensions: {},
+    };
+  },
+});
+```
+
+This is useful if we need to implement things like persisted queries:
+
+```js
+makeHandler(GQL, {
+  onParams(params) {
+    const query = findQueryFromHash(params.extensions.queryHash);
+    return {
+      ...params,
+      query,
+    };
+  },
+});
+```
+
+Optionally, you can also return an [ExecutionResult](/reference/terminology#executionresult) early.
+
+```js
+makeHandler(GQL, {
+  onParams(params) {
+    if (params.query.includes("evilGraphQLQuery")) {
+      return {
+        errors: [new GraphQLError("Query is forbidden")],
+      };
+    }
+    // returning nothing to use the original params
+  },
+});
+```
