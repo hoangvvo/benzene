@@ -1,4 +1,4 @@
-import { Benzene, ExtractExtraType } from "@benzene/core";
+import { Benzene, ExtractExtraType, isExecutionResult } from "@benzene/core";
 import { ExecutionResult, GraphQLError } from "graphql";
 import { HandlerOptions, HTTPRequest, HTTPResponse } from "./types";
 import { getGraphQLParams } from "./utils";
@@ -35,7 +35,17 @@ export function makeHandler<TBenzene extends Benzene>(
     request: HTTPRequest,
     extra?: TExtra
   ): Promise<HTTPResponse> {
-    const params = getGraphQLParams(request);
+    let params = getGraphQLParams(request);
+
+    if (options.onParams) {
+      const onParamsResult = options.onParams(params);
+      if (onParamsResult) {
+        if (isExecutionResult(onParamsResult)) {
+          return createResponse(GQL, 200, onParamsResult);
+        }
+        params = onParamsResult;
+      }
+    }
 
     if (!params.query) {
       return createResponse(GQL, 400, {

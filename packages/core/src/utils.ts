@@ -1,4 +1,4 @@
-import { execute, subscribe } from "graphql";
+import { execute, ExecutionResult, subscribe } from "graphql";
 import { CompileQuery } from "./types";
 
 export function isAsyncIterator<T = unknown>(
@@ -22,4 +22,14 @@ export function makeCompileQuery(): CompileQuery {
       },
     };
   };
+}
+
+export function isExecutionResult(val: unknown): val is ExecutionResult {
+  return (
+    typeof val === "object" &&
+    val !== null &&
+    (Array.isArray((val as ExecutionResult).errors) ||
+      (typeof (val as ExecutionResult).data === "object" &&
+        !Array.isArray((val as ExecutionResult).data)))
+  );
 }

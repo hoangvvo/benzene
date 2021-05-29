@@ -1,5 +1,9 @@
 import { CompiledQuery } from "@benzene/core/src/types";
-import { isAsyncIterator, makeCompileQuery } from "@benzene/core/src/utils";
+import {
+  isAsyncIterator,
+  isExecutionResult,
+  makeCompileQuery,
+} from "@benzene/core/src/utils";
 import { execute, parse, subscribe } from "graphql";
 import { SimpleSchema } from "./_schema";
 
@@ -51,5 +55,55 @@ describe("makeCompileQuery", () => {
       // @ts-ignore
       (await subscribe({ document, schema: SimpleSchema })).next()
     );
+  });
+});
+
+describe("isExecutionResult", () => {
+  test("returns true if errors field in an array", () => {
+    expect(
+      isExecutionResult({
+        errors: [],
+      })
+    ).toBe(true);
+  });
+
+  test("returns true if data field is an object or null", () => {
+    expect(
+      isExecutionResult({
+        data: {},
+      })
+    ).toBe(true);
+
+    expect(
+      isExecutionResult({
+        data: null,
+      })
+    ).toBe(true);
+  });
+
+  test("returns false if errors field is not an array", () => {
+    expect(
+      isExecutionResult({
+        errors: "",
+      })
+    ).toBe(false);
+    expect(
+      isExecutionResult({
+        errors: {},
+      })
+    ).toBe(false);
+  });
+
+  test("returns false if data field is not an object or is an array", () => {
+    expect(
+      isExecutionResult({
+        data: "",
+      })
+    ).toBe(false);
+    expect(
+      isExecutionResult({
+        data: [],
+      })
+    ).toBe(false);
   });
 });
