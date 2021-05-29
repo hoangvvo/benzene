@@ -28,8 +28,8 @@ import { makeCompileQuery } from "./utils";
 export default class Benzene<TContext = any, TExtra = any> {
   private lru: Lru<QueryCache>;
   public schema: GraphQLSchema;
-  validateFn: typeof validate;
-  validationRules?: ValidationRule[];
+  private validateFn: typeof validate;
+  private validationRules?: ValidationRule[];
   formatErrorFn: typeof formatError;
   contextFn?: ContextFn<TContext, TExtra>;
   private compileQuery: CompileQuery;
