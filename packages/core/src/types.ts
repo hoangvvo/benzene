@@ -5,6 +5,7 @@ import {
   formatError,
   GraphQLSchema,
   SubscriptionArgs,
+  validate,
 } from "graphql";
 import Benzene from "./core";
 
@@ -34,6 +35,12 @@ export interface Options<TContext, TExtra> {
    * @returns {object} An object that has the functions `execute`, `subscribe`, and optionally `stringify`
    */
   compileQuery?: CompileQuery;
+  /**
+   * An optional function which will be used to validate instead of default `validate`
+   * from `graphql-js`.
+   * @see {@link https://graphql.org/graphql-js/validation/}
+   */
+  validateFn?: typeof validate;
 }
 
 /**

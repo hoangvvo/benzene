@@ -27,12 +27,14 @@ import { makeCompileQuery } from "./utils";
 export default class Benzene<TContext = any, TExtra = any> {
   private lru: Lru<QueryCache>;
   public schema: GraphQLSchema;
+  validateFn: typeof validate;
   formatErrorFn: typeof formatError;
   contextFn?: ContextFn<TContext, TExtra>;
   private compileQuery: CompileQuery;
 
   constructor(options: Options<TContext, TExtra>) {
     if (!options) throw new TypeError("GQL must be initialized with options");
+    this.validateFn = options.validateFn || validate;
     this.formatErrorFn = options.formatErrorFn || formatError;
     this.contextFn = options.contextFn;
     // build cache
@@ -70,7 +72,7 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
         };
       }
 
-      const validationErrors = validate(this.schema, document);
+      const validationErrors = this.validateFn(this.schema, document);
       if (validationErrors.length > 0) {
         return {
           errors: validationErrors,
