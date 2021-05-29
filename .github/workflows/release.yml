@@ -21,6 +21,9 @@ jobs:
         with:
           node-version: 12.x
 
+      - name: Install npm v7
+        run: npm i -g npm@latest
+
       - name: Install Dependencies
         run: npm i
 
