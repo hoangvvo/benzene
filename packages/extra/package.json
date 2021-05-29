@@ -26,7 +26,9 @@
     "require": "./dist/index.cjs"
   },
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsc --emitDeclarationOnly --project tsconfig.build.json && rollup -c",
@@ -42,5 +44,8 @@
   },
   "engines": {
     "node": "^12.0.0 || ^14.0.0 || >=16.0.0"
+  },
+  "devDependencies": {
+    "@benzene/core": "^0.6.0"
   }
 }
