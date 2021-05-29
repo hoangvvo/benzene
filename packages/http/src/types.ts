@@ -1,4 +1,4 @@
-import { GraphQLParams } from "@benzene/core";
+import { GraphQLParams, ValueOrPromise } from "@benzene/core";
 import { ExecutionResult, FormattedExecutionResult } from "graphql";
 
 // @ts-ignore
@@ -8,7 +8,9 @@ export interface HandlerOptions<TExtra> {
    * either the new GraphQLParams or ExecutionResult
    * @param params
    */
-  onParams?(params: GraphQLParams): GraphQLParams | ExecutionResult | void;
+  onParams?(
+    params: GraphQLParams
+  ): ValueOrPromise<GraphQLParams | ExecutionResult | void>;
 }
 
 type Headers = Record<string, string | string[] | undefined>;
