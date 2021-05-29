@@ -17,6 +17,7 @@ This allows us to write such logic only once and use it everywhere.
 A `Benzene` instance will be instantiated with an `options` object, containing the following field:
 
 - `schema`: (required) A [GraphQLSchema](https://graphql.org/graphql-js/type/#graphqlschema) instance.
+- `validateFn`: A function to validate queries. See [Validation](./validate).
 - `formatErrorFn`: A function to format errors. See [Error Handling](./error-handling).
 - `contextFn`: A function to build resolvers context per query. See [Building Context](./build-context).
 - `compileQuery`: A custom query compilation function. See [Runtime](./runtime).

@@ -1,11 +1,13 @@
 {
   "benzene": "Benzene instance",
   "runtime": "Runtime",
+  "validation": "Validation",
   "handler": "Benzene Handlers",
   "http": "GraphQL over HTTP",
   "ws": "GraphQL over WebSockets",
   "build-context": "Building Context",
   "error-handling": "Error Handling",
   "graphql-query": "GraphQL Query",
-  "extra": "The \"extra\" package"
+  "extra": "The \"extra\" package",
+  "terminology": "Terminology"
 }
