@@ -2,4 +2,4 @@
 "@benzene/extra": minor
 ---
 
-breaking: changes makeAPQHandler behavior
+refactor!: changes makeAPQHandler behavior
