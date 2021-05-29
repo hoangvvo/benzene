@@ -1,4 +1,7 @@
+import { Benzene } from "@benzene/core/src";
+import { SimpleSchema } from "@benzene/core/__tests__/_schema";
 import { makeAPQHandler } from "@benzene/extra/src/apq";
+import { makeHandler } from "@benzene/http/src/handler";
 import { sha256 } from "crypto-hash";
 import lru from "tiny-lru";
 
@@ -119,4 +122,80 @@ test("adds query if hash is found in cache", async () => {
 
   // @ts-ignore
   expect(result.query).toBe("{test}");
+});
+
+const GQL = new Benzene({ schema: SimpleSchema });
+
+describe("usage with @benzene/http", () => {
+  it("returns result with PersistedQueryNotFound if query hash is not recognized", async () => {
+    expect(
+      await makeHandler(GQL, {
+        onParams(params) {
+          return makeAPQHandler()(params);
+        },
+      })({
+        headers: {},
+        method: "GET",
+        query: {
+          extensions: JSON.stringify({
+            persistedQuery: {
+              sha256Hash: "dummy",
+              version: 1,
+            },
+          }),
+        },
+      })
+    ).toEqual({
+      headers: {
+        "content-type": "application/json",
+      },
+      payload: {
+        errors: [
+          {
+            message: "PersistedQueryNotFound",
+            extensions: { code: "PERSISTED_QUERY_NOT_FOUND" },
+            location: undefined,
+            path: undefined,
+          },
+        ],
+      },
+      status: 200,
+    });
+  });
+
+  it("adds query if hash is found in cache", async () => {
+    const sha256Hash = await sha256("{foo}");
+
+    const cache = lru();
+    cache.set(sha256Hash, "{foo}");
+
+    expect(
+      await makeHandler(GQL, {
+        onParams(params) {
+          return makeAPQHandler({ cache })(params);
+        },
+      })({
+        headers: {},
+        method: "GET",
+        query: {
+          extensions: JSON.stringify({
+            persistedQuery: {
+              sha256Hash,
+              version: 1,
+            },
+          }),
+        },
+      })
+    ).toEqual({
+      headers: {
+        "content-type": "application/json",
+      },
+      payload: {
+        data: {
+          foo: "FooValue",
+        },
+      },
+      status: 200,
+    });
+  });
 });
