@@ -9,8 +9,7 @@
     "test": "jest",
     "test:ci": "jest --ci --coverage",
     "clean": "npm run clean --workspaces",
-    "prepublishOnly": "npm run clean && npm run build && npm run test",
-    "release": "npx changeset publish"
+    "release": "npm run clean && npm run build && npm run test && npx changeset publish"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
