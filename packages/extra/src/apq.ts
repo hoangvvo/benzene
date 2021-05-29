@@ -21,15 +21,6 @@ export function makeAPQHandler(options?: {
       // Try get persisted query from store
       const query = cache.get(queryHash);
 
-      console.log(
-        JSON.stringify(
-          new HTTPError(200, "PersistedQueryNotFound", {
-            code: "PERSISTED_QUERY_NOT_FOUND",
-          })
-        ),
-        JSON.stringify(new HTTPError(400, "provided sha does not match query"))
-      );
-
       if (!query) {
         return {
           errors: [

@@ -5,6 +5,8 @@ import {
   formatError,
   GraphQLSchema,
   SubscriptionArgs,
+  validate,
+  ValidationRule,
 } from "graphql";
 import Benzene from "./core";
 
@@ -15,18 +17,18 @@ export interface Options<TContext, TExtra> {
    */
   schema: GraphQLSchema;
   /**
-   * A function to format errors according to the Response format of the spec.
+   * An optional function to format errors according to the Response format of the spec.
    * Can also be used for logging errors.
    * @see {@link https://graphql.org/graphql-js/error/#formaterror}
    */
   formatErrorFn?: typeof formatError;
   /**
-   * A function to create an object used by all the resolvers of a specific GraphQL execution
+   * An optional function to create an object used by all the resolvers of a specific GraphQL execution
    * @param ctx An object contains the "extra" variable supplied by downstream packages
    */
   contextFn?: ContextFn<TContext, TExtra>;
   /**
-   * A custom function called for each DocumentNode to create an "compiled" object that allows
+   * A optional function called for each DocumentNode to create an "compiled" object that allows
    * its execution and subscription.
    * @param schema GraphQL schema
    * @param document DocumentNode
@@ -34,6 +36,16 @@ export interface Options<TContext, TExtra> {
    * @returns {object} An object that has the functions `execute`, `subscribe`, and optionally `stringify`
    */
   compileQuery?: CompileQuery;
+  /**
+   * An optional function which will be used to validate instead of default `validate`
+   * from `graphql-js`.
+   * @see {@link https://graphql.org/graphql-js/validation/}
+   */
+  validateFn?: typeof validate;
+  /**
+   * An optional array of validation rules that will be used to validate the document
+   */
+  validationRules?: ValidationRule[];
 }
 
 /**
