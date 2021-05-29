@@ -1,5 +1,15 @@
 # @benzene/core
 
+## 0.7.0
+
+### Minor Changes
+
+- d4e60c1: feat: Allow custom validation rules and validation function
+
+### Patch Changes
+
+- 341e290: Add isExecutionResult util
+
 ## 0.6.0
 
 ### Minor Changes

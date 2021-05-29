@@ -1,5 +1,11 @@
 # @benzene/extra
 
+## 0.2.0
+
+### Minor Changes
+
+- 764442a: refactor!: changes makeAPQHandler behavior
+
 ## 0.1.0
 
 ### Minor Changes

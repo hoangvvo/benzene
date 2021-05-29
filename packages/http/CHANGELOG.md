@@ -1,5 +1,18 @@
 # @benzene/http
 
+## 0.3.0
+
+### Minor Changes
+
+- 341e290: Allow overriding GraphQLParams
+
+### Patch Changes
+
+- 764442a: Allows options.onParams to be async
+- Updated dependencies [d4e60c1]
+- Updated dependencies [341e290]
+  - @benzene/core@0.7.0
+
 ## 0.2.0
 
 ### Minor Changes
