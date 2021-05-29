@@ -35,7 +35,38 @@ const apqHTTP = makeAPQHandler({
   cache: lru(1024),
 });
 
-await appHTTP(bodyOrQueryObject); // `appHTTP` mutates and returns `bodyOrQueryObject`
+const params = {
+  query: undefined, // query not included
+  extensions: {
+    persistedQuery: {
+      sha256Hash: "ec2e01311ab3b02f3d8c8c712f9e579356d332cd007ac4c1ea5df727f482f05f",
+      version: 1,
+    },
+  },
+}
+
+const newParamsOrResult = await appHTTP(bodyOrQueryObject);
+console.log(newParamsOrResult);
+// If query is found:
+// {
+//   "query": "query { hello }",
+//   "extensions": {
+//     "persistedQuery": {
+//       "sha256Hash": "ec2e01311ab3b02f3d8c8c712f9e579356d332cd007ac4c1ea5df727f482f05f",
+//       "version": 1
+//     }
+//   }
+// }
+// Otherwise:
+// {
+//   "errors": [
+//     {
+//       "message": "PersistedQueryNotFound",
+//       "extensions": { "code": "PERSISTED_QUERY_NOT_FOUND" },
+//       "status": 200
+//     }
+//   ]
+// }
 ```
 
 
