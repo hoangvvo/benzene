@@ -1,3 +1,5 @@
+import Callout from 'nextra-theme-docs/callout'
+
 # Validation
 
 Validation refers to the process of validating a GraphQL document against a GraphQL schema and a set of rules
@@ -30,13 +32,17 @@ const GQL = new Benzene({
 });
 ```
 
-To best follow the [GraphQL specification on validation](https://spec.graphql.org/June2018/#sec-Validation),
-it is recommended to also include `specifiedRules` from `graphql-js` in addition to our custom rules.
+<Callout emoji="⚠️">
+  Setting custom validation rules can make our implementation incompatible with the GraphQL specs.
+  Therefore, it is best to add it in addition to the `specifiedRules` from `graphql-js`.
+</Callout>
+
+We should always include `specifiedRules` from `graphql-js` in addition to our custom rules to be spec-compliant.
 
 ```js
 import { specifiedRules } from "graphql";
 
 const GQL = new Benzene({
-  validationRules: [...customValidationRules],
+  validationRules: [...specifiedRules, ...customValidationRules],
 });
 ```
