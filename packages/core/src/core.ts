@@ -11,6 +11,7 @@ import {
   SubscriptionArgs,
   validate,
   validateSchema,
+  ValidationRule,
 } from "graphql";
 import lru, { Lru } from "tiny-lru";
 import {
@@ -28,6 +29,7 @@ export default class Benzene<TContext = any, TExtra = any> {
   private lru: Lru<QueryCache>;
   public schema: GraphQLSchema;
   validateFn: typeof validate;
+  validationRules?: ValidationRule[];
   formatErrorFn: typeof formatError;
   contextFn?: ContextFn<TContext, TExtra>;
   private compileQuery: CompileQuery;
@@ -35,6 +37,7 @@ export default class Benzene<TContext = any, TExtra = any> {
   constructor(options: Options<TContext, TExtra>) {
     if (!options) throw new TypeError("GQL must be initialized with options");
     this.validateFn = options.validateFn || validate;
+    this.validationRules = options.validationRules;
     this.formatErrorFn = options.formatErrorFn || formatError;
     this.contextFn = options.contextFn;
     // build cache
@@ -72,7 +75,11 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
         };
       }
 
-      const validationErrors = this.validateFn(this.schema, document);
+      const validationErrors = this.validateFn(
+        this.schema,
+        document,
+        this.validationRules
+      );
       if (validationErrors.length > 0) {
         return {
           errors: validationErrors,
