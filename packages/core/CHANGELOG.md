@@ -1,5 +1,11 @@
 # @benzene/core
 
+## 0.7.1
+
+### Patch Changes
+
+- cce8d67: Fix broken releases
+
 ## 0.7.0
 
 ### Minor Changes

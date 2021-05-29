@@ -1,5 +1,11 @@
 # @benzene/extra
 
+## 0.2.1
+
+### Patch Changes
+
+- cce8d67: Fix broken releases
+
 ## 0.2.0
 
 ### Minor Changes
