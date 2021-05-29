@@ -29,9 +29,9 @@ See [Automatic Persisted Queries with @benzene/extra](/recipes/persisted-queries
 ```js
 import { makeAPQHandler } from "@benzene/extra";
 
-const apqHTTP = makeAPQHandler();
+const apq = makeAPQHandler();
 // or use a custom cache
-const apqHTTP = makeAPQHandler({
+const apq = makeAPQHandler({
   cache: lru(1024),
 });
 

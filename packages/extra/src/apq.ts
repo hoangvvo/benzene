@@ -9,7 +9,7 @@ export function makeAPQHandler(options?: {
   cache?: Pick<KeyValueStore, "get" | "set">;
 }) {
   const cache = options?.cache || lru(1024);
-  return async function apqHTTP(
+  return async function apq(
     params: GraphQLParams
   ): Promise<GraphQLParams | ExecutionResult> {
     if (params.extensions?.persistedQuery?.version !== 1) {

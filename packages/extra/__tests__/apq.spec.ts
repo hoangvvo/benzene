@@ -8,18 +8,18 @@ import lru from "tiny-lru";
 test("does nothing if inputs does not contain a supported persisted query", async () => {
   const badCache = {};
   // @ts-expect-error: It should not invoke cache in the cases below
-  const apqHTTP = makeAPQHandler({ cache: badCache });
+  const apq = makeAPQHandler({ cache: badCache });
 
   const req = {};
-  const res = await apqHTTP(req);
+  const res = await apq(req);
   expect(res).toBe(req);
 
   const req3 = { extensions: { persistedQuery: { version: 2 } } };
-  const res3 = await apqHTTP(req3);
+  const res3 = await apq(req3);
   expect(res3).toBe(req3);
 
   const req4 = { extensions: { persisted: "foo" } };
-  const res4 = await apqHTTP(req4);
+  const res4 = await apq(req4);
   expect(res4).toBe(req4);
 });
 
