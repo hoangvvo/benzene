@@ -28,6 +28,8 @@ If you are submitting a :bug: bug report, please:
 
 If you are :sparkles: **adding a new feature**, please first [create an issue](../../issues/new) for discussion.
 
+You may also need to install `npm@7` to use [workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces). However, [yarn 1](https://classic.yarnpkg.com/) may also work.
+
 The steps to submit a PR are:
 
 1. [Fork](https://help.github.com/articles/fork-a-repo/) this repository to your own GitHub account and then [clone](https://help.github.com/articles/cloning-a-repository/) it to your local device.

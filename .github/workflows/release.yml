@@ -22,9 +22,12 @@ jobs:
           node-version: 12.x
 
       - name: Install Dependencies
-        run: yarn
+        run: npm i
 
-      - name: Create Release Pull Request
+      - name: Create Release Pull Request or Publish to npm
         uses: changesets/action@master
+        with:
+          publish: npm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
