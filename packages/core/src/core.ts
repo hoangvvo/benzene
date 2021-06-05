@@ -15,18 +15,18 @@ import {
 } from "graphql";
 import lru, { Lru } from "tiny-lru";
 import {
+  CompiledCache,
   CompiledQuery,
   CompileQuery,
   ContextFn,
   Maybe,
   Options,
-  QueryCache,
   ValueOrPromise,
 } from "./types";
 import { makeCompileQuery } from "./utils";
 
 export default class Benzene<TContext = any, TExtra = any> {
-  private lru: Lru<QueryCache>;
+  private lru: Lru<CompiledCache>;
   public schema: GraphQLSchema;
   private validateFn: typeof validate;
   private validationRules?: ValidationRule[];
@@ -56,10 +56,10 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
     this.compileQuery = options.compileQuery || makeCompileQuery();
   }
 
-  public getCached(
+  public compile(
     query: string,
     operationName?: Maybe<string>
-  ): QueryCache | ExecutionResult {
+  ): CompiledCache | ExecutionResult {
     const key = query + (operationName ? `:${operationName}` : "");
     let cached = this.lru.get(key);
 
@@ -98,16 +98,12 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
 
       const compiled = this.compileQuery(this.schema, document, operationName);
 
-      // Could not compile query since its result is ExecutionResult
+      // Compilation is a failure since its result is ExecutionResult
       if (!("execute" in compiled)) return compiled;
 
-      // Cache the compiled query
-      // TODO: We are not caching multi document query right now
-      cached = {
-        document,
-        compiled,
-        operation,
-      };
+      cached = compiled as CompiledCache;
+      cached.document = document;
+      cached.operation = operation;
 
       this.lru.set(key, cached);
 
@@ -131,7 +127,7 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
   }: Partial<GraphQLArgs> & {
     source: string;
   }): Promise<FormattedExecutionResult> {
-    const cachedOrResult = this.getCached(source, operationName);
+    const cachedOrResult = this.compile(source, operationName);
     return this.formatExecutionResult(
       "document" in cachedOrResult
         ? await this.execute(
@@ -142,7 +138,7 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
               rootValue,
               operationName,
             },
-            cachedOrResult.compiled
+            cachedOrResult
           )
         : cachedOrResult
     );

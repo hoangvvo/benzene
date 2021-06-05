@@ -59,10 +59,9 @@ export interface GraphQLParams {
   extensions?: Maybe<Record<string, any>>;
 }
 
-export interface QueryCache {
+export interface CompiledCache extends CompiledQuery {
   operation: string;
   document: DocumentNode;
-  compiled: CompiledQuery;
 }
 
 export type ContextFn<TContext, TExtra> = (contextInput: {
