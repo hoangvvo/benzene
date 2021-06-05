@@ -1,5 +1,4 @@
 ---
-"@benzene/core": patch
 "@benzene/jit": patch
 ---
 
