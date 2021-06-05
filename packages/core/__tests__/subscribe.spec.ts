@@ -14,7 +14,6 @@ import {
   DocumentNode,
   ExecutionResult,
   GraphQLBoolean,
-  GraphQLError,
   GraphQLInt,
   GraphQLList,
   GraphQLObjectType,
@@ -1132,64 +1131,6 @@ function testWithCompileQuery(compileQuery: CompileQuery) {
       // @ts-ignore
       const payload2 = await subscription.next();
       expect(payload2).toEqual({
-        done: true,
-        value: undefined,
-      });
-    });
-
-    it("should resolve GraphQL error from source event stream", async () => {
-      const erroringEmailSchema = emailSchemaWithResolvers(
-        async function* () {
-          yield { email: { subject: "Hello" } };
-          throw new GraphQLError("test error");
-        },
-        (email) => email
-      );
-
-      const subscription = await subscribe({
-        schema: erroringEmailSchema,
-        document: parse(`
-        subscription {
-          importantEmail {
-            email {
-              subject
-            }
-          }
-        }
-      `),
-      });
-
-      // @ts-ignore
-      const payload1 = await subscription.next();
-      expect(payload1).toEqual({
-        done: false,
-        value: {
-          data: {
-            importantEmail: {
-              email: {
-                subject: "Hello",
-              },
-            },
-          },
-        },
-      });
-
-      // @ts-ignore
-      const payload2 = await subscription.next();
-      expect(payload2).toEqual({
-        done: false,
-        value: {
-          errors: [
-            {
-              message: "test error",
-            },
-          ],
-        },
-      });
-
-      // @ts-ignore
-      const payload3 = await subscription.next();
-      expect(payload3).toEqual({
         done: true,
         value: undefined,
       });
