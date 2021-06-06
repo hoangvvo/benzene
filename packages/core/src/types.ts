@@ -59,7 +59,7 @@ export interface GraphQLParams {
   extensions?: Maybe<Record<string, any>>;
 }
 
-export interface CompiledCache extends CompiledQuery {
+export interface CompiledResult extends CompiledQuery {
   operation: string;
   document: DocumentNode;
 }

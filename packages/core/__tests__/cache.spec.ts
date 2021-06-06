@@ -1,5 +1,5 @@
 import Benzene from "@benzene/core/src/core";
-import { CompiledCache } from "@benzene/core/src/types";
+import { CompiledResult } from "@benzene/core/src/types";
 import { Lru } from "tiny-lru";
 import { TestSchema } from "./_schema";
 
@@ -7,8 +7,8 @@ test("saves compiled query to cache", async () => {
   const GQL = new Benzene({
     schema: TestSchema,
   });
-  const lru: Lru<CompiledCache> = (GQL as any).lru;
-  const cached = (await GQL.compile(`{ test }`)) as CompiledCache;
+  const lru: Lru<CompiledResult> = (GQL as any).lru;
+  const cached = (await GQL.compile(`{ test }`)) as CompiledResult;
   expect(typeof cached.document).toBe("object");
   expect(typeof cached.execute).toBe("function");
   expect(typeof cached.operation).toBe("string");
@@ -19,7 +19,7 @@ test("uses compiled query from cache", async () => {
   const GQL = new Benzene({
     schema: TestSchema,
   });
-  const lru: Lru<CompiledCache> = (GQL as any).lru;
+  const lru: Lru<CompiledResult> = (GQL as any).lru;
   // @ts-ignore
   lru.set("{ test }", {
     execute: () => ({ data: { test: "Goodbye" } }),
@@ -36,7 +36,7 @@ test("returns and does not cache syntax-errored query", async () => {
   const GQL = new Benzene({
     schema: TestSchema,
   });
-  const lru: Lru<CompiledCache> = (GQL as any).lru;
+  const lru: Lru<CompiledResult> = (GQL as any).lru;
   const result = await GQL.compile("{{");
   expect(result).toEqual({
     errors: [
@@ -53,7 +53,7 @@ test("returns and does not cache invalid query", async () => {
   const GQL = new Benzene({
     schema: TestSchema,
   });
-  const lru: Lru<CompiledCache> = (GQL as any).lru;
+  const lru: Lru<CompiledResult> = (GQL as any).lru;
   const result = await GQL.compile("{ baddd }");
   expect(result).toEqual({
     errors: [

@@ -17,8 +17,8 @@ import {
 } from "graphql";
 import lru, { Lru } from "tiny-lru";
 import {
-  CompiledCache,
   CompiledQuery,
+  CompiledResult,
   CompileQuery,
   ContextFn,
   Maybe,
@@ -28,7 +28,7 @@ import {
 import { isExecutionResult, makeCompileQuery } from "./utils";
 
 export default class Benzene<TContext = any, TExtra = any> {
-  private lru: Lru<CompiledCache>;
+  private lru: Lru<CompiledResult>;
   public schema: GraphQLSchema;
   private validateFn: typeof validate;
   private validationRules?: ValidationRule[];
@@ -61,7 +61,7 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
   public compile(
     query: string | DocumentNode,
     operationName?: Maybe<string>
-  ): CompiledCache | ExecutionResult {
+  ): CompiledResult | ExecutionResult {
     let document;
     if (typeof query === "object") {
       // query is DocumentNode
@@ -111,7 +111,7 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
       // Compilation is a failure since its result is ExecutionResult
       if (!("execute" in compiled)) return compiled;
 
-      cached = compiled as CompiledCache;
+      cached = compiled as CompiledResult;
       cached.document = document;
       cached.operation = operation;
 

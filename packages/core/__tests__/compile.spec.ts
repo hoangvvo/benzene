@@ -1,5 +1,5 @@
 import Benzene from "@benzene/core/src/core";
-import { CompiledCache } from "@benzene/core/src/types";
+import { CompiledResult } from "@benzene/core/src/types";
 import { ExecutionResult, parse, print } from "graphql";
 import { SimpleSchema } from "./_schema";
 
@@ -10,7 +10,7 @@ test("allows passing in DocumentNode", () => {
   const query = `query { foo }`;
   const document = parse(query);
 
-  const result = GQL.compile(document) as CompiledCache;
+  const result = GQL.compile(document) as CompiledResult;
 
   expect(result.document).toEqual(document);
 
