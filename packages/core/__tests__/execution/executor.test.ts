@@ -21,6 +21,8 @@ import { invariant } from "../__testUtils__/invariant";
 function executeSync(args: ExecutionArgs) {
   const GQL = new Benzene({
     schema: args.schema,
+    // No validation rules to skip validation
+    validationRules: [],
   });
 
   return GQL.execute(args);
@@ -242,8 +244,8 @@ describe("Execute: Handles basic execution tasks", () => {
     });
   });
 
-  it.skip("provides info about current execution state", () => {
-    let resolvedInfo;
+  it("provides info about current execution state", () => {
+    let resolvedInfo: any;
     const testType = new GraphQLObjectType({
       name: "Test",
       fields: {
@@ -263,20 +265,18 @@ describe("Execute: Handles basic execution tasks", () => {
 
     executeSync({ schema, document, rootValue, variableValues });
 
-    expect(resolvedInfo).toEqual(
-      expect.arrayContaining([
-        "fieldName",
-        "fieldNodes",
-        "returnType",
-        "parentType",
-        "path",
-        "schema",
-        "fragments",
-        "rootValue",
-        "operation",
-        "variableValues",
-      ])
-    );
+    expect(Object.keys(resolvedInfo)).toEqual([
+      "fieldName",
+      "fieldNodes",
+      "returnType",
+      "parentType",
+      "path",
+      "schema",
+      "fragments",
+      "rootValue",
+      "operation",
+      "variableValues",
+    ]);
 
     const operation = document.definitions[0];
     invariant(operation.kind === Kind.OPERATION_DEFINITION);
@@ -755,7 +755,7 @@ describe("Execute: Handles basic execution tasks", () => {
     expect(result).toEqual({ data: { second: "b" } });
   });
 
-  it.skip("provides error if no operation is provided", () => {
+  it("provides error if no operation is provided", () => {
     const schema = new GraphQLSchema({
       query: new GraphQLObjectType({
         name: "Type",
@@ -950,7 +950,7 @@ describe("Execute: Handles basic execution tasks", () => {
     });
   });
 
-  it.skip("Avoids recursion", () => {
+  it("Avoids recursion", () => {
     const schema = new GraphQLSchema({
       query: new GraphQLObjectType({
         name: "Type",
@@ -998,18 +998,8 @@ describe("Execute: Handles basic execution tasks", () => {
     const rootValue = { a: { b: "c" } };
 
     const result = executeSync({ schema, document, rootValue });
-    // DIFF: We always validate
-    // expect(result).toEqual({
-    //   data: { a: {} },
-    // });
     expect(result).toEqual({
-      errors: [
-        {
-          message:
-            'Field "a" of type "SomeType" must have a selection of subfields. Did you mean "a { ... }"?',
-          locations: [{ line: 1, column: 3 }],
-        },
-      ],
+      data: { a: {} },
     });
   });
 
@@ -1025,18 +1015,8 @@ describe("Execute: Handles basic execution tasks", () => {
     const document = parse("{ thisIsIllegalDoNotIncludeMe }");
 
     const result = executeSync({ schema, document });
-    // DIFF: We always validate
-    // expect(result).toEqual({
-    //   data: {},
-    // });
     expect(result).toEqual({
-      errors: [
-        {
-          message:
-            'Cannot query field "thisIsIllegalDoNotIncludeMe" on type "Q".',
-          locations: [{ line: 1, column: 3 }],
-        },
-      ],
+      data: {},
     });
   });
 
@@ -1184,16 +1164,7 @@ describe("Execute: Handles basic execution tasks", () => {
     `);
 
     const result = executeSync({ schema, document });
-    // DIFF: We always validate
-    // expect(result).toEqual({ data: { foo: null } });
-    expect(result).toEqual({
-      errors: [
-        {
-          message: 'The "Query" definition is not executable.',
-          locations: [{ line: 4, column: 7 }],
-        },
-      ],
-    });
+    expect(result).toEqual({ data: { foo: null } });
   });
 
   it("uses a custom field resolver", () => {

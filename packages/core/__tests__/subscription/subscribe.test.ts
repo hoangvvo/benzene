@@ -19,6 +19,8 @@ import { SimplePubSub } from "./simplePubSub";
 async function subscribe(args: SubscriptionArgs) {
   const GQL = new Benzene({
     schema: args.schema,
+    // No validation rules to skip validation
+    validationRules: [],
   });
 
   return GQL.subscribe(args);
@@ -264,7 +266,7 @@ describe("Subscription Initialization Phase", () => {
     await subscription.return!();
   });
 
-  it.skip("should only resolve the first field of invalid multi-field", async () => {
+  it("should only resolve the first field of invalid multi-field", async () => {
     async function* fooGenerator() {
       yield { foo: "FooValue" };
     }
@@ -299,6 +301,7 @@ describe("Subscription Initialization Phase", () => {
       schema,
       document: parse("subscription { foo bar }"),
     });
+
     invariant(isAsyncIterable(subscription));
 
     expect(didResolveFoo).toBe(true);
@@ -359,9 +362,7 @@ describe("Subscription Initialization Phase", () => {
     expect(result).toEqual({
       errors: [
         {
-          // DIFF
-          // message: 'The subscription field "unknownField" is not defined.',
-          message: 'Cannot query field "unknownField" on type "Subscription".',
+          message: 'The subscription field "unknownField" is not defined.',
           locations: [{ line: 1, column: 16 }],
         },
       ],
