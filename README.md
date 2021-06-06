@@ -38,7 +38,7 @@ There are also various [examples](examples) for integrations with different tool
 
 ## Contributing
 
-This repository uses the new [npm v7 workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces). Please see [contributing.md](CONTRIBUTING.md).
+This repository uses the new [npm v7 workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces) ([yarn 1 workspace](https://classic.yarnpkg.com/en/docs/workspaces/) may also work). Please see [contributing.md](CONTRIBUTING.md).
 
 ## License
 

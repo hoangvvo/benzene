@@ -2,7 +2,7 @@
 
 The [Benzene instance](/reference/benzene) is not only used to create transport handlers but also to execute GraphQL queries just like the [graphql-js](https://github.com/graphql/graphql-js) library.
 
-Instead of import `graphql`, `execute`, `subscribe` from `graphql-js`. We can find them as the methods of `Benzene`. The API is the same as using the `graphql` exports from `graphql-js`, with the only difference that there is no `schema` since it is already defined upon creating the **Benzene** instance.
+Instead of importing `graphql`, `execute`, `subscribe` from `graphql-js`. We can find them as the methods of `Benzene`. The API is the same as using the `graphql` exports from `graphql-js`, with the only difference that there is no `schema` since it is already defined upon creating the **Benzene** instance.
 
 ## Methods
 
@@ -104,7 +104,7 @@ if (isExecutionResult(compiled)) {
 
 ### Provide compilation result
 
-By calling either `execute()` or `subscribe()`, memoized compilations are done internally using [GQL.compile](#compile). However, we can also pass in the optional `compiled` argument when available to skip this step.
+By calling `graphql()`, `execute()` or `subscribe()`, memoized compilations are done internally using [GQL.compile](#compile). However, we can also pass in the optional `compiled` argument when available to skip this step.
 
 ```js
 import { isExecutionResult } from "@benzene/core";
