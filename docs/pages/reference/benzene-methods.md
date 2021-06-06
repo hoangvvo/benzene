@@ -62,7 +62,7 @@ Implementation of [subscription](https://github.com/graphql/graphql-js/tree/main
 import { parse } from "graphql";
 
 const document = parse(`
-  query pokemon($id: ID!) {
+  subscription pokemon($id: ID!) {
     pokemon(id: $id) {
       name
       image
@@ -84,7 +84,7 @@ for await (const value of payload) {
 
 ## Query Compilation
 
-**Benzene** speeds up GraphQL executions by doing the process of memoized compilation.
+**Benzene** speeds up GraphQL executions by doing the process of memoized compilation. This API can access via the `compile` function. However, normally, we do not call this directly.
 
 ### compile()
 
@@ -104,10 +104,11 @@ if (isExecutionResult(compiled)) {
 
 ### Provide compilation result
 
-By calling either `execute()` or `subscribe()`, memoized compilations are done internally using [GQL.compile](#compile). However, we can also pass in the optional `compiled` arg when available to skip this step.
-
+By calling either `execute()` or `subscribe()`, memoized compilations are done internally using [GQL.compile](#compile). However, we can also pass in the optional `compiled` argument when available to skip this step.
 
 ```js
+import { isExecutionResult } from "@benzene/core";
+
 const query = `
   query pokemon($id: ID!) {
     pokemon(id: $id) {
@@ -120,10 +121,17 @@ const query = `
 
 const compiled = GQL.compile(query, operationName);
 
-const { data, errors } = await GQL.execute({
-  contextValue: { trainer: "Ash Ketchum", region: "Kanto" },
-  variableValues: { id: 25 },
-  compiled,
-  // document is not required in this case
-});
+if (isExecutionResult(compiled)) {
+  console.log(compiled.data);
+  console.log(compiled.errors);
+} else {
+  const { data, errors } = await GQL.execute({
+    contextValue: { trainer: "Ash Ketchum", region: "Kanto" },
+    variableValues: { id: 25 },
+    compiled, // <- compiled is CompiledResult
+    // document is not required in this case
+  });
+}
 ```
+
+Be aware that it is possible for `compiled` to be an execution result so we must assert it before using.
