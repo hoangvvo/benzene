@@ -138,18 +138,16 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
     source: string;
   }): Promise<FormattedExecutionResult> {
     const cachedOrResult = this.compile(source, operationName);
-    return this.formatExecutionResult(
-      "document" in cachedOrResult
-        ? await this.execute({
-            document: cachedOrResult.document,
-            contextValue,
-            variableValues,
-            rootValue,
-            operationName,
-            compiled: cachedOrResult,
-          })
-        : cachedOrResult
-    );
+    return "document" in cachedOrResult
+      ? await this.execute({
+          document: cachedOrResult.document,
+          contextValue,
+          variableValues,
+          rootValue,
+          operationName,
+          compiled: cachedOrResult,
+        })
+      : cachedOrResult;
   }
 
   execute(
