@@ -101,7 +101,7 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
       const compiled = this.compileQuery(this.schema, document, operationName);
 
       // Compilation is a failure since its result is ExecutionResult
-      if (!("execute" in compiled)) return compiled;
+      if (isExecutionResult(compiled)) return compiled;
 
       cached = compiled as CompiledResult;
       cached.document = document;
@@ -134,16 +134,15 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
     source: string;
   }): Promise<FormattedExecutionResult> {
     const cachedOrResult = this.compile(source, operationName);
-    return "document" in cachedOrResult
-      ? await this.execute({
-          document: cachedOrResult.document,
-          contextValue,
-          variableValues,
-          rootValue,
-          operationName,
-          compiled: cachedOrResult,
-        })
-      : cachedOrResult;
+    if (isExecutionResult(cachedOrResult)) return cachedOrResult;
+    return this.execute({
+      document: cachedOrResult.document,
+      contextValue,
+      variableValues,
+      rootValue,
+      operationName,
+      compiled: cachedOrResult,
+    });
   }
 
   execute(

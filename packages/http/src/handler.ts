@@ -60,7 +60,7 @@ export function makeHandler<TBenzene extends Benzene>(
 
     const cachedOrResult = GQL.compile(params.query, params.operationName);
 
-    if (!("document" in cachedOrResult)) {
+    if (isExecutionResult(cachedOrResult)) {
       return createResponse(GQL, 400, cachedOrResult);
     }
 

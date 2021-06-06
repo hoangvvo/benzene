@@ -2,6 +2,7 @@ import {
   Benzene,
   ExtractExtraType,
   isAsyncIterator,
+  isExecutionResult,
   validateOperationName,
 } from "@benzene/core";
 import { ExecutionResult, GraphQLError } from "graphql";
@@ -105,7 +106,7 @@ export function makeHandler<TBenzene extends Benzene>(
       message.payload.operationName
     );
 
-    if (!("document" in cachedOrResult)) {
+    if (isExecutionResult(cachedOrResult)) {
       return sendErr(
         socket,
         message.id,
