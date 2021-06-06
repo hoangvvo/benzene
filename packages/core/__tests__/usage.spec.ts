@@ -10,13 +10,30 @@ test("throws if initializing instance with no option", () => {
   }).toThrowError("GQL must be initialized with options");
 });
 
+test("throws if schema is not a GraphQLSchema", () => {
+  expect(
+    () =>
+      new Benzene({
+        // @ts-ignore
+        schema: 12,
+      })
+  ).toThrow("Expected 12 to be a GraphQL schema.");
+});
+
 test("throws if schema is invalid", () => {
-  expect(() => {
+  let errors;
+  try {
     new Benzene({
       // @ts-ignore
       schema: new GraphQLSchema({ directives: [null] }),
     });
-  }).toThrow();
+  } catch (e) {
+    errors = e;
+  }
+  expect(errors).toEqual([
+    { message: "Query root type must be provided." },
+    { message: "Expected directive but got: null." },
+  ]);
 });
 
 test("defaults to graphql-js makeCompileQuery() with warning", () => {

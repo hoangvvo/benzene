@@ -45,6 +45,9 @@ export default class Benzene<TContext = any, TExtra = any> {
     // build cache
     this.lru = lru(1024);
     // construct schema and validate
+    if (!(options.schema instanceof GraphQLSchema)) {
+      throw new Error(`Expected ${options.schema} to be a GraphQL schema.`);
+    }
     assertSchema(options.schema);
     const schemaValidationErrors = validateSchema(options.schema);
     if (schemaValidationErrors.length > 0) {
