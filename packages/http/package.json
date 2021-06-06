@@ -1,7 +1,7 @@
 {
   "name": "@benzene/http",
   "type": "module",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Fast, minimal, agnostic GraphQL over HTTP",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -38,7 +38,7 @@
     "clean": "npx rimraf dist"
   },
   "dependencies": {
-    "@benzene/core": "^0.7.1"
+    "@benzene/core": "^0.8.0"
   },
   "peerDependencies": {
     "graphql": ">=15"

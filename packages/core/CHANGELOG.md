@@ -1,5 +1,16 @@
 # @benzene/core
 
+## 0.8.0
+
+### Minor Changes
+
+- ec7cb0c: Allows calling `execute` and `subscribe` without `compiled`
+- 81f0e4c: Delegate operation name validation to execution layer
+
+### Patch Changes
+
+- 927d0fd: Fix types of BenzeneGraphQLArgs
+
 ## 0.7.1
 
 ### Patch Changes

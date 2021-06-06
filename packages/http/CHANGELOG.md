@@ -1,5 +1,20 @@
 # @benzene/http
 
+## 0.4.0
+
+### Minor Changes
+
+- ec7cb0c: Allows calling `execute` and `subscribe` without `compiled`
+
+### Patch Changes
+
+- 1b0e932: Add support for application/graphql+json content type
+- 81f0e4c: Delegate operation name validation to execution layer
+- Updated dependencies [ec7cb0c]
+- Updated dependencies [927d0fd]
+- Updated dependencies [81f0e4c]
+  - @benzene/core@0.8.0
+
 ## 0.3.1
 
 ### Patch Changes
