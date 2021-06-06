@@ -17,6 +17,7 @@ import {
 } from "graphql";
 import lru, { Lru } from "tiny-lru";
 import {
+  BenzeneGraphQLArgs,
   CompiledQuery,
   CompiledResult,
   CompileQuery,
@@ -155,14 +156,7 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
   }
 
   execute(
-    args: Pick<
-      ExecutionArgs,
-      | "document"
-      | "contextValue"
-      | "variableValues"
-      | "rootValue"
-      | "operationName"
-    >,
+    args: BenzeneGraphQLArgs<ExecutionArgs>,
     compiled?: CompiledQuery
   ): ValueOrPromise<ExecutionResult> {
     if (!compiled) {
@@ -174,14 +168,7 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
   }
 
   async subscribe(
-    args: Pick<
-      SubscriptionArgs,
-      | "document"
-      | "contextValue"
-      | "variableValues"
-      | "rootValue"
-      | "operationName"
-    >,
+    args: BenzeneGraphQLArgs<SubscriptionArgs>,
     compiled?: CompiledQuery
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
     if (!compiled) {

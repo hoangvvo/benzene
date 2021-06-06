@@ -82,28 +82,16 @@ export type CompileQuery = (
 
 export interface CompiledQuery {
   execute(
-    args: Pick<
-      ExecutionArgs,
-      | "document"
-      | "contextValue"
-      | "variableValues"
-      | "rootValue"
-      | "operationName"
-    >
+    args: BenzeneGraphQLArgs<ExecutionArgs>
   ): ValueOrPromise<ExecutionResult>;
 
   subscribe(
-    args: Pick<
-      SubscriptionArgs,
-      | "document"
-      | "contextValue"
-      | "variableValues"
-      | "rootValue"
-      | "operationName"
-    >
+    args: BenzeneGraphQLArgs<SubscriptionArgs>
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult>;
 
   stringify?(result: ExecutionResult): string;
 }
+
+export type BenzeneGraphQLArgs<T> = Omit<T, "schema">;
 
 export type Maybe<T> = null | undefined | T;
