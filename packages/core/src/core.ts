@@ -150,25 +150,25 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
     args: BenzeneGraphQLArgs<ExecutionArgs>
   ): ValueOrPromise<ExecutionResult> {
     if (!args.compiled) {
-      const compiledOrResult = this.compile(args.document);
+      const compiledOrResult = this.compile(args.document as DocumentNode);
       if (isExecutionResult(compiledOrResult)) return compiledOrResult;
       args.compiled = compiledOrResult;
     } else {
       args.document = args.compiled.document;
     }
-    return args.compiled.execute(args);
+    return args.compiled.execute(args as ExecutionArgs);
   }
 
   async subscribe(
     args: BenzeneGraphQLArgs<SubscriptionArgs>
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
     if (!args.compiled) {
-      const compiledOrResult = this.compile(args.document);
+      const compiledOrResult = this.compile(args.document as DocumentNode);
       if (isExecutionResult(compiledOrResult)) return compiledOrResult;
       args.compiled = compiledOrResult;
     } else {
       args.document = args.compiled.document;
     }
-    return args.compiled.subscribe(args);
+    return args.compiled.subscribe(args as SubscriptionArgs);
   }
 }
