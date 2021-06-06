@@ -60,7 +60,7 @@ describe("makeCompileQuery", () => {
 });
 
 describe("isExecutionResult", () => {
-  test("returns true if errors field in an array", () => {
+  test("returns true if errors field is an array", () => {
     expect(
       isExecutionResult({
         errors: [],
@@ -98,7 +98,7 @@ describe("isExecutionResult", () => {
   test("returns false if data field is not an object or is an array", () => {
     expect(
       isExecutionResult({
-        data: "",
+        data: 12,
       })
     ).toBe(false);
     expect(

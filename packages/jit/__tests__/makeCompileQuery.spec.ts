@@ -34,3 +34,17 @@ test("returns subscribe function that calls `subscribe` from graphql-js`", async
     (await compiledJit.subscribe({ document, schema: SimpleSchema })).next()
   );
 });
+
+test("returns execution result if compilation failed", () => {
+  const document = parse(`mutation { foo }`);
+  const compiled = compileQuery(SimpleSchema, document);
+  expect(compileQueryJit(SimpleSchema, document)).toEqual(compiled);
+  expect(compiled).toEqual({
+    errors: [
+      {
+        message: "Schema is not configured for mutations.",
+        locations: [{ line: 1, column: 1 }],
+      },
+    ],
+  });
+});
