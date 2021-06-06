@@ -82,7 +82,7 @@ for await (const value of payload) {
 }
 ```
 
-## Query compilation
+## Query Compilation
 
 **Benzene** speeds up GraphQL executions by doing the process of memoized compilation.
 
