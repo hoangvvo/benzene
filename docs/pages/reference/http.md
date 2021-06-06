@@ -31,9 +31,11 @@ Being framework-agnostic, `@benzene/http` does not automatically handle the requ
 
 The [graphql-over-http spec](https://github.com/graphql/graphql-over-http) allows different incoming [Content-Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type), each must be parsed differently.
 
-The most popular `content-type` in real-world GraphQL application is `application/json`, which is often parsed by framework with built-in body parser like [express](https://expressjs.com/en/4x/api.html#express.json).
+The most popular [content types](https://github.com/graphql/graphql-over-http/blob/main/spec/GraphQLOverHTTP.md#content-types) in real-world GraphQL application are `application/graphql+json` and the legacy `application/json`.
 
-If we are dealing have the string representation of the incoming request data, we first must parse it into appropriate object representation using the `parseGraphQLBody` export.
+While `application/json` is parsed by framework with built-in body parser like [express](https://expressjs.com/en/4x/api.html#express.json), other content types may not be supported/be parsed incorrectly.
+
+In those cases, we must first parse it into appropriate representation using the `parseGraphQLBody` export.
 
 ```js
 import { parseGraphQLBody } from "@benzene/http";
@@ -44,7 +46,7 @@ async function onRequest(req) {
 }
 ```
 
-Behind the scene, `parseGraphQLBody` will call [JSON.parse](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse) or apply special transformations based on the received content type according to `the graphql-over-http spec`.
+Behind the scene, `parseGraphQLBody` will call [JSON.parse](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse) or apply special transformations based on the received content type according to _the graphql-over-http spec_.
 
 ### Handle incoming HTTP request
 
