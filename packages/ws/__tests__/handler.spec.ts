@@ -605,7 +605,7 @@ test("resolves subscriptions and send updates", async () => {
   });
 });
 
-test.skip("resolves subscriptions with operation name and send updates", async () => {
+test("returns errors when operation name is missing", async () => {
   const utils = await startServer();
 
   await utils.doAck();
@@ -653,6 +653,85 @@ test.skip("resolves subscriptions with operation name and send updates", async (
       ],
     });
   });
+});
+
+test("returns errors when operation name is invalid", async () => {
+  const utils = await startServer();
+
+  await utils.doAck();
+
+  const query = `
+  subscription test {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+
+  subscription testt {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+
+  subscription testtt {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+`;
+
+  utils.send({
+    id: "1",
+    payload: {
+      query,
+      operationName: "notest",
+    },
+    type: MessageType.Subscribe,
+  });
+
+  await utils.waitForMessage((message) => {
+    expect(message).toEqual({
+      type: MessageType.Error,
+      id: "1",
+      payload: [
+        {
+          message: 'Unknown operation named "notest".',
+        },
+      ],
+    });
+  });
+});
+
+test("resolves subscriptions with operation name and send updates", async () => {
+  const utils = await startServer();
+
+  await utils.doAck();
+
+  const query = `
+  subscription test {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+
+  subscription testt {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+
+  subscription testtt {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+`;
 
   await utils.send({
     id: "1",
@@ -713,7 +792,7 @@ test("resolves queries and mutations", async () => {
   });
 });
 
-test.skip("resolves queries and mutations with operation name", async () => {
+test("resolves queries and mutations with operation name", async () => {
   // We can also add a Query test just to be sure but Mutation one only should be sufficient
   const utils = await startServer();
 
@@ -724,27 +803,6 @@ test.skip("resolves queries and mutations with operation name", async () => {
   query testt { test }
   query testtt { test }
 `;
-
-  utils.send({
-    id: "1",
-    payload: {
-      query,
-    },
-    type: MessageType.Subscribe,
-  });
-
-  await utils.waitForMessage((message) => {
-    expect(message).toEqual({
-      type: MessageType.Error,
-      id: "1",
-      payload: [
-        {
-          message:
-            "Must provide operation name if query contains multiple operations.",
-        },
-      ],
-    });
-  });
 
   utils.send({
     id: "1",

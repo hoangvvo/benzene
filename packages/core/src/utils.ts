@@ -1,4 +1,4 @@
-import { execute, ExecutionResult, subscribe } from "graphql";
+import { execute, ExecutionResult, GraphQLError, subscribe } from "graphql";
 import { CompileQuery } from "./types";
 
 export function isAsyncIterator<T = unknown>(
@@ -32,4 +32,27 @@ export function isExecutionResult(val: unknown): val is ExecutionResult {
       (typeof (val as ExecutionResult).data === "object" &&
         !Array.isArray((val as ExecutionResult).data)))
   );
+}
+
+/**
+ * Validate whether an operation does not exist
+ * or operationName is missing. Even though
+ * execution will realize this, we need to provide
+ * this hint mainly for handlers to avoid execution
+ * @param operation
+ * @param operationName
+ */
+export function validateOperationName(
+  operation: string | undefined,
+  operationName: string | null | undefined
+) {
+  if (operation) return [];
+  if (!operationName) {
+    return [
+      new GraphQLError(
+        "Must provide operation name if query contains multiple operations."
+      ),
+    ];
+  }
+  return [new GraphQLError(`Unknown operation named "${operationName}".`)];
 }

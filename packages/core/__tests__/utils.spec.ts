@@ -3,6 +3,7 @@ import {
   isAsyncIterator,
   isExecutionResult,
   makeCompileQuery,
+  validateOperationName,
 } from "@benzene/core/src/utils";
 import { execute, parse, subscribe } from "graphql";
 import { SimpleSchema } from "./_schema";
@@ -105,5 +106,33 @@ describe("isExecutionResult", () => {
         data: [],
       })
     ).toBe(false);
+  });
+});
+
+describe("validateOperationName", () => {
+  test("return empty array if operation is found", () => {
+    expect(validateOperationName("dummy", "dummy")).toEqual([]);
+    expect(validateOperationName("dummy", null)).toEqual([]);
+  });
+
+  test("return missing errors if query contains multiple operations", () => {
+    expect(validateOperationName(undefined, null)).toEqual([
+      {
+        message:
+          "Must provide operation name if query contains multiple operations.",
+        location: undefined,
+        path: undefined,
+      },
+    ]);
+  });
+
+  test("return unknown errors if operation name does not match", () => {
+    expect(validateOperationName(undefined, "Invalid")).toEqual([
+      {
+        message: 'Unknown operation named "Invalid".',
+        location: undefined,
+        path: undefined,
+      },
+    ]);
   });
 });

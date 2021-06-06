@@ -109,7 +109,7 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
       const operation = getOperationAST(document, operationName)?.operation;
 
       if (operation) {
-        // If we could not determine the operation so it is unsafe to cache
+        // If we could not determine the operation, it is unsafe to cache
         cached.operation = operation;
         this.lru.set(key, cached);
       }

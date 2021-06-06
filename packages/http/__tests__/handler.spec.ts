@@ -109,7 +109,7 @@ describe("GET functionality", () => {
     });
   });
 
-  test.skip("Errors when missing operation name", async () => {
+  test("Errors when missing operation name", async () => {
     expect(
       await makeHandler(GQL)(
         {
@@ -132,6 +132,37 @@ describe("GET functionality", () => {
           {
             message:
               "Must provide operation name if query contains multiple operations.",
+            locations: undefined,
+            path: undefined,
+          },
+        ],
+      },
+    });
+  });
+
+  test("Errors when operation name is invalid", async () => {
+    expect(
+      await makeHandler(GQL)(
+        {
+          method: "GET",
+          query: {
+            query: `
+          query TestQuery { test }
+          mutation TestMutation { writeTest { test } }
+        `,
+            operationName: "Invalid",
+          },
+          headers: {},
+        },
+        undefined
+      )
+    ).toEqual({
+      status: 400,
+      headers: { "content-type": "application/json" },
+      payload: {
+        errors: [
+          {
+            message: 'Unknown operation named "Invalid".',
             locations: undefined,
             path: undefined,
           },
