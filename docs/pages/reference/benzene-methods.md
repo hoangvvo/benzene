@@ -84,7 +84,7 @@ for await (const value of payload) {
 
 ## Query Compilation
 
-**Benzene** speeds up GraphQL executions by doing the process of memoized compilation. This API can access via the `compile` function. However, normally, we do not call this directly.
+**Benzene** speeds up GraphQL executions by doing the process of memoized compilation. This API can be accessed via the `compile` function. However, normally, we do not call this directly.
 
 ### compile()
 
