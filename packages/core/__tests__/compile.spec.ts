@@ -1,6 +1,6 @@
-import Benzene from "@benzene/core/src/core";
-import { CompiledResult } from "@benzene/core/src/types";
 import { parse, print } from "graphql";
+import Benzene from "../src/core";
+import { CompiledResult } from "../src/types";
 import { SimpleSchema } from "./_schema";
 
 test("allows passing in query", () => {

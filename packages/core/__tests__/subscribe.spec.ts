@@ -1,5 +1,5 @@
-import Benzene from "@benzene/core/src/core";
 import { ExecutionResult, parse } from "graphql";
+import Benzene from "../src/core";
 import { SimpleSchema } from "./_schema";
 
 test("allows call without `compiled`", async () => {

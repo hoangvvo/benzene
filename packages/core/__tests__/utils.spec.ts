@@ -1,11 +1,11 @@
-import { CompiledQuery } from "@benzene/core/src/types";
+import { execute, parse, subscribe } from "graphql";
+import { CompiledQuery } from "../src/types";
 import {
   isAsyncIterator,
   isExecutionResult,
   makeCompileQuery,
   validateOperationName,
-} from "@benzene/core/src/utils";
-import { execute, parse, subscribe } from "graphql";
+} from "../src/utils";
 import { SimpleSchema } from "./_schema";
 
 describe("isAsyncIterator", () => {

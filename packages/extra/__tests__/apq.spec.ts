@@ -1,9 +1,9 @@
-import { Benzene } from "@benzene/core/src";
-import { SimpleSchema } from "@benzene/core/__tests__/_schema";
-import { makeAPQHandler } from "@benzene/extra/src/apq";
-import { makeHandler } from "@benzene/http/src/handler";
 import { sha256 } from "crypto-hash";
 import lru from "tiny-lru";
+import { Benzene } from "../../core/src";
+import { SimpleSchema } from "../../core/__tests__/_schema";
+import { makeHandler } from "../../http/src/handler";
+import { makeAPQHandler } from "../src/apq";
 
 test("does nothing if inputs does not contain a supported persisted query", async () => {
   const badCache = {};

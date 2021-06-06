@@ -1,5 +1,5 @@
-import Benzene from "@benzene/core/src/core";
 import { GraphQLArgs } from "graphql";
+import Benzene from "../../src/core";
 import { StarWarsSchema as schema } from "./starWarsSchema";
 
 function graphql(args: GraphQLArgs) {

@@ -1,5 +1,5 @@
-import Benzene from "@benzene/core/src/core";
 import { parse, Source } from "graphql";
+import Benzene from "../../src/core";
 import { StarWarsSchema } from "./starWarsSchema";
 
 /**

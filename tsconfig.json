@@ -4,15 +4,10 @@
     "baseUrl": ".",
     "paths": {
       "@benzene/core": ["./packages/core/src"],
-      "@benzene/core/*": ["./packages/core/src/*"],
       "@benzene/extra": ["./packages/extra/src"],
-      "@benzene/extra/*": ["./packages/extra/src/*"],
       "@benzene/http": ["./packages/http/src"],
-      "@benzene/http/*": ["./packages/http/src/*"],
       "@benzene/jit": ["./packages/jit/src"],
-      "@benzene/jit/*": ["./packages/jit/src/*"],
       "@benzene/ws": ["./packages/ws/src"],
-      "@benzene/ws/*": ["./packages/ws/src/*"]
     }
   }
 }

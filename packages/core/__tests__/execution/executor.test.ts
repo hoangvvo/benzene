@@ -1,5 +1,4 @@
 // Modified from https://github.com/graphql/graphql-js/blob/main/src/execution/__tests__/executor-test.ts
-import Benzene from "@benzene/core/src/core";
 import {
   ExecutionArgs,
   GraphQLBoolean,
@@ -15,6 +14,7 @@ import {
   Kind,
   parse,
 } from "graphql";
+import Benzene from "../../src/core";
 import { inspect } from "../__testUtils__/inspect";
 import { invariant } from "../__testUtils__/invariant";
 

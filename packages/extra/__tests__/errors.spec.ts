@@ -1,5 +1,5 @@
-import { HTTPError } from "@benzene/extra/src/errors";
 import { GraphQLError } from "graphql";
+import { HTTPError } from "../src/errors";
 
 describe("HTTPError", () => {
   test("extends GraphQLError", () => {

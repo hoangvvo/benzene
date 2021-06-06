@@ -1,6 +1,5 @@
 // Modified from https://github.com/graphql/graphql-js/blob/main/src/subscription/__tests__/subscribe-test.ts
 
-import Benzene from "@benzene/core/src/core";
 import {
   GraphQLBoolean,
   GraphQLInt,
@@ -11,6 +10,7 @@ import {
   parse,
   SubscriptionArgs,
 } from "graphql";
+import Benzene from "../../src/core";
 import { isAsyncIterator as isAsyncIterable } from "../../src/utils";
 import { invariant } from "../__testUtils__/invariant";
 import { resolveOnNextTick } from "../__testUtils__/resolveOnNextTick";

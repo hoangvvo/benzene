@@ -1,5 +1,5 @@
-import Benzene from "@benzene/core/src/core";
 import { GraphQLError, validate, ValidationRule } from "graphql";
+import Benzene from "../src/core";
 import { TestSchema } from "./_schema";
 
 test("defaults to validate function", async () => {

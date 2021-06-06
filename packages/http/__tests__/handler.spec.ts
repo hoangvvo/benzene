@@ -1,13 +1,13 @@
 // Adapted from https://github.com/graphql/express-graphql/blob/master/src/__tests__/http-test.ts
-import Benzene from "@benzene/core/src/core";
-import { SimpleSchema, TestSchema } from "@benzene/core/__tests__/_schema";
-import { makeHandler } from "@benzene/http/src/handler";
 import {
   GraphQLError,
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLString,
 } from "graphql";
+import Benzene from "../../core/src/core";
+import { SimpleSchema, TestSchema } from "../../core/__tests__/_schema";
+import { makeHandler } from "../src/handler";
 
 const GQL = new Benzene({ schema: TestSchema });
 

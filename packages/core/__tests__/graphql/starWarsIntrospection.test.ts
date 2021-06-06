@@ -1,4 +1,4 @@
-import Benzene from "@benzene/core/src/core";
+import Benzene from "../../src/core";
 import { StarWarsSchema } from "./starWarsSchema";
 
 async function queryStarWars(source: string) {

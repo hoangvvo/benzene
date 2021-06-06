@@ -1,6 +1,6 @@
-import Benzene from "@benzene/core/src/core";
-import { makeCompileQuery } from "@benzene/core/src/utils";
 import { GraphQLSchema } from "graphql";
+import Benzene from "../src/core";
+import { makeCompileQuery } from "../src/utils";
 import { SimpleSchema } from "./_schema";
 
 test("throws if initializing instance with no option", () => {
