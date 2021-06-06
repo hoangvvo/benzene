@@ -1,4 +1,5 @@
 import {
+  DocumentNode,
   ExecutionArgs,
   ExecutionResult,
   formatError,
@@ -8,6 +9,7 @@ import {
   GraphQLError,
   GraphQLSchema,
   parse,
+  print,
   SubscriptionArgs,
   validate,
   validateSchema,
@@ -23,7 +25,7 @@ import {
   Options,
   ValueOrPromise,
 } from "./types";
-import { makeCompileQuery } from "./utils";
+import { isExecutionResult, makeCompileQuery } from "./utils";
 
 export default class Benzene<TContext = any, TExtra = any> {
   private lru: Lru<CompiledCache>;
@@ -57,22 +59,30 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
   }
 
   public compile(
-    query: string,
+    query: string | DocumentNode,
     operationName?: Maybe<string>
   ): CompiledCache | ExecutionResult {
+    let document;
+    if (typeof query === "object") {
+      // query is DocumentNode
+      document = query;
+      query = print(document);
+    }
+
     const key = query + (operationName ? `:${operationName}` : "");
     let cached = this.lru.get(key);
 
     if (cached) {
       return cached;
     } else {
-      let document;
-      try {
-        document = parse(query);
-      } catch (syntaxErr) {
-        return {
-          errors: [syntaxErr],
-        };
+      if (!document) {
+        try {
+          document = parse(query);
+        } catch (syntaxErr) {
+          return {
+            errors: [syntaxErr],
+          };
+        }
       }
 
       const validationErrors = this.validateFn(
@@ -153,12 +163,17 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
       | "rootValue"
       | "operationName"
     >,
-    compiled: CompiledQuery
+    compiled?: CompiledQuery
   ): ValueOrPromise<ExecutionResult> {
+    if (!compiled) {
+      const compiledOrResult = this.compile(args.document);
+      if (isExecutionResult(compiledOrResult)) return compiledOrResult;
+      compiled = compiledOrResult;
+    }
     return compiled.execute(args);
   }
 
-  subscribe(
+  async subscribe(
     args: Pick<
       SubscriptionArgs,
       | "document"
@@ -167,8 +182,13 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
       | "rootValue"
       | "operationName"
     >,
-    compiled: CompiledQuery
+    compiled?: CompiledQuery
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
+    if (!compiled) {
+      const compiledOrResult = this.compile(args.document);
+      if (isExecutionResult(compiledOrResult)) return compiledOrResult;
+      compiled = compiledOrResult;
+    }
     return compiled.subscribe(args);
   }
 }

@@ -20,12 +20,10 @@ test("uses compiled query from cache", async () => {
     schema: TestSchema,
   });
   const lru: Lru<CompiledCache> = (GQL as any).lru;
+  // @ts-ignore
   lru.set("{ test }", {
-    // @ts-ignore
-    compiled: {
-      execute: () => ({ data: { test: "Goodbye" } }),
-      stringify: JSON.stringify,
-    },
+    execute: () => ({ data: { test: "Goodbye" } }),
+    stringify: JSON.stringify,
     operation: "query",
     document: "" as any,
   });
