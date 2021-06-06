@@ -80,17 +80,15 @@ export function makeHandler<TBenzene extends Benzene>(
     return createResponse(
       GQL,
       200,
-      await GQL.execute(
-        {
-          document: cachedOrResult.document,
-          contextValue: GQL.contextFn
-            ? await GQL.contextFn({ extra })
-            : undefined,
-          variableValues: params.variables,
-          operationName: params.operationName,
-        },
-        cachedOrResult
-      )
+      await GQL.execute({
+        document: cachedOrResult.document,
+        contextValue: GQL.contextFn
+          ? await GQL.contextFn({ extra })
+          : undefined,
+        variableValues: params.variables,
+        operationName: params.operationName,
+        compiled: cachedOrResult,
+      })
     );
   };
 }

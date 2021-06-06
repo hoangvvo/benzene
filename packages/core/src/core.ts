@@ -18,7 +18,6 @@ import {
 import lru, { Lru } from "tiny-lru";
 import {
   BenzeneGraphQLArgs,
-  CompiledQuery,
   CompiledResult,
   CompileQuery,
   ContextFn,
@@ -141,41 +140,41 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
     const cachedOrResult = this.compile(source, operationName);
     return this.formatExecutionResult(
       "document" in cachedOrResult
-        ? await this.execute(
-            {
-              document: cachedOrResult.document,
-              contextValue,
-              variableValues,
-              rootValue,
-              operationName,
-            },
-            cachedOrResult
-          )
+        ? await this.execute({
+            document: cachedOrResult.document,
+            contextValue,
+            variableValues,
+            rootValue,
+            operationName,
+            compiled: cachedOrResult,
+          })
         : cachedOrResult
     );
   }
 
   execute(
-    args: BenzeneGraphQLArgs<ExecutionArgs>,
-    compiled?: CompiledQuery
+    args: BenzeneGraphQLArgs<ExecutionArgs>
   ): ValueOrPromise<ExecutionResult> {
-    if (!compiled) {
+    if (!args.compiled) {
       const compiledOrResult = this.compile(args.document);
       if (isExecutionResult(compiledOrResult)) return compiledOrResult;
-      compiled = compiledOrResult;
+      args.compiled = compiledOrResult;
+    } else {
+      args.document = args.compiled.document;
     }
-    return compiled.execute(args);
+    return args.compiled.execute(args);
   }
 
   async subscribe(
-    args: BenzeneGraphQLArgs<SubscriptionArgs>,
-    compiled?: CompiledQuery
+    args: BenzeneGraphQLArgs<SubscriptionArgs>
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
-    if (!compiled) {
+    if (!args.compiled) {
       const compiledOrResult = this.compile(args.document);
       if (isExecutionResult(compiledOrResult)) return compiledOrResult;
-      compiled = compiledOrResult;
+      args.compiled = compiledOrResult;
+    } else {
+      args.document = args.compiled.document;
     }
-    return compiled.subscribe(args);
+    return args.compiled.subscribe(args);
   }
 }

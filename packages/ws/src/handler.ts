@@ -113,13 +113,14 @@ export function makeHandler<TBenzene extends Benzene>(
         : undefined,
       variableValues: message.payload.variables,
       operationName: message.payload.operationName,
+      compiled: cachedOrResult,
     };
 
     if (cachedOrResult.operation !== "subscription") {
-      sendRes(socket, message.id, await GQL.execute(execArg, cachedOrResult));
+      sendRes(socket, message.id, await GQL.execute(execArg));
     } else {
       try {
-        const result = await GQL.subscribe(execArg, cachedOrResult);
+        const result = await GQL.subscribe(execArg);
 
         if (!isAsyncIterator(result)) {
           // If it is not an async iterator, it must be an

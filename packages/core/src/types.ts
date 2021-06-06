@@ -92,6 +92,8 @@ export interface CompiledQuery {
   stringify?(result: ExecutionResult): string;
 }
 
-export type BenzeneGraphQLArgs<T> = Omit<T, "schema">;
+export type BenzeneGraphQLArgs<T> = Omit<T, "schema"> & {
+  compiled?: CompiledResult;
+};
 
 export type Maybe<T> = null | undefined | T;
