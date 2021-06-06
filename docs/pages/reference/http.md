@@ -78,7 +78,7 @@ async function onRequest(req, res) {
     body: parseGraphQLBody(rawBody, req.headers["content-type"]),
     headers: req.headers,
     query: parseQueryString(req.url),
-  })
+  });
 }
 ```
 

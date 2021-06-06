@@ -24,7 +24,7 @@ If you are submitting a :bug: bug report, please:
 
 ### Process on submitting a PR
 
-*Generally, all pull requests should have references to an issue.*
+_Generally, all pull requests should have references to an issue._
 
 If you are :sparkles: **adding a new feature**, please first [create an issue](../../issues/new) for discussion.
 
@@ -38,7 +38,7 @@ The steps to submit a PR are:
 
 3. Make changes and commit. Use the present tense and imperative mood ("Add feature" instead of "Adds feature" or "Added feature").
 
-4. Make sure your code is linted by running `npm run lint -- --fix`. 
+4. Make sure your code is linted by running `npm run lint -- --fix`.
 
 5. If a change is not documentation-related, please add a tests if possible.
 

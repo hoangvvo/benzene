@@ -1,1 +1,3 @@
-{"query":"query ($id: ID! = 1 $width: Int = 640 $height: Int = 480) { article(id: $id) { ...articleFields author { __typename id name pic(width: $width height: $height) { __typename url width height } recentArticle { ...articleFields keywords } } } } fragment articleFields on Article { __typename id isPublished title body }"}
+{
+  "query": "query ($id: ID! = 1 $width: Int = 640 $height: Int = 480) { article(id: $id) { ...articleFields author { __typename id name pic(width: $width height: $height) { __typename url width height } recentArticle { ...articleFields keywords } } } } fragment articleFields on Article { __typename id isPublished title body }"
+}

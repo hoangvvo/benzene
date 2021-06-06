@@ -68,24 +68,24 @@ wss.on("connection", (ws) => {
 
 In most cases, the WebSocket object we are working with on the server-side will not be similar to the one from the JavaScript Web API. However, we can still work with it by understanding ways that `graphqlWS` use the object:
 
-1) Verify whether the protocol is supported via `socket.protocol` (must be `"graphql-transport-ws"`)
+1. Verify whether the protocol is supported via `socket.protocol` (must be `"graphql-transport-ws"`)
 
-2) Attach a message listener function to `socket.onmessage`:
+2. Attach a message listener function to `socket.onmessage`:
 
 ```js
 socket.onmessage = (event) => {
   const message = JSON.parse(String(event.data));
   // Handle message object...
-}
+};
 ```
 
-3) Use `socket.send` to send a message to the client:
+3. Use `socket.send` to send a message to the client:
 
 ```js
 socket.send(JSON.stringify(data));
 ```
 
-4) Attach a closure listener function to `socket.onclose`:
+4. Attach a closure listener function to `socket.onclose`:
 
 ```js
 socket.onclose = ({ code, reason }) => {
@@ -93,7 +93,7 @@ socket.onclose = ({ code, reason }) => {
 };
 ```
 
-5) Call `socket.close` when needed (upon fatal error, rogue client, etc):
+5. Call `socket.close` when needed (upon fatal error, rogue client, etc):
 
 ```js
 socket.close(4401, "Some message");

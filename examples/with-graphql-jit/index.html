@@ -3,8 +3,8 @@
     <title>Simple GraphiQL Example</title>
     <link href="https://unpkg.com/graphiql/graphiql.min.css" rel="stylesheet" />
   </head>
-  <body style="margin: 0;">
-    <div id="graphiql" style="height: 100vh;"></div>
+  <body style="margin: 0">
+    <div id="graphiql" style="height: 100vh"></div>
 
     <script
       crossorigin
@@ -20,17 +20,17 @@
     ></script>
 
     <script>
-      const graphQLFetcher = graphQLParams =>
-        fetch('http://localhost:3000/graphql', {
-          method: 'post',
-          headers: { 'Content-Type': 'application/json' },
+      const graphQLFetcher = (graphQLParams) =>
+        fetch("http://localhost:3000/graphql", {
+          method: "post",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(graphQLParams),
         })
-          .then(response => response.json())
+          .then((response) => response.json())
           .catch(() => response.text());
       ReactDOM.render(
         React.createElement(GraphiQL, { fetcher: graphQLFetcher }),
-        document.getElementById('graphiql'),
+        document.getElementById("graphiql")
       );
     </script>
   </body>

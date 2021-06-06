@@ -1,6 +1,6 @@
 # Persisted queries
 
-*"Persisted queries"* is a technique to improves network performance for GraphQL by sending an ID or hash instead of a long GraphQL query string.
+_"Persisted queries"_ is a technique to improves network performance for GraphQL by sending an ID or hash instead of a long GraphQL query string.
 
 While **Benzene** does not have persisted query built-in, it allows flexible persisted query implementation.
 
@@ -24,8 +24,8 @@ const GQL = new Benzene({ schema });
 
 const graphqlHTTP = makeHandler(GQL, {
   onParams(params) {
-    return apq(params)
-  }
+    return apq(params);
+  },
 });
 
 async function onRequest(req, res) {

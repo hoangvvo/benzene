@@ -7,7 +7,7 @@
       "@benzene/extra": ["./packages/extra/src"],
       "@benzene/http": ["./packages/http/src"],
       "@benzene/jit": ["./packages/jit/src"],
-      "@benzene/ws": ["./packages/ws/src"],
+      "@benzene/ws": ["./packages/ws/src"]
     }
   }
 }

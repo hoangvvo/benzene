@@ -2,15 +2,14 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'packages/**'
+      - "packages/**"
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -18,21 +17,21 @@ jobs:
         node-version: [12, 14, 16]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: Install npm v7
-      run: npm i -g npm@latest
-    - name: Install dependencies
-      run: npm install
-    - name: Lint
-      run: npm run lint
-    - name: Build & Test
-      run: |
-        npm run build
-        npm run test:ci
-    - uses: codecov/codecov-action@v1
-      with:
-        files: ./coverage/lcov.info
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install npm v7
+        run: npm i -g npm@latest
+      - name: Install dependencies
+        run: npm install
+      - name: Lint
+        run: npm run lint
+      - name: Build & Test
+        run: |
+          npm run build
+          npm run test:ci
+      - uses: codecov/codecov-action@v1
+        with:
+          files: ./coverage/lcov.info

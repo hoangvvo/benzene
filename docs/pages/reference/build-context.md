@@ -24,7 +24,7 @@ import { Benzene, makeHandler } from "@benzene/ws";
 const GQL = new Benzene({
   contextFn: ({ extra }) => {
     // extra is { user: "Niko", ip: "127.0.0.1" }
-    return { user: extra.user }
+    return { user: extra.user };
   },
 });
 

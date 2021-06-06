@@ -45,7 +45,7 @@ const document = parse(`
       abilities
     }
   }
-`)
+`);
 
 const { data, errors } = await GQL.execute({
   document,
@@ -69,7 +69,7 @@ const document = parse(`
       abilities
     }
   }
-`)
+`);
 
 const payload = await GQL.subscribe({
   document,
@@ -117,7 +117,7 @@ const query = `
       abilities
     }
   }
-`
+`;
 
 const compiled = GQL.compile(query, operationName);
 

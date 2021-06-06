@@ -1,4 +1,4 @@
-import Callout from 'nextra-theme-docs/callout'
+import Callout from "nextra-theme-docs/callout";
 
 # Getting Started
 
@@ -10,7 +10,7 @@ This tutorial will take us through the process of building a GraphQL server with
 
 Everything will be built with the bare [http](https://nodejs.org/api/http.html) module and the [ws](https://github.com/websockets/ws) library. However, we can adapt it to any other libraries.
 
-In this tutorial, we will use the *SDL-first* library [graphql-tools](https://github.com/ardatan/graphql-tools) for our schema. (We can also choose *code-first* libraries likes [type-graphql](https://github.com/MichalLytek/type-graphql) and [@nexus/schema](https://github.com/graphql-nexus/schema))
+In this tutorial, we will use the _SDL-first_ library [graphql-tools](https://github.com/ardatan/graphql-tools) for our schema. (We can also choose _code-first_ libraries likes [type-graphql](https://github.com/MichalLytek/type-graphql) and [@nexus/schema](https://github.com/graphql-nexus/schema))
 
 Check out the [source code](https://github.com/hoangvvo/benzene/tree/main/examples/book-votes) or follow along.
 
@@ -126,13 +126,15 @@ export default schema;
 
 We created a GraphQL schema with three functionalities:
 
-- A query to retrieve all books, as well resolvers for *Book* and *Author* to resolve nested fields.
+- A query to retrieve all books, as well resolvers for _Book_ and _Author_ to resolve nested fields.
 - A mutation to upvote a book, which also announces the change to the `"BOOK_SUBSCRIBE"` event.
 - A subscription to book updates that listens to the `"BOOK_SUBSCRIBE"` event.
 
 <Callout emoji="💡">
-  We use [events.on](https://nodejs.org/api/events.html#events_events_on_emitter_eventname_options)
-to create the async iterator, but you may be more familiar with [graphql-subscriptions](https://github.com/apollographql/graphql-subscriptions))
+  We use
+  [events.on](https://nodejs.org/api/events.html#events_events_on_emitter_eventname_options)
+  to create the async iterator, but you may be more familiar with
+  [graphql-subscriptions](https://github.com/apollographql/graphql-subscriptions))
 </Callout>
 
 ## Create the server
@@ -188,7 +190,8 @@ Meanwhile, the [graphql-over-http spec](https://github.com/graphql/graphql-over-
 each must be parsed differently. We provide `parseGraphQLBody` function, which accepts the body string and the content type, to do just that.
 
 <Callout emoji="💡">
-  We do not have to do this if we use a framework or library with body parsing, like [express](https://expressjs.com/en/4x/api.html#express.json)
+  We do not have to do this if we use a framework or library with body parsing,
+  like [express](https://expressjs.com/en/4x/api.html#express.json)
 </Callout>
 
 ### Create a Benzene instance and transport handlers
@@ -267,12 +270,15 @@ await fetch("/graphql", {
 Before we make a mutation, let's try to subscribe to our books' changes using GraphQL Subscription over WebSockets.
 
 ```js
-const websocket = new WebSocket("ws://localhost:3000/graphql", "graphql-transport-ws");
+const websocket = new WebSocket(
+  "ws://localhost:3000/graphql",
+  "graphql-transport-ws"
+);
 // Wait a bit for WebSocket to connect and then run:
 websocket.send(JSON.stringify({ type: "connection_init" }));
 ```
 
-Take a look at the *WS* tab in the *Network* panel. We can see an opening WebSocket communicating with our GraphQL server.
+Take a look at the _WS_ tab in the _Network_ panel. We can see an opening WebSocket communicating with our GraphQL server.
 Let's try to subscribe to `bookSubscribe`.
 
 ```js
