@@ -19,7 +19,7 @@ test("throws if schema is invalid", () => {
   }).toThrow();
 });
 
-test.skip("defaults to graphql-js makeCompileQuery() with warning", () => {
+test("defaults to graphql-js makeCompileQuery() with warning", () => {
   const consoleSpy = jest.spyOn(console, "warn").mockImplementation();
   // @ts-ignore
   expect(new Benzene({ schema: SimpleSchema }).compileQuery.toString()).toEqual(

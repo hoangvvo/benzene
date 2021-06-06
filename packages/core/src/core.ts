@@ -53,8 +53,8 @@ export default class Benzene<TContext = any, TExtra = any> {
     this.schema = options.schema;
     if (!options.compileQuery) {
       console.warn(`The default GraphQL implementation of Benzene has been changed from graphql-jit to graphql-js.
-    To remove this message, explicitly specify the desired runtime.
-    Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementations.`);
+To remove this message, explicitly specify the desired runtime.
+Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementations.`);
     }
     this.compileQuery = options.compileQuery || makeCompileQuery();
   }
@@ -107,13 +107,12 @@ export default class Benzene<TContext = any, TExtra = any> {
       cached.document = document;
 
       const operation = getOperationAST(document, operationName)?.operation;
-      // We could not determine the operation so it is unsafe to cache
-      if (!operation) return cached;
 
-      cached.operation = operation;
-
-      this.lru.set(key, cached);
-
+      if (operation) {
+        // If we could not determine the operation so it is unsafe to cache
+        cached.operation = operation;
+        this.lru.set(key, cached);
+      }
       return cached;
     }
   }

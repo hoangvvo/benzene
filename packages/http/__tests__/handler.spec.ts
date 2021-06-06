@@ -131,7 +131,7 @@ describe("GET functionality", () => {
         errors: [
           {
             message:
-              "Can only perform a undefined operation from a POST request.",
+              "Must provide operation name if query contains multiple operations.",
             locations: undefined,
             path: undefined,
           },
