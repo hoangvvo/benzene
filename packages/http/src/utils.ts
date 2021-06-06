@@ -39,14 +39,21 @@ export function parseGraphQLBody(
   ).trim();
 
   switch (ctype) {
-    case "application/graphql":
-      return { query: rawBody };
+    case "application/graphql+json":
+      try {
+        return JSON.parse(rawBody);
+      } catch (e) {
+        throw new Error("POST body sent invalid JSON.");
+      }
     case "application/json":
       try {
         return JSON.parse(rawBody);
       } catch (e) {
         throw new Error("POST body sent invalid JSON.");
       }
+    case "application/graphql":
+      return { query: rawBody };
+
     default:
       // If no Content-Type header matches, parse nothing.
       return null;

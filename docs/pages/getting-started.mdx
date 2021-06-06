@@ -256,7 +256,8 @@ First, try to query all books:
 ```js
 await fetch("/graphql", {
   method: "POST",
-  headers: { "content-type": "application/json" },
+  // application/json is also supported as a legacy content-type
+  headers: { "content-type": "application/graphql+json" },
   body: JSON.stringify({
     query: "query { books { id, title, author { name }, votes } }",
   }),
@@ -289,7 +290,7 @@ Now make a request to increase the vote:
 ```js
 await fetch("/graphql", {
   method: "POST",
-  headers: { "content-type": "application/json" },
+  headers: { "content-type": "application/graphql+json" },
   body: JSON.stringify({ query: "mutation { bookUpvote(bookId: 1) { id } }" }),
 }).then((res) => res.json());
 ```
