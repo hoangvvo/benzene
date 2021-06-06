@@ -76,12 +76,9 @@ export type CompileQuery = (
 ) => CompiledQuery | ExecutionResult;
 
 export interface CompiledQuery {
-  execute(
-    args: BenzeneGraphQLArgs<ExecutionArgs>
-  ): ValueOrPromise<ExecutionResult>;
-
+  execute(args: Omit<ExecutionArgs, "schema">): ValueOrPromise<ExecutionResult>;
   subscribe(
-    args: BenzeneGraphQLArgs<SubscriptionArgs>
+    args: Omit<SubscriptionArgs, "schema">
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult>;
 
   stringify?(result: ExecutionResult): string;
@@ -92,8 +89,10 @@ export interface CompiledResult extends CompiledQuery {
   document: DocumentNode;
 }
 
-export type BenzeneGraphQLArgs<T> = Omit<T, "schema"> & {
-  compiled?: CompiledResult;
-};
+export type BenzeneGraphQLArgs<T> =
+  | Omit<T, "schema" | "document"> & {
+      compiled?: CompiledResult;
+      document?: DocumentNode;
+    };
 
 export type Maybe<T> = null | undefined | T;
