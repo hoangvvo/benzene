@@ -26,7 +26,9 @@
     "eslint": "^7.27.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
+    "graphql": "^15.5.0",
     "jest": "^27.0.1",
+    "jest-codemods": "^0.23.1",
     "prettier": "^2.3.0",
     "rimraf": "^3.0.2",
     "rollup": "^2.50.2",
@@ -37,8 +39,5 @@
   "browserslist": [
     "last 1 Chrome versions",
     "node >= 10.16"
-  ],
-  "dependencies": {
-    "graphql": "^15.5.0"
-  }
+  ]
 }

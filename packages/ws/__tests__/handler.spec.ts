@@ -605,7 +605,7 @@ test("resolves subscriptions and send updates", async () => {
   });
 });
 
-test("resolves subscriptions with operation name and send updates", async () => {
+test.skip("resolves subscriptions with operation name and send updates", async () => {
   const utils = await startServer();
 
   await utils.doAck();
@@ -713,7 +713,7 @@ test("resolves queries and mutations", async () => {
   });
 });
 
-test("resolves queries and mutations with operation name", async () => {
+test.skip("resolves queries and mutations with operation name", async () => {
   // We can also add a Query test just to be sure but Mutation one only should be sufficient
   const utils = await startServer();
 

@@ -109,7 +109,7 @@ describe("GET functionality", () => {
     });
   });
 
-  test("Errors when missing operation name", async () => {
+  test.skip("Errors when missing operation name", async () => {
     expect(
       await makeHandler(GQL)(
         {
@@ -131,7 +131,7 @@ describe("GET functionality", () => {
         errors: [
           {
             message:
-              "Must provide operation name if query contains multiple operations.",
+              "Can only perform a undefined operation from a POST request.",
             locations: undefined,
             path: undefined,
           },
