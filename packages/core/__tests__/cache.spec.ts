@@ -1,7 +1,7 @@
-import Benzene from "@benzene/core/src/core";
-import { CompiledResult } from "@benzene/core/src/types";
 import { Lru } from "tiny-lru";
-import { TestSchema } from "./_schema";
+import Benzene from "../src/core";
+import { CompiledResult } from "../src/types";
+import { SimpleSchema, TestSchema } from "./_schema";
 
 test("saves compiled query to cache", async () => {
   const GQL = new Benzene({
@@ -64,4 +64,21 @@ test("returns and does not cache invalid query", async () => {
     ],
   });
   expect(lru.has("{ baddd }")).toBe(false);
+});
+
+test("does not cache query if operation cannot be determined", async () => {
+  const GQL = new Benzene({
+    schema: SimpleSchema,
+  });
+  const lru: Lru<CompiledResult> = (GQL as any).lru;
+  const query = `
+    query Example { foo }
+    subscription OtherExample { bar }
+  `;
+  const result = await GQL.compile(query);
+  expect(result).toHaveProperty("execute");
+  expect(result).toHaveProperty("subscribe");
+  expect(result).toHaveProperty("document");
+  expect(result).not.toHaveProperty("operation");
+  expect(lru.has(query)).toBe(false);
 });

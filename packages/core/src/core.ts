@@ -6,7 +6,6 @@ import {
   FormattedExecutionResult,
   getOperationAST,
   GraphQLArgs,
-  GraphQLError,
   GraphQLSchema,
   parse,
   print,
@@ -45,6 +44,9 @@ export default class Benzene<TContext = any, TExtra = any> {
     // build cache
     this.lru = lru(1024);
     // construct schema and validate
+    if (!(options.schema instanceof GraphQLSchema)) {
+      throw new Error(`Expected ${options.schema} to be a GraphQL schema.`);
+    }
     const schemaValidationErrors = validateSchema(options.schema);
     if (schemaValidationErrors.length > 0) {
       throw schemaValidationErrors;
@@ -76,6 +78,7 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
       return cached;
     } else {
       if (!document) {
+        if (!query) throw new Error("Must provide document.");
         try {
           document = parse(query);
         } catch (syntaxErr) {
@@ -96,27 +99,21 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
         };
       }
 
-      const operation = getOperationAST(document, operationName)?.operation;
-      if (!operation)
-        return {
-          errors: [
-            new GraphQLError(
-              "Must provide operation name if query contains multiple operations."
-            ),
-          ],
-        };
-
       const compiled = this.compileQuery(this.schema, document, operationName);
 
       // Compilation is a failure since its result is ExecutionResult
-      if (!("execute" in compiled)) return compiled;
+      if (isExecutionResult(compiled)) return compiled;
 
       cached = compiled as CompiledResult;
       cached.document = document;
-      cached.operation = operation;
 
-      this.lru.set(key, cached);
+      const operation = getOperationAST(document, operationName)?.operation;
 
+      if (operation) {
+        // If we could not determine the operation, it is unsafe to cache
+        cached.operation = operation;
+        this.lru.set(key, cached);
+      }
       return cached;
     }
   }
@@ -138,16 +135,15 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
     source: string;
   }): Promise<FormattedExecutionResult> {
     const cachedOrResult = this.compile(source, operationName);
-    return "document" in cachedOrResult
-      ? await this.execute({
-          document: cachedOrResult.document,
-          contextValue,
-          variableValues,
-          rootValue,
-          operationName,
-          compiled: cachedOrResult,
-        })
-      : cachedOrResult;
+    if (isExecutionResult(cachedOrResult)) return cachedOrResult;
+    return this.execute({
+      document: cachedOrResult.document,
+      contextValue,
+      variableValues,
+      rootValue,
+      operationName,
+      compiled: cachedOrResult,
+    });
   }
 
   execute(

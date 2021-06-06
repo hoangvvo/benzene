@@ -1,4 +1,10 @@
-import { Benzene, ExtractExtraType, isAsyncIterator } from "@benzene/core";
+import {
+  Benzene,
+  ExtractExtraType,
+  isAsyncIterator,
+  isExecutionResult,
+  validateOperationName,
+} from "@benzene/core";
 import { ExecutionResult, GraphQLError } from "graphql";
 import {
   CompleteMessage,
@@ -99,13 +105,24 @@ export function makeHandler<TBenzene extends Benzene>(
       message.payload.query,
       message.payload.operationName
     );
-    if (!("document" in cachedOrResult)) {
+
+    if (isExecutionResult(cachedOrResult)) {
       return sendErr(
         socket,
         message.id,
         cachedOrResult.errors as GraphQLError[]
       );
     }
+
+    const operationNameValidationErrors = validateOperationName(
+      cachedOrResult.operation,
+      message.payload.operationName
+    );
+
+    if (operationNameValidationErrors.length > 0) {
+      return sendErr(socket, message.id, operationNameValidationErrors);
+    }
+
     const execArg = {
       document: cachedOrResult.document,
       contextValue: GQL.contextFn

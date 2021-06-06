@@ -1,11 +1,12 @@
-import Benzene from "@benzene/core/src/core";
 import { GraphQLError, validate, ValidationRule } from "graphql";
+import Benzene from "../src/core";
 import { TestSchema } from "./_schema";
 
 test("defaults to validate function", async () => {
   const GQL = new Benzene({
     schema: TestSchema,
   });
+  // @ts-ignore
   expect(GQL.validateFn).toBe(validate);
 });
 
@@ -15,6 +16,7 @@ test("allows custom validate function", async () => {
     schema: TestSchema,
     validateFn,
   });
+  // @ts-ignore
   expect(GQL.validateFn).toBe(validateFn);
   expect(
     await GQL.graphql({
@@ -41,6 +43,7 @@ test("allows custom validation rules", async () => {
     schema: TestSchema,
     validationRules: [AlwaysInvalidRule],
   });
+  // @ts-ignore
   expect(GQL.validationRules).toEqual([AlwaysInvalidRule]);
   expect(
     await GQL.graphql({

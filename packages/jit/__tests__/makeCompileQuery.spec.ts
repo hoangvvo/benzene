@@ -1,10 +1,10 @@
-import { CompiledQuery } from "@benzene/core/src";
-import { SimpleSchema } from "@benzene/core/__tests__/_schema";
 import {
   CompiledQuery as CompiledQueryJit,
   compileQuery as compileQueryJit,
 } from "@hoangvvo/graphql-jit";
 import { parse } from "graphql";
+import { CompiledQuery } from "../../core/src";
+import { SimpleSchema } from "../../core/__tests__/_schema";
 import { makeCompileQuery } from "../src/makeCompileQuery";
 
 const compileQuery = makeCompileQuery();
@@ -33,4 +33,18 @@ test("returns subscribe function that calls `subscribe` from graphql-js`", async
     // @ts-ignore
     (await compiledJit.subscribe({ document, schema: SimpleSchema })).next()
   );
+});
+
+test("returns execution result if compilation failed", () => {
+  const document = parse(`mutation { foo }`);
+  const compiled = compileQuery(SimpleSchema, document);
+  expect(compileQueryJit(SimpleSchema, document)).toEqual(compiled);
+  expect(compiled).toEqual({
+    errors: [
+      {
+        message: "Schema is not configured for mutations.",
+        locations: [{ line: 1, column: 1 }],
+      },
+    ],
+  });
 });

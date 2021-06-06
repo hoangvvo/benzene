@@ -89,9 +89,10 @@ for await (const value of payload) {
 ### compile()
 
 ```js
+import { isExecutionResult } from "@benzene/core";
 const compiled = GQL.compile(query, operationName);
 
-if (!("executre" in compiled)) {
+if (isExecutionResult(compiled)) {
   // Compilation failed. `compiled` is an `ExecutionResult`.
   console.log(compiled.errors);
   console.log(compiled.data);

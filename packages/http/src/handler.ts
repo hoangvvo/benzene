@@ -1,4 +1,9 @@
-import { Benzene, ExtractExtraType, isExecutionResult } from "@benzene/core";
+import {
+  Benzene,
+  ExtractExtraType,
+  isExecutionResult,
+  validateOperationName,
+} from "@benzene/core";
 import { ExecutionResult, GraphQLError } from "graphql";
 import { HandlerOptions, HTTPRequest, HTTPResponse } from "./types";
 import { getGraphQLParams } from "./utils";
@@ -55,7 +60,7 @@ export function makeHandler<TBenzene extends Benzene>(
 
     const cachedOrResult = GQL.compile(params.query, params.operationName);
 
-    if (!("document" in cachedOrResult)) {
+    if (isExecutionResult(cachedOrResult)) {
       return createResponse(GQL, 400, cachedOrResult);
     }
 
@@ -64,6 +69,17 @@ export function makeHandler<TBenzene extends Benzene>(
         errors: [
           new GraphQLError("GraphQL only supports GET and POST requests."),
         ],
+      });
+    }
+
+    const operationNameValidationErrors = validateOperationName(
+      cachedOrResult.operation,
+      params.operationName
+    );
+
+    if (operationNameValidationErrors.length > 0) {
+      return createResponse(GQL, 400, {
+        errors: operationNameValidationErrors,
       });
     }
 

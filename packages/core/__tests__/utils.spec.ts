@@ -1,10 +1,11 @@
-import { CompiledQuery } from "@benzene/core/src/types";
+import { execute, parse, subscribe } from "graphql";
+import { CompiledQuery } from "../src/types";
 import {
   isAsyncIterator,
   isExecutionResult,
   makeCompileQuery,
-} from "@benzene/core/src/utils";
-import { execute, parse, subscribe } from "graphql";
+  validateOperationName,
+} from "../src/utils";
 import { SimpleSchema } from "./_schema";
 
 describe("isAsyncIterator", () => {
@@ -59,7 +60,7 @@ describe("makeCompileQuery", () => {
 });
 
 describe("isExecutionResult", () => {
-  test("returns true if errors field in an array", () => {
+  test("returns true if errors field is an array", () => {
     expect(
       isExecutionResult({
         errors: [],
@@ -97,7 +98,7 @@ describe("isExecutionResult", () => {
   test("returns false if data field is not an object or is an array", () => {
     expect(
       isExecutionResult({
-        data: "",
+        data: 12,
       })
     ).toBe(false);
     expect(
@@ -105,5 +106,33 @@ describe("isExecutionResult", () => {
         data: [],
       })
     ).toBe(false);
+  });
+});
+
+describe("validateOperationName", () => {
+  test("return empty array if operation is found", () => {
+    expect(validateOperationName("dummy", "dummy")).toEqual([]);
+    expect(validateOperationName("dummy", null)).toEqual([]);
+  });
+
+  test("return missing errors if query contains multiple operations", () => {
+    expect(validateOperationName(undefined, null)).toEqual([
+      {
+        message:
+          "Must provide operation name if query contains multiple operations.",
+        location: undefined,
+        path: undefined,
+      },
+    ]);
+  });
+
+  test("return unknown errors if operation name does not match", () => {
+    expect(validateOperationName(undefined, "Invalid")).toEqual([
+      {
+        message: 'Unknown operation named "Invalid".',
+        location: undefined,
+        path: undefined,
+      },
+    ]);
   });
 });

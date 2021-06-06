@@ -1,17 +1,3 @@
-import Benzene from "@benzene/core/src/core";
-import { Options } from "@benzene/core/src/types";
-import { makeHandler } from "@benzene/ws/src/handler";
-import {
-  CompleteMessage,
-  ConnectionAckMessage,
-  ConnectionInitMessage,
-  ErrorMessage,
-  MessageType,
-  NextMessage,
-  SubscribeMessage,
-} from "@benzene/ws/src/message";
-import { GRAPHQL_TRANSPORT_WS_PROTOCOL } from "@benzene/ws/src/protocol";
-import { HandlerOptions } from "@benzene/ws/src/types";
 import { EventEmitter } from "events";
 import {
   GraphQLError,
@@ -22,6 +8,20 @@ import {
 import { createServer, Server } from "http";
 import { AddressInfo } from "net";
 import WebSocket from "ws";
+import Benzene from "../../core/src/core";
+import { Options } from "../../core/src/types";
+import { makeHandler } from "../src/handler";
+import {
+  CompleteMessage,
+  ConnectionAckMessage,
+  ConnectionInitMessage,
+  ErrorMessage,
+  MessageType,
+  NextMessage,
+  SubscribeMessage,
+} from "../src/message";
+import { GRAPHQL_TRANSPORT_WS_PROTOCOL } from "../src/protocol";
+import { HandlerOptions } from "../src/types";
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -605,7 +605,7 @@ test("resolves subscriptions and send updates", async () => {
   });
 });
 
-test("resolves subscriptions with operation name and send updates", async () => {
+test("returns errors when operation name is missing", async () => {
   const utils = await startServer();
 
   await utils.doAck();
@@ -653,6 +653,85 @@ test("resolves subscriptions with operation name and send updates", async () => 
       ],
     });
   });
+});
+
+test("returns errors when operation name is invalid", async () => {
+  const utils = await startServer();
+
+  await utils.doAck();
+
+  const query = `
+  subscription test {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+
+  subscription testt {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+
+  subscription testtt {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+`;
+
+  utils.send({
+    id: "1",
+    payload: {
+      query,
+      operationName: "notest",
+    },
+    type: MessageType.Subscribe,
+  });
+
+  await utils.waitForMessage((message) => {
+    expect(message).toEqual({
+      type: MessageType.Error,
+      id: "1",
+      payload: [
+        {
+          message: 'Unknown operation named "notest".',
+        },
+      ],
+    });
+  });
+});
+
+test("resolves subscriptions with operation name and send updates", async () => {
+  const utils = await startServer();
+
+  await utils.doAck();
+
+  const query = `
+  subscription test {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+
+  subscription testt {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+
+  subscription testtt {
+    notificationAdded {
+      message
+      dummy
+    }
+  }
+`;
 
   await utils.send({
     id: "1",
@@ -724,27 +803,6 @@ test("resolves queries and mutations with operation name", async () => {
   query testt { test }
   query testtt { test }
 `;
-
-  utils.send({
-    id: "1",
-    payload: {
-      query,
-    },
-    type: MessageType.Subscribe,
-  });
-
-  await utils.waitForMessage((message) => {
-    expect(message).toEqual({
-      type: MessageType.Error,
-      id: "1",
-      payload: [
-        {
-          message:
-            "Must provide operation name if query contains multiple operations.",
-        },
-      ],
-    });
-  });
 
   utils.send({
     id: "1",

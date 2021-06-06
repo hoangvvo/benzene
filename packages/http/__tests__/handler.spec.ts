@@ -1,13 +1,13 @@
 // Adapted from https://github.com/graphql/express-graphql/blob/master/src/__tests__/http-test.ts
-import Benzene from "@benzene/core/src/core";
-import { SimpleSchema, TestSchema } from "@benzene/core/__tests__/_schema";
-import { makeHandler } from "@benzene/http/src/handler";
 import {
   GraphQLError,
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLString,
 } from "graphql";
+import Benzene from "../../core/src/core";
+import { SimpleSchema, TestSchema } from "../../core/__tests__/_schema";
+import { makeHandler } from "../src/handler";
 
 const GQL = new Benzene({ schema: TestSchema });
 
@@ -132,6 +132,37 @@ describe("GET functionality", () => {
           {
             message:
               "Must provide operation name if query contains multiple operations.",
+            locations: undefined,
+            path: undefined,
+          },
+        ],
+      },
+    });
+  });
+
+  test("Errors when operation name is invalid", async () => {
+    expect(
+      await makeHandler(GQL)(
+        {
+          method: "GET",
+          query: {
+            query: `
+          query TestQuery { test }
+          mutation TestMutation { writeTest { test } }
+        `,
+            operationName: "Invalid",
+          },
+          headers: {},
+        },
+        undefined
+      )
+    ).toEqual({
+      status: 400,
+      headers: { "content-type": "application/json" },
+      payload: {
+        errors: [
+          {
+            message: 'Unknown operation named "Invalid".',
             locations: undefined,
             path: undefined,
           },
