@@ -1,4 +1,5 @@
 import {
+  assertSchema,
   DocumentNode,
   ExecutionArgs,
   ExecutionResult,
@@ -6,7 +7,6 @@ import {
   FormattedExecutionResult,
   getOperationAST,
   GraphQLArgs,
-  GraphQLError,
   GraphQLSchema,
   parse,
   print,
@@ -45,6 +45,7 @@ export default class Benzene<TContext = any, TExtra = any> {
     // build cache
     this.lru = lru(1024);
     // construct schema and validate
+    assertSchema(options.schema);
     const schemaValidationErrors = validateSchema(options.schema);
     if (schemaValidationErrors.length > 0) {
       throw schemaValidationErrors;
@@ -52,8 +53,8 @@ export default class Benzene<TContext = any, TExtra = any> {
     this.schema = options.schema;
     if (!options.compileQuery) {
       console.warn(`The default GraphQL implementation of Benzene has been changed from graphql-jit to graphql-js.
-To remove this message, explicitly specify the desired runtime.
-Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementations.`);
+    To remove this message, explicitly specify the desired runtime.
+    Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementations.`);
     }
     this.compileQuery = options.compileQuery || makeCompileQuery();
   }
@@ -76,6 +77,7 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
       return cached;
     } else {
       if (!document) {
+        if (!query) throw new Error("Must provide document.");
         try {
           document = parse(query);
         } catch (syntaxErr) {
@@ -96,16 +98,6 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
         };
       }
 
-      const operation = getOperationAST(document, operationName)?.operation;
-      if (!operation)
-        return {
-          errors: [
-            new GraphQLError(
-              "Must provide operation name if query contains multiple operations."
-            ),
-          ],
-        };
-
       const compiled = this.compileQuery(this.schema, document, operationName);
 
       // Compilation is a failure since its result is ExecutionResult
@@ -113,6 +105,11 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
 
       cached = compiled as CompiledResult;
       cached.document = document;
+
+      const operation = getOperationAST(document, operationName)?.operation;
+      // We could not determine the operation so it is unsafe to cache
+      if (!operation) return cached;
+
       cached.operation = operation;
 
       this.lru.set(key, cached);
