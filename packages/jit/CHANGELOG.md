@@ -1,5 +1,16 @@
 # @benzene/jit
 
+## 0.1.3
+
+### Patch Changes
+
+- 14eb33e: Bump graphql-jit version
+- 81f0e4c: Delegate operation name validation to execution layer
+- Updated dependencies [ec7cb0c]
+- Updated dependencies [927d0fd]
+- Updated dependencies [81f0e4c]
+  - @benzene/core@0.8.0
+
 ## 0.1.2
 
 ### Patch Changes

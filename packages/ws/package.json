@@ -1,7 +1,7 @@
 {
   "name": "@benzene/ws",
   "type": "module",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "Fast, minimal, agnostic GraphQL over WebSockets",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -38,7 +38,7 @@
     "clean": "npx rimraf dist"
   },
   "dependencies": {
-    "@benzene/core": "^0.7.1"
+    "@benzene/core": "^0.8.0"
   },
   "peerDependencies": {
     "graphql": ">=15"

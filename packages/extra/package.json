@@ -46,6 +46,6 @@
     "node": "^12.0.0 || ^14.0.0 || >=16.0.0"
   },
   "devDependencies": {
-    "@benzene/core": "^0.7.1"
+    "@benzene/core": "^0.8.0"
   }
 }
