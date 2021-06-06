@@ -21,10 +21,6 @@ test("returns execution result if compilation fail", () => {
     },
   });
   expect(GQL.graphql({ source: `query { foo }` })).resolves.toEqual({
-    errors: [
-      {
-        message: "Test failure",
-      },
-    ],
+    errors: [{ message: "Test failure" }],
   });
 });

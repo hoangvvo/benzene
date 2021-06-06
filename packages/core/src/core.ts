@@ -1,5 +1,4 @@
 import {
-  assertSchema,
   DocumentNode,
   ExecutionArgs,
   ExecutionResult,
@@ -48,7 +47,6 @@ export default class Benzene<TContext = any, TExtra = any> {
     if (!(options.schema instanceof GraphQLSchema)) {
       throw new Error(`Expected ${options.schema} to be a GraphQL schema.`);
     }
-    assertSchema(options.schema);
     const schemaValidationErrors = validateSchema(options.schema);
     if (schemaValidationErrors.length > 0) {
       throw schemaValidationErrors;

@@ -1,4 +1,4 @@
-import { parse, print } from "graphql";
+import { GraphQLError, parse, print } from "graphql";
 import Benzene from "../src/core";
 import { CompiledResult } from "../src/types";
 import { SimpleSchema } from "./_schema";
@@ -51,4 +51,22 @@ test("throws errors if neither query not DocumentNode is provided", () => {
     // @ts-ignore
     GQL.compile(undefined);
   }).toThrow("Must provide document.");
+});
+
+test("returns execution results if compileQuery returns so", () => {
+  const GQL = new Benzene({
+    schema: SimpleSchema,
+    compileQuery() {
+      return { errors: [new GraphQLError("Test failure")] };
+    },
+  });
+  const query = `query { foo }`;
+
+  const result = GQL.compile(query) as CompiledResult;
+  expect(result).toEqual({
+    errors: [{ message: "Test failure" }],
+  });
+
+  // @ts-ignore
+  expect(GQL.lru.has(query)).toBe(false);
 });
