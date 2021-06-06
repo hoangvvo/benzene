@@ -77,6 +77,48 @@ describe("GET functionality", () => {
     });
   });
 
+  test('treats ?operationName=null as literal string "null"', async () => {
+    console.log(
+      JSON.stringify(
+        await makeHandler(GQL)(
+          {
+            method: "GET",
+            query: {
+              query: `query helloYou { test(who: "You"), ...shared } `,
+              operationName: "null",
+            },
+            headers: {},
+          },
+          undefined
+        )
+      )
+    );
+    expect(
+      await makeHandler(GQL)(
+        {
+          method: "GET",
+          query: {
+            query: `query helloYou { test(who: "You"), ...shared } `,
+            operationName: "null",
+          },
+          headers: {},
+        },
+        undefined
+      )
+    ).toEqual({
+      payload: {
+        errors: [
+          {
+            message: 'Unknown fragment "shared".',
+            locations: [{ line: 1, column: 39 }],
+          },
+        ],
+      },
+      status: 400,
+      headers: { "content-type": "application/json" },
+    });
+  });
+
   test("Reports validation errors", async () => {
     expect(
       await makeHandler(GQL)(
