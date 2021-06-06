@@ -59,10 +59,9 @@ export interface GraphQLParams {
   extensions?: Maybe<Record<string, any>>;
 }
 
-export interface QueryCache {
+export interface CompiledResult extends CompiledQuery {
   operation: string;
   document: DocumentNode;
-  compiled: CompiledQuery;
 }
 
 export type ContextFn<TContext, TExtra> = (contextInput: {
@@ -83,28 +82,18 @@ export type CompileQuery = (
 
 export interface CompiledQuery {
   execute(
-    args: Pick<
-      ExecutionArgs,
-      | "document"
-      | "contextValue"
-      | "variableValues"
-      | "rootValue"
-      | "operationName"
-    >
+    args: BenzeneGraphQLArgs<ExecutionArgs>
   ): ValueOrPromise<ExecutionResult>;
 
   subscribe(
-    args: Pick<
-      SubscriptionArgs,
-      | "document"
-      | "contextValue"
-      | "variableValues"
-      | "rootValue"
-      | "operationName"
-    >
+    args: BenzeneGraphQLArgs<SubscriptionArgs>
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult>;
 
   stringify?(result: ExecutionResult): string;
 }
+
+export type BenzeneGraphQLArgs<T> = Omit<T, "schema"> & {
+  compiled?: CompiledResult;
+};
 
 export type Maybe<T> = null | undefined | T;

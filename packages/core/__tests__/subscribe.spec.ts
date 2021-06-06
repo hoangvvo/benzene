@@ -6,13 +6,14 @@
  * the GraphQLObject in the schema.
  */
 import Benzene from "@benzene/core/src/core";
-import { CompileQuery } from "@benzene/core/src/types";
+import { CompiledResult, CompileQuery } from "@benzene/core/src/types";
 import { makeCompileQuery as makeCompileQueryJs } from "@benzene/core/src/utils";
 import { makeCompileQuery as makeCompileQueryJit } from "@benzene/jit";
 import { EventEmitter } from "events";
 import {
   DocumentNode,
   ExecutionResult,
+  getOperationAST,
   GraphQLBoolean,
   GraphQLInt,
   GraphQLList,
@@ -187,19 +188,24 @@ function testWithCompileQuery(compileQuery: CompileQuery) {
       args.schema,
       args.document,
       args.operationName
-    );
+    ) as CompiledResult;
 
     if (!("execute" in compiled)) return compiled;
-    return GQL.subscribe(
-      {
-        document: args.document,
-        contextValue: args.contextValue,
-        variableValues: args.variableValues,
-        rootValue: args.rootValue,
-        operationName: args.operationName,
-      },
-      compiled
-    );
+
+    compiled.document = args.document;
+    compiled.operation = getOperationAST(
+      args.document,
+      args.operationName
+    )?.operation!;
+
+    return GQL.subscribe({
+      document: args.document,
+      contextValue: args.contextValue,
+      variableValues: args.variableValues,
+      rootValue: args.rootValue,
+      operationName: args.operationName,
+      compiled,
+    });
   }
 
   async function createSubscription(

@@ -100,27 +100,15 @@ type CompileQuery = (
   operationName?: Maybe<string>
 ) => CompiledQuery | ExecutionResult;
 
+type BenzeneGraphQLArgs<T> = Omit<T, "schema">;
+
 interface CompiledQuery {
   execute(
-    args: Pick<
-      ExecutionArgs,
-      | "document"
-      | "contextValue"
-      | "variableValues"
-      | "rootValue"
-      | "operationName"
-    >
+    args: BenzeneGraphQLArgs<ExecutionArgs>
   ): ValueOrPromise<ExecutionResult>;
 
   subscribe?(
-    args: Pick<
-      SubscriptionArgs,
-      | "document"
-      | "contextValue"
-      | "variableValues"
-      | "rootValue"
-      | "operationName"
-    >
+    args: BenzeneGraphQLArgs<SubscriptionArgs>
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult>;
 
   stringify?(result: ExecutionResult): string;

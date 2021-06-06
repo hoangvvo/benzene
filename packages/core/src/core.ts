@@ -1,4 +1,5 @@
 import {
+  DocumentNode,
   ExecutionArgs,
   ExecutionResult,
   formatError,
@@ -8,6 +9,7 @@ import {
   GraphQLError,
   GraphQLSchema,
   parse,
+  print,
   SubscriptionArgs,
   validate,
   validateSchema,
@@ -15,18 +17,18 @@ import {
 } from "graphql";
 import lru, { Lru } from "tiny-lru";
 import {
-  CompiledQuery,
+  BenzeneGraphQLArgs,
+  CompiledResult,
   CompileQuery,
   ContextFn,
   Maybe,
   Options,
-  QueryCache,
   ValueOrPromise,
 } from "./types";
-import { makeCompileQuery } from "./utils";
+import { isExecutionResult, makeCompileQuery } from "./utils";
 
 export default class Benzene<TContext = any, TExtra = any> {
-  private lru: Lru<QueryCache>;
+  private lru: Lru<CompiledResult>;
   public schema: GraphQLSchema;
   private validateFn: typeof validate;
   private validationRules?: ValidationRule[];
@@ -56,23 +58,31 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
     this.compileQuery = options.compileQuery || makeCompileQuery();
   }
 
-  public getCached(
-    query: string,
+  public compile(
+    query: string | DocumentNode,
     operationName?: Maybe<string>
-  ): QueryCache | ExecutionResult {
+  ): CompiledResult | ExecutionResult {
+    let document;
+    if (typeof query === "object") {
+      // query is DocumentNode
+      document = query;
+      query = print(document);
+    }
+
     const key = query + (operationName ? `:${operationName}` : "");
     let cached = this.lru.get(key);
 
     if (cached) {
       return cached;
     } else {
-      let document;
-      try {
-        document = parse(query);
-      } catch (syntaxErr) {
-        return {
-          errors: [syntaxErr],
-        };
+      if (!document) {
+        try {
+          document = parse(query);
+        } catch (syntaxErr) {
+          return {
+            errors: [syntaxErr],
+          };
+        }
       }
 
       const validationErrors = this.validateFn(
@@ -98,16 +108,12 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
 
       const compiled = this.compileQuery(this.schema, document, operationName);
 
-      // Could not compile query since its result is ExecutionResult
+      // Compilation is a failure since its result is ExecutionResult
       if (!("execute" in compiled)) return compiled;
 
-      // Cache the compiled query
-      // TODO: We are not caching multi document query right now
-      cached = {
-        document,
-        compiled,
-        operation,
-      };
+      cached = compiled as CompiledResult;
+      cached.document = document;
+      cached.operation = operation;
 
       this.lru.set(key, cached);
 
@@ -131,48 +137,42 @@ Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementat
   }: Partial<GraphQLArgs> & {
     source: string;
   }): Promise<FormattedExecutionResult> {
-    const cachedOrResult = this.getCached(source, operationName);
-    return this.formatExecutionResult(
-      "document" in cachedOrResult
-        ? await this.execute(
-            {
-              document: cachedOrResult.document,
-              contextValue,
-              variableValues,
-              rootValue,
-              operationName,
-            },
-            cachedOrResult.compiled
-          )
-        : cachedOrResult
-    );
+    const cachedOrResult = this.compile(source, operationName);
+    return "document" in cachedOrResult
+      ? await this.execute({
+          document: cachedOrResult.document,
+          contextValue,
+          variableValues,
+          rootValue,
+          operationName,
+          compiled: cachedOrResult,
+        })
+      : cachedOrResult;
   }
 
   execute(
-    args: Pick<
-      ExecutionArgs,
-      | "document"
-      | "contextValue"
-      | "variableValues"
-      | "rootValue"
-      | "operationName"
-    >,
-    compiled: CompiledQuery
+    args: BenzeneGraphQLArgs<ExecutionArgs>
   ): ValueOrPromise<ExecutionResult> {
-    return compiled.execute(args);
+    if (!args.compiled) {
+      const compiledOrResult = this.compile(args.document);
+      if (isExecutionResult(compiledOrResult)) return compiledOrResult;
+      args.compiled = compiledOrResult;
+    } else {
+      args.document = args.compiled.document;
+    }
+    return args.compiled.execute(args);
   }
 
-  subscribe(
-    args: Pick<
-      SubscriptionArgs,
-      | "document"
-      | "contextValue"
-      | "variableValues"
-      | "rootValue"
-      | "operationName"
-    >,
-    compiled: CompiledQuery
+  async subscribe(
+    args: BenzeneGraphQLArgs<SubscriptionArgs>
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
-    return compiled.subscribe(args);
+    if (!args.compiled) {
+      const compiledOrResult = this.compile(args.document);
+      if (isExecutionResult(compiledOrResult)) return compiledOrResult;
+      args.compiled = compiledOrResult;
+    } else {
+      args.document = args.compiled.document;
+    }
+    return args.compiled.subscribe(args);
   }
 }
