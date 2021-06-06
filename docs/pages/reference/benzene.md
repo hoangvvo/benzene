@@ -32,7 +32,7 @@ A `Benzene` instance has methods similar to those in the official [graphql-js](h
 
 These methods allow you to execute GraphQL wherever you want.
 
-Learn more at [GraphQL Query](./graphql-query).
+Learn more at [Benzene methods](./benzene-methods).
 
 ## TypeScript usage
 
