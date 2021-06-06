@@ -59,11 +59,6 @@ export interface GraphQLParams {
   extensions?: Maybe<Record<string, any>>;
 }
 
-export interface CompiledResult extends CompiledQuery {
-  operation: string;
-  document: DocumentNode;
-}
-
 export type ContextFn<TContext, TExtra> = (contextInput: {
   extra: TExtra;
 }) => ValueOrPromise<TContext>;
@@ -90,6 +85,11 @@ export interface CompiledQuery {
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult>;
 
   stringify?(result: ExecutionResult): string;
+}
+
+export interface CompiledResult extends CompiledQuery {
+  operation: string;
+  document: DocumentNode;
 }
 
 export type BenzeneGraphQLArgs<T> = Omit<T, "schema"> & {
