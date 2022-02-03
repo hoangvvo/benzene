@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Install graphql-js v${{ matrix.graphql-version }}
-        run: npm install graphql@${{ matrix.graphql-version }}
+        run: npm install --save-dev graphql@${{ matrix.graphql-version }}
       - name: Lint
         run: npm run lint
       - name: Build & Test
