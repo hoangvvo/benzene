@@ -52,11 +52,6 @@ export default class Benzene<TContext = any, TExtra = any> {
       throw schemaValidationErrors;
     }
     this.schema = options.schema;
-    if (!options.compileQuery) {
-      console.warn(`The default GraphQL implementation of Benzene has been changed from graphql-jit to graphql-js.
-To remove this message, explicitly specify the desired runtime.
-Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementations.`);
-    }
     this.compileQuery = options.compileQuery || makeCompileQuery();
   }
 

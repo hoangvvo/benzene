@@ -36,15 +36,9 @@ test("throws if schema is invalid", () => {
   ]);
 });
 
-test("defaults to graphql-js makeCompileQuery() with warning", () => {
-  const consoleSpy = jest.spyOn(console, "warn").mockImplementation();
+test("defaults to graphql-js makeCompileQuery()", () => {
   // @ts-ignore
   expect(new Benzene({ schema: SimpleSchema }).compileQuery.toString()).toEqual(
     makeCompileQuery().toString()
   );
-  expect(console.warn)
-    .toHaveBeenCalledWith(`The default GraphQL implementation of Benzene has been changed from graphql-jit to graphql-js.
-To remove this message, explicitly specify the desired runtime.
-Learn more at: https://benzene.vercel.app/reference/runtime#built-in-implementations.`);
-  consoleSpy.mockClear();
 });
