@@ -65,7 +65,7 @@ export function makeHandler<TBenzene extends Benzene>(
     if (options.onConnect) {
       try {
         permittedOrPayload = await options.onConnect(ctx, message.payload);
-      } catch (e) {
+      } catch (e: any) {
         return socket.close(4403, e.message);
       }
     }
@@ -150,7 +150,7 @@ export function makeHandler<TBenzene extends Benzene>(
         for await (const value of result) {
           sendRes(socket, message.id, value);
         }
-      } catch (error) {
+      } catch (error: any) {
         return sendErr(socket, message.id, [error]);
       } finally {
         stopSub(ctx, message.id);
