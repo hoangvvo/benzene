@@ -1,4 +1,4 @@
-# Benzene
+# Benzene instance
 
 Every **Benzene** package relies on the `Benzene` class, which contains all the logic in executing the GraphQL request. The class can be found in the `@benzene/core` package and is re-exported in `@benzene/http` and `@benzene/ws` (use either one interchangeably).
 

@@ -1,4 +1,4 @@
-# GraphQL Methods
+# Benzene Methods
 
 The [Benzene instance](/reference/benzene) is not only used to create transport handlers but also to execute GraphQL queries just like the [graphql-js](https://github.com/graphql/graphql-js) library.
 

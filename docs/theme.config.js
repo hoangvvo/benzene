@@ -2,10 +2,8 @@
 const description = "Fast, minimal, agnostic GraphQL Libraries";
 
 export default {
-  repository: "https://github.com/hoangvvo/benzene", // project repo
-  docsRepository: "https://github.com/hoangvvo/benzene", // docs repo
-  branch: "main", // branch of docs
-  path: "/docs", // path of docs
+  projectLink: "https://github.com/shuding/nextra", // GitHub link in the navbar
+  docsRepositoryBase: "https://github.com/hoangvvo/benzene/tree/main/docs", // base URL for the docs repository
   titleSuffix: " – hoangvvo/benzene",
   nextLinks: true,
   prevLinks: true,
@@ -25,7 +23,7 @@ export default {
       <small>Made with ❤️ love, 🔥 passion, and a ⌨️ keyboard</small>
     </>
   ),
-  footerEditOnGitHubLink: true, // will link to the docs repo
+  footerEditLink: `Edit this page on GitHub`,
   logo: (
     <>
       <span style={{ color: "#00a99d" }} className="font-bold p-2 text-lg">
