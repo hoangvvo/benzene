@@ -33,7 +33,7 @@ test("returns result with PersistedQueryNotFound if query hash is not recognized
         },
       },
     })
-  ).toEqual({
+  ).toMatchObject({
     errors: [
       {
         message: "PersistedQueryNotFound",
@@ -97,7 +97,7 @@ test("return result with error if receiving mismatched hash256", async () => {
         },
       },
     })
-  ).toEqual({
+  ).toMatchObject({
     errors: [{ message: "provided sha does not match query", status: 400 }],
   });
 });
@@ -145,7 +145,7 @@ describe("usage with @benzene/http", () => {
           }),
         },
       })
-    ).toEqual({
+    ).toMatchObject({
       headers: {
         "content-type": "application/json",
       },
@@ -154,8 +154,6 @@ describe("usage with @benzene/http", () => {
           {
             message: "PersistedQueryNotFound",
             extensions: { code: "PERSISTED_QUERY_NOT_FOUND" },
-            location: undefined,
-            path: undefined,
           },
         ],
       },

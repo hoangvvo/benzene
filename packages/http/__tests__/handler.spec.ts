@@ -78,21 +78,6 @@ describe("GET functionality", () => {
   });
 
   test('treats ?operationName=null as literal string "null"', async () => {
-    console.log(
-      JSON.stringify(
-        await makeHandler(GQL)(
-          {
-            method: "GET",
-            query: {
-              query: `query helloYou { test(who: "You"), ...shared } `,
-              operationName: "null",
-            },
-            headers: {},
-          },
-          undefined
-        )
-      )
-    );
     expect(
       await makeHandler(GQL)(
         {

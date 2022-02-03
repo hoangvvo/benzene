@@ -13,7 +13,15 @@ test("allows call without `compiled`", () => {
     GQL.execute({
       document,
     })
-  ).toEqual({ data: { foo: "FooValue" } });
+  ).toMatchObject({ data: { foo: "FooValue" } });
+});
+
+test("throws error if not providing both `compiled` and `document`", () => {
+  const GQL = new Benzene({
+    schema: SimpleSchema,
+  });
+
+  expect(() => GQL.execute({})).toThrow("Must provide document.");
 });
 
 test("returns errors if compilation fails", () => {
@@ -27,7 +35,7 @@ test("returns errors if compilation fails", () => {
     GQL.execute({
       document,
     })
-  ).toEqual({
+  ).toMatchObject({
     errors: [
       {
         message:

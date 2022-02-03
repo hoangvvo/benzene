@@ -30,7 +30,7 @@ test("throws if schema is invalid", () => {
   } catch (e) {
     errors = e;
   }
-  expect(errors).toEqual([
+  expect(errors).toMatchObject([
     { message: "Query root type must be provided." },
     { message: "Expected directive but got: null." },
   ]);

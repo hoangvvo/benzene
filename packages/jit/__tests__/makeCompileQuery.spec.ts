@@ -39,7 +39,7 @@ test("returns execution result if compilation failed", () => {
   const document = parse(`mutation { foo }`);
   const compiled = compileQuery(SimpleSchema, document);
   expect(compileQueryJit(SimpleSchema, document)).toEqual(compiled);
-  expect(compiled).toEqual({
+  expect(compiled).toMatchObject({
     errors: [
       {
         message: "Schema is not configured for mutations.",

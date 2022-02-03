@@ -1,4 +1,10 @@
-import { execute, ExecutionResult, GraphQLError, subscribe } from "graphql";
+import {
+  execute,
+  ExecutionResult,
+  GraphQLError,
+  GraphQLFormattedError,
+  subscribe,
+} from "graphql";
 import { CompileQuery } from "./types";
 
 export function isAsyncIterator<T = unknown>(
@@ -55,4 +61,28 @@ export function validateOperationName(
     ];
   }
   return [new GraphQLError(`Unknown operation named "${operationName}".`)];
+}
+
+/**
+ * Given a GraphQLError, format it according to the rules described by the
+ * Response Format, Errors section of the GraphQL Specification.
+ */
+export function formatError(error: GraphQLError): GraphQLFormattedError {
+  type WritableFormattedError = {
+    -readonly [P in keyof GraphQLFormattedError]: GraphQLFormattedError[P];
+  };
+  const formattedError: WritableFormattedError = {
+    message: error.message,
+  };
+  if (error.locations != null) {
+    formattedError.locations = error.locations;
+  }
+  if (error.path != null) {
+    formattedError.path = error.path;
+  }
+  if (error.extensions != null && Object.keys(error.extensions).length > 0) {
+    formattedError.extensions = error.extensions;
+  }
+
+  return formattedError;
 }

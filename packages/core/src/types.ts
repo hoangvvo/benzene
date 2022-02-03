@@ -2,7 +2,8 @@ import {
   DocumentNode,
   ExecutionArgs,
   ExecutionResult,
-  formatError,
+  GraphQLError,
+  GraphQLFormattedError,
   GraphQLSchema,
   SubscriptionArgs,
   validate,
@@ -21,7 +22,7 @@ export interface Options<TContext, TExtra> {
    * Can also be used for logging errors.
    * @see {@link https://graphql.org/graphql-js/error/#formaterror}
    */
-  formatErrorFn?: typeof formatError;
+  formatErrorFn?: (error: GraphQLError) => GraphQLFormattedError;
   /**
    * An optional function to create an object used by all the resolvers of a specific GraphQL execution
    * @param ctx An object contains the "extra" variable supplied by downstream packages

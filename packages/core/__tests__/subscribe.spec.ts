@@ -22,6 +22,14 @@ test("allows call without `compiled`", async () => {
   });
 });
 
+test("throws error if not providing both `compiled` and `document`", () => {
+  const GQL = new Benzene({
+    schema: SimpleSchema,
+  });
+
+  expect(() => GQL.subscribe({})).rejects.toThrow("Must provide document.");
+});
+
 test("returns errors if compilation fails", async () => {
   const GQL = new Benzene({
     schema: SimpleSchema,
@@ -31,7 +39,7 @@ test("returns errors if compilation fails", async () => {
     document: parse(`subscription { barr }`),
   })) as ExecutionResult;
 
-  expect(payload).toEqual({
+  expect(payload).toMatchObject({
     errors: [
       {
         message:
