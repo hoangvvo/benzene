@@ -63,7 +63,7 @@ test("returns execution results if compileQuery returns so", () => {
   const query = `query { foo }`;
 
   const result = GQL.compile(query) as CompiledResult;
-  expect(result).toEqual({
+  expect(result).toMatchObject({
     errors: [{ message: "Test failure" }],
   });
 

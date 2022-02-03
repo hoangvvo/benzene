@@ -24,7 +24,7 @@ describe("Star Wars Query Tests", () => {
       `;
 
       const result = await graphql({ schema, source });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           hero: {
             name: "R2-D2",
@@ -47,7 +47,7 @@ describe("Star Wars Query Tests", () => {
       `;
 
       const result = await graphql({ schema, source });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           hero: {
             id: "2001",
@@ -87,7 +87,7 @@ describe("Star Wars Query Tests", () => {
       `;
 
       const result = await graphql({ schema, source });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           hero: {
             name: "R2-D2",
@@ -164,7 +164,7 @@ describe("Star Wars Query Tests", () => {
       `;
 
       const result = await graphql({ schema, source });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           human: {
             name: "Luke Skywalker",
@@ -187,7 +187,7 @@ describe("Star Wars Query Tests", () => {
       const variableValues = { someId: "1000" };
 
       const result = await graphql({ schema, source, variableValues });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           human: {
             name: "Luke Skywalker",
@@ -207,7 +207,7 @@ describe("Star Wars Query Tests", () => {
       const variableValues = { someId: "1002" };
 
       const result = await graphql({ schema, source, variableValues });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           human: {
             name: "Han Solo",
@@ -227,7 +227,7 @@ describe("Star Wars Query Tests", () => {
       const variableValues = { id: "not a valid id" };
 
       const result = await graphql({ schema, source, variableValues });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           human: null,
         },
@@ -246,7 +246,7 @@ describe("Star Wars Query Tests", () => {
       `;
 
       const result = await graphql({ schema, source });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           luke: {
             name: "Luke Skywalker",
@@ -268,7 +268,7 @@ describe("Star Wars Query Tests", () => {
       `;
 
       const result = await graphql({ schema, source });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           luke: {
             name: "Luke Skywalker",
@@ -297,7 +297,7 @@ describe("Star Wars Query Tests", () => {
       `;
 
       const result = await graphql({ schema, source });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           luke: {
             name: "Luke Skywalker",
@@ -329,7 +329,7 @@ describe("Star Wars Query Tests", () => {
       `;
 
       const result = await graphql({ schema, source });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           luke: {
             name: "Luke Skywalker",
@@ -356,7 +356,7 @@ describe("Star Wars Query Tests", () => {
       `;
 
       const result = await graphql({ schema, source });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           hero: {
             __typename: "Droid",
@@ -377,7 +377,7 @@ describe("Star Wars Query Tests", () => {
       `;
 
       const result = await graphql({ schema, source });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           hero: {
             __typename: "Human",
@@ -400,7 +400,7 @@ describe("Star Wars Query Tests", () => {
       `;
 
       const result = await graphql({ schema, source });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           hero: {
             name: "R2-D2",
@@ -431,7 +431,7 @@ describe("Star Wars Query Tests", () => {
       `;
 
       const result = await graphql({ schema, source });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           hero: {
             name: "R2-D2",
@@ -482,7 +482,7 @@ describe("Star Wars Query Tests", () => {
       `;
 
       const result = await graphql({ schema, source });
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         data: {
           mainHero: {
             name: "R2-D2",

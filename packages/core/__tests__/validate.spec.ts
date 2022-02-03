@@ -22,7 +22,7 @@ test("allows custom validate function", async () => {
     await GQL.graphql({
       source: `{ test }`,
     })
-  ).toEqual({
+  ).toMatchObject({
     errors: [{ message: "Validate error" }],
   });
 
@@ -49,7 +49,7 @@ test("allows custom validation rules", async () => {
     await GQL.graphql({
       source: `{ test }`,
     })
-  ).toEqual({
+  ).toMatchObject({
     errors: [{ message: "AlwaysInvalidRule was really invalid!" }],
   });
 });

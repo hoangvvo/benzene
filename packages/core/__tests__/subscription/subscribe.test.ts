@@ -140,7 +140,7 @@ async function expectPromise(promise: Promise<unknown>) {
     // istanbul ignore next (Shouldn't be reached)
     // eslint-disable-next-line no-undef
     fail("promise should have thrown but did not");
-  } catch (error) {
+  } catch (error: any) {
     caughtError = error;
   }
 
@@ -359,7 +359,7 @@ describe("Subscription Initialization Phase", () => {
     const document = parse("subscription { unknownField }");
 
     const result = await subscribe({ schema, document });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       errors: [
         {
           message: 'The subscription field "unknownField" is not defined.',
@@ -436,24 +436,24 @@ describe("Subscription Initialization Phase", () => {
     expect(
       // Returning an error
       await subscribeWithFn(() => new Error("test error"))
-    ).toEqual(expectedResult);
+    ).toMatchObject(expectedResult);
 
     expect(
       // Throwing an error
       await subscribeWithFn(() => {
         throw new Error("test error");
       })
-    ).toEqual(expectedResult);
+    ).toMatchObject(expectedResult);
 
     expect(
       // Resolving to an error
       await subscribeWithFn(() => Promise.resolve(new Error("test error")))
-    ).toEqual(expectedResult);
+    ).toMatchObject(expectedResult);
 
     expect(
       // Rejecting with an error
       await subscribeWithFn(() => Promise.reject(new Error("test error")))
-    ).toEqual(expectedResult);
+    ).toMatchObject(expectedResult);
   });
 
   it("resolves to an error if variables were wrong type", async () => {
@@ -480,7 +480,7 @@ describe("Subscription Initialization Phase", () => {
     // If we receive variables that cannot be coerced correctly, subscribe() will
     // resolve to an ExecutionResult that contains an informative error description.
     const result = await subscribe({ schema, document, variableValues });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       errors: [
         {
           message:
@@ -902,7 +902,7 @@ describe("Subscription Publish Phase", () => {
     });
 
     // An error in execution is presented as such.
-    expect(await subscription.next()).toEqual({
+    expect(await subscription.next()).toMatchObject({
       done: false,
       value: {
         data: { newMessage: null },

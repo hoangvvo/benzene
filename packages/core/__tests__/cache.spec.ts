@@ -29,7 +29,7 @@ test("uses compiled query from cache", async () => {
   });
 
   const result = await GQL.graphql({ source: "{ test }" });
-  expect(result).toEqual({ data: { test: "Goodbye" } });
+  expect(result).toMatchObject({ data: { test: "Goodbye" } });
 });
 
 test("returns and does not cache syntax-errored query", async () => {
@@ -38,7 +38,7 @@ test("returns and does not cache syntax-errored query", async () => {
   });
   const lru: Lru<CompiledResult> = (GQL as any).lru;
   const result = await GQL.compile("{{");
-  expect(result).toEqual({
+  expect(result).toMatchObject({
     errors: [
       {
         message: 'Syntax Error: Expected Name, found "{".',
@@ -55,7 +55,7 @@ test("returns and does not cache invalid query", async () => {
   });
   const lru: Lru<CompiledResult> = (GQL as any).lru;
   const result = await GQL.compile("{ baddd }");
-  expect(result).toEqual({
+  expect(result).toMatchObject({
     errors: [
       {
         message: 'Cannot query field "baddd" on type "QueryRoot".',

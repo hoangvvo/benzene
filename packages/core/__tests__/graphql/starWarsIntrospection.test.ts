@@ -26,7 +26,7 @@ describe("Star Wars Introspection Tests", () => {
       // Include all types used by StarWars schema, introspection types and
       // standard directives. For example, `Boolean` is used in `@skip`,
       // `@include` and also inside introspection types.
-      expect(data).toEqual({
+      expect(data).toMatchObject({
         __schema: {
           types: [
             { name: "Human" },
@@ -60,7 +60,7 @@ describe("Star Wars Introspection Tests", () => {
         }
       `);
 
-      expect(data).toEqual({
+      expect(data).toMatchObject({
         __schema: {
           queryType: {
             name: "Query",
@@ -78,7 +78,7 @@ describe("Star Wars Introspection Tests", () => {
         }
       `);
 
-      expect(data).toEqual({
+      expect(data).toMatchObject({
         __type: {
           name: "Droid",
         },
@@ -95,7 +95,7 @@ describe("Star Wars Introspection Tests", () => {
         }
       `);
 
-      expect(data).toEqual({
+      expect(data).toMatchObject({
         __type: {
           name: "Droid",
           kind: "OBJECT",
@@ -113,7 +113,7 @@ describe("Star Wars Introspection Tests", () => {
         }
       `);
 
-      expect(data).toEqual({
+      expect(data).toMatchObject({
         __type: {
           name: "Character",
           kind: "INTERFACE",
@@ -137,7 +137,7 @@ describe("Star Wars Introspection Tests", () => {
         }
       `);
 
-      expect(data).toEqual({
+      expect(data).toMatchObject({
         __type: {
           name: "Droid",
           fields: [
@@ -190,7 +190,7 @@ describe("Star Wars Introspection Tests", () => {
         }
       `);
 
-      expect(data).toEqual({
+      expect(data).toMatchObject({
         __type: {
           name: "Droid",
           fields: [
@@ -282,7 +282,7 @@ describe("Star Wars Introspection Tests", () => {
         }
       `);
 
-      expect(data).toEqual({
+      expect(data).toMatchObject({
         __schema: {
           queryType: {
             fields: [
@@ -354,7 +354,7 @@ describe("Star Wars Introspection Tests", () => {
         }
       `);
 
-      expect(data).toEqual({
+      expect(data).toMatchObject({
         __type: {
           name: "Droid",
           description: "A mechanical creature in the Star Wars universe.",

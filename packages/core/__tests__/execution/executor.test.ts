@@ -13,6 +13,7 @@ import {
   GraphQLUnionType,
   Kind,
   parse,
+  versionInfo,
 } from "graphql";
 import Benzene from "../../src/core";
 import { inspect } from "../__testUtils__/inspect";
@@ -176,7 +177,7 @@ describe("Execute: Handles basic execution tasks", () => {
       variableValues: { size: 100 },
     });
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       data: {
         a: "Apple",
         b: "Banana",
@@ -227,7 +228,7 @@ describe("Execute: Handles basic execution tasks", () => {
     `);
 
     const result = executeSync({ schema, document });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       data: {
         a: "Apple",
         b: "Banana",
@@ -513,7 +514,7 @@ describe("Execute: Handles basic execution tasks", () => {
     };
 
     const result = await execute({ schema, document, rootValue });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       data: {
         sync: "sync",
         syncError: null,
@@ -627,7 +628,7 @@ describe("Execute: Handles basic execution tasks", () => {
 
     const result = await execute({ schema, document });
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       data: { foods: null },
       errors: [
         {
@@ -686,7 +687,7 @@ describe("Execute: Handles basic execution tasks", () => {
     `);
 
     const result = executeSync({ schema, document });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       data: {
         nullableA: {
           aliasedA: null,
@@ -715,7 +716,7 @@ describe("Execute: Handles basic execution tasks", () => {
     const rootValue = { a: "b" };
 
     const result = executeSync({ schema, document, rootValue });
-    expect(result).toEqual({ data: { a: "b" } });
+    expect(result).toMatchObject({ data: { a: "b" } });
   });
 
   it("uses the only operation if no operation name is provided", () => {
@@ -731,7 +732,7 @@ describe("Execute: Handles basic execution tasks", () => {
     const rootValue = { a: "b" };
 
     const result = executeSync({ schema, document, rootValue });
-    expect(result).toEqual({ data: { a: "b" } });
+    expect(result).toMatchObject({ data: { a: "b" } });
   });
 
   it("uses the named operation if operation name is provided", () => {
@@ -752,7 +753,7 @@ describe("Execute: Handles basic execution tasks", () => {
     const operationName = "OtherExample";
 
     const result = executeSync({ schema, document, rootValue, operationName });
-    expect(result).toEqual({ data: { second: "b" } });
+    expect(result).toMatchObject({ data: { second: "b" } });
   });
 
   it("provides error if no operation is provided", () => {
@@ -768,7 +769,7 @@ describe("Execute: Handles basic execution tasks", () => {
     const rootValue = { a: "b" };
 
     const result = executeSync({ schema, document, rootValue });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       errors: [{ message: "Must provide an operation." }],
     });
   });
@@ -788,7 +789,7 @@ describe("Execute: Handles basic execution tasks", () => {
     `);
 
     const result = executeSync({ schema, document });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       errors: [
         {
           message:
@@ -814,7 +815,7 @@ describe("Execute: Handles basic execution tasks", () => {
     const operationName = "UnknownExample";
 
     const result = executeSync({ schema, document, operationName });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       errors: [{ message: 'Unknown operation named "UnknownExample".' }],
     });
   });
@@ -832,7 +833,7 @@ describe("Execute: Handles basic execution tasks", () => {
     const operationName = "";
 
     const result = executeSync({ schema, document, operationName });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       errors: [{ message: 'Unknown operation named "".' }],
     });
   });
@@ -867,7 +868,7 @@ describe("Execute: Handles basic execution tasks", () => {
     const operationName = "Q";
 
     const result = executeSync({ schema, document, rootValue, operationName });
-    expect(result).toEqual({ data: { a: "b" } });
+    expect(result).toMatchObject({ data: { a: "b" } });
   });
 
   it("uses the mutation schema for mutations", () => {
@@ -893,7 +894,7 @@ describe("Execute: Handles basic execution tasks", () => {
     const operationName = "M";
 
     const result = executeSync({ schema, document, rootValue, operationName });
-    expect(result).toEqual({ data: { c: "d" } });
+    expect(result).toMatchObject({ data: { c: "d" } });
   });
 
   it("uses the subscription schema for subscriptions", () => {
@@ -919,7 +920,7 @@ describe("Execute: Handles basic execution tasks", () => {
     const operationName = "S";
 
     const result = executeSync({ schema, document, rootValue, operationName });
-    expect(result).toEqual({ data: { a: "b" } });
+    expect(result).toMatchObject({ data: { a: "b" } });
   });
 
   it("correct field ordering despite execution order", async () => {
@@ -945,7 +946,7 @@ describe("Execute: Handles basic execution tasks", () => {
     };
 
     const result = await execute({ schema, document, rootValue });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       data: { a: "a", b: "b", c: "c", d: "d", e: "e" },
     });
   });
@@ -974,7 +975,7 @@ describe("Execute: Handles basic execution tasks", () => {
     const rootValue = { a: "b" };
 
     const result = executeSync({ schema, document, rootValue });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       data: { a: "b" },
     });
   });
@@ -998,7 +999,7 @@ describe("Execute: Handles basic execution tasks", () => {
     const rootValue = { a: { b: "c" } };
 
     const result = executeSync({ schema, document, rootValue });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       data: { a: {} },
     });
   });
@@ -1015,7 +1016,7 @@ describe("Execute: Handles basic execution tasks", () => {
     const document = parse("{ thisIsIllegalDoNotIncludeMe }");
 
     const result = executeSync({ schema, document });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       data: {},
     });
   });
@@ -1042,7 +1043,7 @@ describe("Execute: Handles basic execution tasks", () => {
     const document = parse("{ field(a: true, c: false, e: 0) }");
 
     const result = executeSync({ schema, document });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       data: {
         field: "{ a: true, c: false, e: 0 }",
       },
@@ -1090,7 +1091,7 @@ describe("Execute: Handles basic execution tasks", () => {
     };
 
     const result = executeSync({ schema, document, rootValue });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       data: {
         specials: [{ value: "foo" }, null],
       },
@@ -1111,7 +1112,7 @@ describe("Execute: Handles basic execution tasks", () => {
       rootValue,
       contextValue,
     });
-    expect(asyncResult).toEqual(result);
+    expect(asyncResult).toMatchObject(result);
   });
 
   it("fails when serialize of custom scalar does not return a value", () => {
@@ -1134,17 +1135,32 @@ describe("Execute: Handles basic execution tasks", () => {
     });
 
     const result = executeSync({ schema, document: parse("{ customScalar }") });
-    expect(result).toEqual({
-      data: { customScalar: null },
-      errors: [
-        {
-          message:
-            'Expected a value of type "CustomScalar" but received: "CUSTOM_VALUE"',
-          locations: [{ line: 1, column: 3 }],
-          path: ["customScalar"],
-        },
-      ],
-    });
+    // TODO: graphql@15
+    if (versionInfo.major === 15) {
+      expect(result).toMatchObject({
+        data: { customScalar: null },
+        errors: [
+          {
+            message:
+              'Expected a value of type "CustomScalar" but received: "CUSTOM_VALUE"',
+            locations: [{ line: 1, column: 3 }],
+            path: ["customScalar"],
+          },
+        ],
+      });
+    } else {
+      expect(result).toMatchObject({
+        data: { customScalar: null },
+        errors: [
+          {
+            message:
+              'Expected `CustomScalar.serialize("CUSTOM_VALUE")` to return non-nullable value, returned: undefined',
+            locations: [{ line: 1, column: 3 }],
+            path: ["customScalar"],
+          },
+        ],
+      });
+    }
   });
 
   it("executes ignoring invalid non-executable definitions", () => {
@@ -1164,7 +1180,7 @@ describe("Execute: Handles basic execution tasks", () => {
     `);
 
     const result = executeSync({ schema, document });
-    expect(result).toEqual({ data: { foo: null } });
+    expect(result).toMatchObject({ data: { foo: null } });
   });
 
   it("uses a custom field resolver", () => {
@@ -1187,7 +1203,7 @@ describe("Execute: Handles basic execution tasks", () => {
       },
     });
 
-    expect(result).toEqual({ data: { foo: "foo" } });
+    expect(result).toMatchObject({ data: { foo: "foo" } });
   });
 
   it("uses a custom type resolver", () => {
@@ -1233,7 +1249,7 @@ describe("Execute: Handles basic execution tasks", () => {
       },
     });
 
-    expect(result).toEqual({ data: { foo: { bar: "bar" } } });
+    expect(result).toMatchObject({ data: { foo: { bar: "bar" } } });
     expect(possibleTypes).toEqual([fooObject]);
   });
 });
