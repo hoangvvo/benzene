@@ -1,5 +1,15 @@
 # @benzene/jit
 
+## 0.1.4
+
+### Patch Changes
+
+- b7aa97e: Fix compatibility with graphql-js v16
+- 576d127: Bump @hoangvvo/graphql-jit version
+- Updated dependencies [b7aa97e]
+- Updated dependencies [9351274]
+  - @benzene/core@0.8.1
+
 ## 0.1.3
 
 ### Patch Changes

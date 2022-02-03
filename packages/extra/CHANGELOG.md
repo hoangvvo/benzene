@@ -1,5 +1,11 @@
 # @benzene/extra
 
+## 0.2.2
+
+### Patch Changes
+
+- b7aa97e: Fix compatibility with graphql-js v16
+
 ## 0.2.1
 
 ### Patch Changes

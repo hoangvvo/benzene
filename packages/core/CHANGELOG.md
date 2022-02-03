@@ -1,5 +1,12 @@
 # @benzene/core
 
+## 0.8.1
+
+### Patch Changes
+
+- b7aa97e: Fix compatibility with graphql-js v16
+- 9351274: Remove undefined options.compileQuery warning
+
 ## 0.8.0
 
 ### Minor Changes

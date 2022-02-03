@@ -1,5 +1,14 @@
 # @benzene/ws
 
+## 0.7.1
+
+### Patch Changes
+
+- b7aa97e: Fix compatibility with graphql-js v16
+- Updated dependencies [b7aa97e]
+- Updated dependencies [9351274]
+  - @benzene/core@0.8.1
+
 ## 0.7.0
 
 ### Minor Changes
