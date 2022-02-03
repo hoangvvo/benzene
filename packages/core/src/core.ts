@@ -2,10 +2,11 @@ import {
   DocumentNode,
   ExecutionArgs,
   ExecutionResult,
-  formatError,
   FormattedExecutionResult,
   getOperationAST,
   GraphQLArgs,
+  GraphQLError,
+  GraphQLFormattedError,
   GraphQLSchema,
   parse,
   print,
@@ -24,14 +25,14 @@ import {
   Options,
   ValueOrPromise,
 } from "./types";
-import { isExecutionResult, makeCompileQuery } from "./utils";
+import { formatError, isExecutionResult, makeCompileQuery } from "./utils";
 
 export default class Benzene<TContext = any, TExtra = any> {
   private lru: Lru<CompiledResult>;
   public schema: GraphQLSchema;
   private validateFn: typeof validate;
   private validationRules?: ValidationRule[];
-  formatErrorFn: typeof formatError;
+  formatErrorFn: (error: GraphQLError) => GraphQLFormattedError;
   contextFn?: ContextFn<TContext, TExtra>;
   private compileQuery: CompileQuery;
 
@@ -76,7 +77,7 @@ export default class Benzene<TContext = any, TExtra = any> {
         if (!query) throw new Error("Must provide document.");
         try {
           document = parse(query);
-        } catch (syntaxErr) {
+        } catch (syntaxErr: any) {
           return {
             errors: [syntaxErr],
           };
@@ -145,7 +146,8 @@ export default class Benzene<TContext = any, TExtra = any> {
     args: BenzeneGraphQLArgs<ExecutionArgs>
   ): ValueOrPromise<ExecutionResult> {
     if (!args.compiled) {
-      const compiledOrResult = this.compile(args.document as DocumentNode);
+      if (!args.document) throw new Error("Must provide document.");
+      const compiledOrResult = this.compile(args.document);
       if (isExecutionResult(compiledOrResult)) return compiledOrResult;
       args.compiled = compiledOrResult;
     } else {
@@ -158,7 +160,8 @@ export default class Benzene<TContext = any, TExtra = any> {
     args: BenzeneGraphQLArgs<SubscriptionArgs>
   ): Promise<AsyncIterableIterator<ExecutionResult> | ExecutionResult> {
     if (!args.compiled) {
-      const compiledOrResult = this.compile(args.document as DocumentNode);
+      if (!args.document) throw new Error("Must provide document.");
+      const compiledOrResult = this.compile(args.document);
       if (isExecutionResult(compiledOrResult)) return compiledOrResult;
       args.compiled = compiledOrResult;
     } else {

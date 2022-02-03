@@ -1,12 +1,14 @@
-import { execute, parse, subscribe } from "graphql";
+import { execute, GraphQLError, parse, Source, subscribe } from "graphql";
 import { CompiledQuery } from "../src/types";
 import {
+  formatError,
   isAsyncIterator,
   isExecutionResult,
   makeCompileQuery,
   validateOperationName,
 } from "../src/utils";
 import { SimpleSchema } from "./_schema";
+import { dedent } from "./__testUtils__/dedent";
 
 describe("isAsyncIterator", () => {
   test("returns false if value is not", () => {
@@ -116,23 +118,77 @@ describe("validateOperationName", () => {
   });
 
   test("return missing errors if query contains multiple operations", () => {
-    expect(validateOperationName(undefined, null)).toEqual([
+    expect(validateOperationName(undefined, null)).toMatchObject([
       {
         message:
           "Must provide operation name if query contains multiple operations.",
-        location: undefined,
+        // location: undefined,
         path: undefined,
       },
     ]);
   });
 
   test("return unknown errors if operation name does not match", () => {
-    expect(validateOperationName(undefined, "Invalid")).toEqual([
+    expect(validateOperationName(undefined, "Invalid")).toMatchObject([
       {
         message: 'Unknown operation named "Invalid".',
-        location: undefined,
+        // location: undefined,
         path: undefined,
       },
     ]);
+  });
+});
+
+// Based on https://github.com/graphql/graphql-js/blob/main/src/error/__tests__/GraphQLError-test.ts#L324
+describe("formatError", () => {
+  it("includes path", () => {
+    const error = new GraphQLError("msg", null, null, null, [
+      "path",
+      3,
+      "to",
+      "field",
+    ]);
+
+    expect(formatError(error)).toMatchObject({
+      message: "msg",
+      path: ["path", 3, "to", "field"],
+    });
+  });
+
+  it("includes extension fields", () => {
+    const error = new GraphQLError("msg", null, null, null, null, null, {
+      foo: "bar",
+    });
+
+    expect(formatError(error)).toMatchObject({
+      message: "msg",
+      extensions: { foo: "bar" },
+    });
+  });
+
+  it("can be created with the all arguments", () => {
+    const source = new Source(dedent`
+    {
+      field
+    }
+`);
+    const ast = parse(source);
+    const operationNode = ast.definitions[0];
+    const error = new GraphQLError(
+      "msg",
+      [operationNode],
+      source,
+      [6],
+      ["path", 2, "a"],
+      new Error("I like turtles"),
+      { hee: "I like turtles" }
+    );
+
+    expect(formatError(error)).toMatchObject({
+      message: "msg",
+      locations: [{ column: 5, line: 2 }],
+      path: ["path", 2, "a"],
+      extensions: { hee: "I like turtles" },
+    });
   });
 });
