@@ -8,7 +8,7 @@ While we can be assured that the errors will not crash the app, there are use ca
 
 Since any thrown errors will be presented to the user via the `errors` field, we may expose sensitive system information if the errors originated from places like database operations. Therefore, it is important to strip away those errors before it is sent out to users.
 
-By default, **Benzene** formats the errors using the [`formatError` function from graphql-js](https://graphql.org/graphql-js/error/#formaterror), which allows them to be compliant with the spec.
+By default, **Benzene** formats the errors using a [compliant implementation](https://github.com/hoangvvo/benzene/blob/main/packages/core/src/utils.ts), which allows them to be compliant with the spec.
 
 If we need to format each error different, we can define the `formatErrorFn` option like so:
 

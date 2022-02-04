@@ -2,7 +2,7 @@
 const description = "Fast, minimal, agnostic GraphQL Libraries";
 
 export default {
-  projectLink: "https://github.com/shuding/nextra", // GitHub link in the navbar
+  projectLink: "https://github.com/hoangvvo/benzene", // GitHub link in the navbar
   docsRepositoryBase: "https://github.com/hoangvvo/benzene/tree/main/docs", // base URL for the docs repository
   titleSuffix: " – hoangvvo/benzene",
   nextLinks: true,
@@ -26,7 +26,10 @@ export default {
   footerEditLink: `Edit this page on GitHub`,
   logo: (
     <>
-      <span style={{ color: "#00a99d" }} className="font-bold p-2 text-lg">
+      <span
+        style={{ color: "#00a99d", fontWeight: "bold" }}
+        className="p-2 text-lg"
+      >
         Benzene
       </span>
       <span className="text-sm text-gray-600">{description}</span>
