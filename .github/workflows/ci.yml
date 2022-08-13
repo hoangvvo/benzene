@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12, 14, 16]
+        node-version: [14, 16, 18]
         graphql-version: [15, 16]
 
     steps:
@@ -36,5 +36,6 @@ jobs:
           npm run build
           npm run test:ci
       - uses: codecov/codecov-action@v1
+        if: ${{ matrix.node-version == 16 && matrix.graphql-version == 16 }}
         with:
           files: ./coverage/lcov.info

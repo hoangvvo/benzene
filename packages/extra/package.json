@@ -40,10 +40,10 @@
   },
   "dependencies": {
     "crypto-hash": "^1.3.0",
-    "tiny-lru": "^7.0.6"
+    "tiny-lru": "^8.0.2"
   },
   "engines": {
-    "node": "^12.0.0 || ^14.0.0 || >=16.0.0"
+    "node": "^14.0.0 || >=16.0.0"
   },
   "devDependencies": {
     "@benzene/core": "^0.8.1"

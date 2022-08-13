@@ -1,7 +1,8 @@
-"use strict";
+import express from "express";
+import { graphqlHTTP } from "express-graphql";
+import schema from "../src/schema.js";
 
-const http = require("http");
-const { graphqlHTTP } = require("express-graphql");
-const schema = require("../schema");
+const app = express();
+app.use("/graphql", graphqlHTTP({ schema }));
 
-http.createServer(graphqlHTTP({ schema })).listen(4000);
+app.listen(4000);
