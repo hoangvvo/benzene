@@ -1,5 +1,11 @@
 # @benzene/extra
 
+## 0.2.3
+
+### Patch Changes
+
+- 45ff7ab: Bump dependencies and drop Node.js 12
+
 ## 0.2.2
 
 ### Patch Changes

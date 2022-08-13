@@ -1,7 +1,7 @@
 {
   "name": "@benzene/jit",
   "type": "module",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "GraphQL JIT implementation for @benzene/core",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -38,7 +38,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@benzene/core": "^0.8.1",
+    "@benzene/core": "^0.8.2",
     "@hoangvvo/graphql-jit": "^0.7.3"
   },
   "engines": {
