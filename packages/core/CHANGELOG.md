@@ -1,5 +1,11 @@
 # @benzene/core
 
+## 0.8.2
+
+### Patch Changes
+
+- 45ff7ab: Bump dependencies and drop Node.js 12
+
 ## 0.8.1
 
 ### Patch Changes

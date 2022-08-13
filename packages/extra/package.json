@@ -1,7 +1,7 @@
 {
   "name": "@benzene/extra",
   "type": "module",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Extra treats for GraphQL Server. Not limited to @benzene libraries!",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
@@ -46,6 +46,6 @@
     "node": "^14.0.0 || >=16.0.0"
   },
   "devDependencies": {
-    "@benzene/core": "^0.8.1"
+    "@benzene/core": "^0.8.2"
   }
 }

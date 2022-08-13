@@ -1,5 +1,13 @@
 # @benzene/http
 
+## 0.4.2
+
+### Patch Changes
+
+- 45ff7ab: Bump dependencies and drop Node.js 12
+- Updated dependencies [45ff7ab]
+  - @benzene/core@0.8.2
+
 ## 0.4.1
 
 ### Patch Changes

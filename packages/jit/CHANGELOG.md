@@ -1,5 +1,14 @@
 # @benzene/jit
 
+## 0.1.5
+
+### Patch Changes
+
+- 45ff7ab: Bump dependencies and drop Node.js 12
+- 2af492e: Bump graphql-jit
+- Updated dependencies [45ff7ab]
+  - @benzene/core@0.8.2
+
 ## 0.1.4
 
 ### Patch Changes

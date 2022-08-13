@@ -1,7 +1,7 @@
 {
   "name": "@benzene/core",
   "type": "module",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Fast, minimal, agnostic GraphQL Libraries",
   "author": "Hoang Vo (https://hoangvvo.com)",
   "keywords": [
