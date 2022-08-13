@@ -1,7 +1,4 @@
 name = "benzene-example"
-type = "webpack"
+compatibility_date = "2022-08-13"
 
-account_id = ""
-workers_dev = true
-route = ""
-zone_id = ""
+main = "src/index.ts"

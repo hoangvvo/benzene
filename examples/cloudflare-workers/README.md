@@ -2,6 +2,8 @@
 
 This example demonstrates using `@benzene/http` with [Cloudflare Workers](https://workers.cloudflare.com/).
 
+[Demo on Cloudflare Workers](https://benzene-example.hoangvvo.workers.dev/)
+
 ## How to use
 
 Download the example:
@@ -22,4 +24,8 @@ npm install
 wrangler dev
 ```
 
-[Demo on Cloudflare Workers](https://benzene-example.hoangvvo.workers.dev/)
+To publish the site:
+
+```bash
+wrangler publish
+```

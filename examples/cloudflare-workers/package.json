@@ -4,13 +4,19 @@
   "version": "0.0.0",
   "main": "index.js",
   "scripts": {
+    "dev": "wrangler dev",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write '**/*.{js,css,json,md}'"
   },
   "license": "MIT",
   "dependencies": {
-    "@benzene/http": "^0.4.1",
+    "@benzene/http": "^0.4.2",
     "graphql": "^16.5.0",
-    "pokemon-graphql-schema": "^0.1.4"
+    "pokemon-graphql-schema": "^0.1.5"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^3.14.1",
+    "@tsconfig/node16": "^1.0.3",
+    "wrangler": "^2.0.25"
   }
 }
