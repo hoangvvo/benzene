@@ -1,9 +1,8 @@
-import { makeCompileQuery } from "@benzene/core";
 import { Benzene, makeHandler, parseGraphQLBody } from "@benzene/http";
 import { createServer } from "http";
-import schema from "../schema.js";
+import schema from "../src/schema.js";
 
-const GQL = new Benzene({ schema, compileQuery: makeCompileQuery() });
+const GQL = new Benzene({ schema });
 
 const graphqlHTTP = makeHandler(GQL);
 

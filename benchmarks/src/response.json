@@ -1,0 +1,30 @@
+{
+  "data": {
+    "article": {
+      "__typename": "Article",
+      "id": "1",
+      "isPublished": true,
+      "title": "My Article 1",
+      "body": "This is a post",
+      "author": {
+        "__typename": "Author",
+        "id": "123",
+        "name": "John Smith",
+        "pic": {
+          "__typename": "Image",
+          "url": "cdn://123",
+          "width": 640,
+          "height": 480
+        },
+        "recentArticle": {
+          "__typename": "Article",
+          "id": "1",
+          "isPublished": true,
+          "title": "My Article 1",
+          "body": "This is a post",
+          "keywords": ["foo", "bar", "1", "true", null]
+        }
+      }
+    }
+  }
+}

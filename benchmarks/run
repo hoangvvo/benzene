@@ -1,16 +1,32 @@
 #!/usr/bin/env bash
 
+fuser -k 4000/tcp
+mkdir -p results
+
 server="$1"
 
-NODE_ENV=production node library/$server &
-pid=$!
+pid=0
 
-printf "$server\n"
+if [[ $server == *.deno ]]
+then
+  deno run --allow-net --import-map=import_map.json library/$server.js &
+  pid=$!
+elif [[ $server == *.bun ]]
+then
+  bun run library/$server.js
+else
+  NODE_ENV=production node library/$server &
+  pid=$!; fi
+
+printf "benchmarking $server...\n"
 
 # Warm up
-hey -z 5s -D body.json -T application/json -m POST http://localhost:4000/graphql > /dev/null
+sleep 2
+wrk -d 3s -t 1 -c 1 -s src/post.lua http://localhost:4000/graphql > /dev/null
 
-hey -c 100 -z 8s -D body.json -T application/json -m POST http://localhost:4000/graphql \
-  | grep 'Slowest' -A 4
+# Benchmark
+wrk -t12 -c400 -d8s -s src/post.lua http://localhost:4000/graphql | sed -n '/json result:/,$p' | sed '1d' > results/$server.json
+
+printf "\n"
 
 kill $pid

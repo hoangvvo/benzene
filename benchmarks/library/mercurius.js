@@ -1,6 +1,6 @@
 import Fastify from "fastify";
 import mercurius from "mercurius";
-import schema from "../schema.js";
+import schema from "../src/schema.js";
 
 const app = Fastify();
 

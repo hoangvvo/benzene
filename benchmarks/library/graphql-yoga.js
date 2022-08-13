@@ -1,5 +1,5 @@
 import { createServer } from "@graphql-yoga/node";
-import schema from "../schema.js";
+import schema from "../src/schema.js";
 
 const server = createServer({
   schema,

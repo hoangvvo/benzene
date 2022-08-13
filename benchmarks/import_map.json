@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "@benzene/http": "https://cdn.skypack.dev/@benzene/http?dts",
+    "graphql": "https://cdn.skypack.dev/graphql@v16.3.0"
+  }
+}

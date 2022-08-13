@@ -7,3 +7,4 @@ file=${path##*/}
 base=${file%.*}
 ./run $base
 done
+node table.js
