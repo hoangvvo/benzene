@@ -1,16 +1,14 @@
 {
   "compilerOptions": {
-    "lib": ["es2020"],
+    "lib": ["ES2020"],
     "module": "ESNext",
-    "target": "es2019",
+    "target": "ES2020",
     "strict": true,
-    "declaration": true,
-    "skipLibCheck": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "declaration": true
   },
   "exclude": ["node_modules", "dist"]
 }
