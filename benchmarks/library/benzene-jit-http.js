@@ -1,9 +1,7 @@
-"use strict";
-
-const { createServer } = require("http");
-const { Benzene, makeHandler, parseGraphQLBody } = require("@benzene/http");
-const { makeCompileQuery } = require("@benzene/jit");
-const schema = require("../schema");
+import { Benzene, makeHandler, parseGraphQLBody } from "@benzene/http";
+import { makeCompileQuery } from "@benzene/jit";
+import { createServer } from "http";
+import schema from "../src/schema.js";
 
 const GQL = new Benzene({ schema, compileQuery: makeCompileQuery() });
 

@@ -1,8 +1,6 @@
-"use strict";
-
-const Fastify = require("fastify");
-const mercurius = require("mercurius");
-const schema = require("../schema");
+import Fastify from "fastify";
+import mercurius from "mercurius";
+import schema from "../schema.js";
 
 const app = Fastify();
 
@@ -11,4 +9,6 @@ app.register(mercurius, {
   jit: 1,
 });
 
-app.listen(4000);
+app.listen({
+  port: 4000,
+});

@@ -1,7 +1,6 @@
-const fs = require("fs");
+import { readFileSync } from "fs";
 
-const arr = fs
-  .readFileSync("./results.txt", { encoding: "utf-8" })
+const arr = readFileSync("./results.txt", { encoding: "utf-8" })
   .toString()
   .trim()
   .split("\n");

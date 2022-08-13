@@ -53,18 +53,24 @@ To run all benchmarks at once:
 
 [Create a PR](https://github.com/hoangvvo/benzene/pulls) to add one.
 
-Also check out [benawad/node-graphql-benchmarks](https://github.com/benawad/node-graphql-benchmarks) for more benchmarks.
+To create a markdown table from the result:
+
+```bash
+./runall > results.txt
+node hey-to-table.js
+```
 
 ## Result
 
-Machine: Linux 5.11.0-17-generic x86_64 | 12 vCPUs | 16GB
-Node: v16.0.0
+Machine: Linux 5.17.0-051700-generic x86_64 | 12 vCPUs | 16GB
+Node: v18.7.0
 
 | Library          | Requests/s | Latency |
 | ---------------- | ---------- | ------- |
-| benzene-jit-http | 24789.2541 | 0.004   |
-| mercurius        | 21658.6016 | 0.0046  |
-| benzene-http     | 11627.693  | 0.0086  |
-| apollo-server    | 3348.3177  | 0.0298  |
-| express-graphql  | 2625.843   | 0.038   |
-| graphql-helix    | 2386.6439  | 0.0418  |
+| benzene-jit-http | 18605.6566 | 0.0054  |
+| mercurius        | 15734.2445 | 0.0064  |
+| benzene-http     | 11131.1607 | 0.009   |
+| graphql-yoga     | 6410.0653  | 0.0156  |
+| apollo-server    | 3992.5057  | 0.025   |
+| graphql-helix    | 2456.5316  | 0.0406  |
+| express-graphql  | 2138.087   | 0.0466  |

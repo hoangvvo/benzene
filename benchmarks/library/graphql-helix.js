@@ -1,9 +1,7 @@
 // Based on https://github.com/contrawork/graphql-helix/blob/master/examples/http/server.ts
-"use strict";
-
-const { createServer } = require("http");
-const { getGraphQLParameters, processRequest } = require("graphql-helix");
-const schema = require("../schema");
+import { getGraphQLParameters, processRequest } from "graphql-helix";
+import { createServer } from "http";
+import schema from "../src/schema.js";
 
 createServer((req, res) => {
   let payload = "";

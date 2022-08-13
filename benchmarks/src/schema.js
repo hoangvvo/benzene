@@ -1,4 +1,4 @@
-const {
+import {
   GraphQLBoolean,
   GraphQLID,
   GraphQLInt,
@@ -7,7 +7,7 @@ const {
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLString,
-} = require("graphql");
+} from "graphql";
 
 const BlogImage = new GraphQLObjectType({
   name: "Image",
@@ -132,6 +132,6 @@ const BlogQuery = new GraphQLObjectType({
   },
 });
 
-module.exports = new GraphQLSchema({
+export default new GraphQLSchema({
   query: BlogQuery,
 });
