@@ -39,11 +39,13 @@ Run benchmarks:
 
 The following can be used as `<library>`:
 
-- [`apollo-server`](https://github.com/apollographql/apollo-server)
 - `benzene-jit-http` ([`@benzene/http`](https://github.com/hoangvvo/benzene/tree/main/packages/http) with [JIT runtime](https://benzene.vercel.app/reference/runtime#graphql-jit))
 - `benzene-http` ([`@benzene/http`](https://github.com/hoangvvo/benzene/tree/main/packages/http))
-- [`express-graphql`](https://github.com/graphql/express-graphql)
+- [`apollo-server`](https://github.com/apollographql/apollo-server)
 - [`mercurius`](https://github.com/mercurius-js/mercurius) (with JIT)
+- [`graphql-yoga`](https://www.graphql-yoga.com/)
+- [`graphql-helix`](https://github.com/contra/graphql-helix)
+- [`express-graphql`](https://github.com/graphql/express-graphql)
 
 To run all benchmarks at once:
 
